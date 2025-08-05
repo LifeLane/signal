@@ -25,7 +25,6 @@ export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 export default function TradeVisionPage() {
-  const [isMounted, setIsMounted] = useState(false);
   const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(true);
   const [symbol, setSymbol] = useState<Symbol>('BTC');
@@ -57,20 +56,16 @@ export default function TradeVisionPage() {
   }, []);
 
   useEffect(() => {
-    // This effect runs only on the client, after the component has mounted.
-    setIsMounted(true);
     fetchMarketData(symbol);
   }, [symbol, fetchMarketData]);
 
 
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
-    // Data will be refetched by the useEffect hook
   };
 
   const handleIntervalChange = (newInterval: Interval) => {
     setInterval(newInterval);
-    // Refetch or update data based on interval if necessary
   };
 
   const handleGetSignal = async () => {
@@ -92,19 +87,6 @@ export default function TradeVisionPage() {
       }
     });
   };
-  
-  if (!isMounted) {
-    return (
-      <div className="bg-background text-foreground h-full flex flex-col">
-        <AppHeader />
-        <div className="flex-1 flex items-center justify-center">
-          <Loader className="animate-spin" />
-        </div>
-        <Separator className="bg-border/20" />
-        <BottomBar />
-      </div>
-    );
-  }
 
   return (
     <div className="bg-background text-foreground h-full flex flex-col">
