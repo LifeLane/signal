@@ -25,6 +25,7 @@ export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 export default function TradeVisionPage() {
+  const [isClient, setIsClient] = useState(false);
   const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(true);
   const [symbol, setSymbol] = useState<Symbol>('BTC');
@@ -34,6 +35,10 @@ export default function TradeVisionPage() {
   const [signal, setSignal] = useState<GenerateTradingSignalOutput | null>(
     null
   );
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
     setDataLoading(true);
@@ -56,8 +61,10 @@ export default function TradeVisionPage() {
   }, []);
 
   useEffect(() => {
-    fetchMarketData(symbol);
-  }, [symbol, fetchMarketData]);
+    if (isClient) {
+      fetchMarketData(symbol);
+    }
+  }, [symbol, fetchMarketData, isClient]);
 
 
   const handleSymbolChange = (newSymbol: Symbol) => {
@@ -94,93 +101,97 @@ export default function TradeVisionPage() {
       <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         
-        {isDataLoading && !marketData ? (
-           <div className="h-48 flex items-center justify-center">
-            <Loader className="animate-spin" />
-          </div>
-        ) : !marketData ? (
-          <div className="h-48 flex flex-col items-center justify-center text-center p-4">
-            <p className="text-destructive mb-4">Failed to load market data.</p>
-            <Button onClick={() => fetchMarketData(symbol)}>Retry</Button>
-          </div>
-        ) : (
+        {isClient && (
           <>
-            <PriceDisplay price={marketData.price} change={marketData.change} />
-            {signal ? (
-              <>
-                <StrategyCard strategy={signal} />
-                <RiskAnalysisCard
-                  riskLevel={riskLevel}
-                  onSetRiskLevel={setRiskLevel}
-                  riskRating={signal.riskRating}
-                  gptConfidence={signal.gptConfidenceScore}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <IndicatorCard
-                    title="RSI"
-                    value={marketData.rsi.toFixed(2)}
-                    interpretation={signal.rsiInterpretation}
-                    gaugeValue={marketData.rsi}
-                  />
-                  <IndicatorCard
-                    title="ADX"
-                    value={marketData.adx.toFixed(2)}
-                    interpretation={signal.adxInterpretation}
-                    gaugeValue={marketData.adx}
-                  />
-                  <IndicatorCard
-                    title="EMA"
-                    value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    interpretation={signal.emaInterpretation}
-                  />
-                  <IndicatorCard
-                    title="VWAP"
-                    value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    interpretation={signal.vwapInterpretation}
-                  />
-                  <IndicatorCard
-                    title="Parabolic SAR"
-                    value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    interpretation={signal.sarInterpretation}
-                  />
-                  <IndicatorCard
-                    title="Bollinger Bands"
-                    value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-                    interpretation={signal.bollingerBandsInterpretation}
-                  />
-                </div>
-              </>
+            {isDataLoading && !marketData ? (
+              <div className="h-48 flex items-center justify-center">
+                <Loader className="animate-spin" />
+              </div>
+            ) : !marketData ? (
+              <div className="h-48 flex flex-col items-center justify-center text-center p-4">
+                <p className="text-destructive mb-4">Failed to load market data.</p>
+                <Button onClick={() => fetchMarketData(symbol)}>Retry</Button>
+              </div>
             ) : (
               <>
-                <MomentumCard />
-                <RiskAnalysisCard
-                  riskLevel={riskLevel}
-                  onSetRiskLevel={setRiskLevel}
+                <PriceDisplay price={marketData.price} change={marketData.change} />
+                {signal ? (
+                  <>
+                    <StrategyCard strategy={signal} />
+                    <RiskAnalysisCard
+                      riskLevel={riskLevel}
+                      onSetRiskLevel={setRiskLevel}
+                      riskRating={signal.riskRating}
+                      gptConfidence={signal.gptConfidenceScore}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <IndicatorCard
+                        title="RSI"
+                        value={marketData.rsi.toFixed(2)}
+                        interpretation={signal.rsiInterpretation}
+                        gaugeValue={marketData.rsi}
+                      />
+                      <IndicatorCard
+                        title="ADX"
+                        value={marketData.adx.toFixed(2)}
+                        interpretation={signal.adxInterpretation}
+                        gaugeValue={marketData.adx}
+                      />
+                      <IndicatorCard
+                        title="EMA"
+                        value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        interpretation={signal.emaInterpretation}
+                      />
+                      <IndicatorCard
+                        title="VWAP"
+                        value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        interpretation={signal.vwapInterpretation}
+                      />
+                      <IndicatorCard
+                        title="Parabolic SAR"
+                        value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        interpretation={signal.sarInterpretation}
+                      />
+                      <IndicatorCard
+                        title="Bollinger Bands"
+                        value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                        interpretation={signal.bollingerBandsInterpretation}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <MomentumCard />
+                    <RiskAnalysisCard
+                      riskLevel={riskLevel}
+                      onSetRiskLevel={setRiskLevel}
+                    />
+                  </>
+                )}
+
+                <MarketDataCard
+                  volume={marketData.volume24h}
+                  marketCap={marketData.marketCap}
+                />
+                <PositionRatioCard
+                  ratio={marketData.longShortRatio}
+                  selectedInterval={interval}
+                  onSelectInterval={handleIntervalChange}
                 />
               </>
             )}
 
-            <MarketDataCard
-              volume={marketData.volume24h}
-              marketCap={marketData.marketCap}
-            />
-            <PositionRatioCard
-              ratio={marketData.longShortRatio}
-              selectedInterval={interval}
-              onSelectInterval={handleIntervalChange}
-            />
+            <Button
+              size="lg"
+              className="w-full h-12 text-lg font-bold"
+              onClick={handleGetSignal}
+              disabled={isSignalPending || isDataLoading}
+            >
+              {isSignalPending || isDataLoading ? <Loader className="animate-spin" /> : 'Get Signal'}
+            </Button>
+            <div className="h-24"></div>
           </>
         )}
-
-        <Button
-          size="lg"
-          className="w-full h-12 text-lg font-bold"
-          onClick={handleGetSignal}
-          disabled={isSignalPending || isDataLoading}
-        >
-          {isSignalPending || isDataLoading ? <Loader className="animate-spin" /> : 'Get Signal'}
-        </Button>
-        <div className="h-24"></div>
       </main>
       <Separator className="bg-border/20" />
       <BottomBar />
