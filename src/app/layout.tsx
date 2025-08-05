@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'TradeVision AI',
-  description: 'Quantum-Powered Trading Signal Web App',
+  title: 'Pluto AI',
+  description: 'AI Trading Analysis Tool',
 };
 
 export default function RootLayout({
@@ -17,10 +17,12 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased">
-        {children}
+      <body className="font-body antialiased bg-background">
+        <div className="relative mx-auto max-w-sm h-dvh overflow-hidden border-x border-border/20">
+          {children}
+        </div>
         <Toaster />
       </body>
     </html>
