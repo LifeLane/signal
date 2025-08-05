@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { fetchNews } from '../tools/news-tool';
 
 const GenerateTradingSignalInputSchema = z.object({
   symbol: z.string().describe('The trading symbol (e.g., BTCUSDT).'),
@@ -68,7 +69,10 @@ const generateTradingSignalPrompt = ai.definePrompt({
   name: 'generateTradingSignalPrompt',
   input: {schema: GenerateTradingSignalInputSchema},
   output: {schema: GenerateTradingSignalOutputSchema},
+  tools: [fetchNews],
   prompt: `You are an AI trading strategy assistant. Analyze the provided market data, technical indicators, and user risk level to generate a trading signal.
+
+First, use the fetchNews tool to get the latest news about the provided symbol.
 
 Market Data:
 - Symbol: {{symbol}}
@@ -89,7 +93,7 @@ Technical Indicators:
 
 User Risk Level: {{riskLevel}}
 
-Based on this information, provide a trading signal (BUY, SELL, or HOLD), an entry zone, stop loss, take profit, confidence level, AI-assessed risk rating, a sentiment summary, and a sarcastic disclaimer.
+Based on this information and the latest news, provide a trading signal (BUY, SELL, or HOLD), an entry zone, stop loss, take profit, confidence level, AI-assessed risk rating, a sentiment summary, and a sarcastic disclaimer.
 
 For each technical indicator, provide a detailed interpretation. Explain what the current value means and its potential impact on the price.
 
