@@ -17,6 +17,7 @@ import { StrategyCard } from './strategy-card';
 import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
 import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
+import { TechnicalAnalysisCard } from './technical-analysis-card';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -28,6 +29,12 @@ export interface MarketData {
   volume24h: number;
   marketCap: number;
   longShortRatio: number;
+  rsi: number;
+  ema: number;
+  vwap: number;
+  bollingerBands: { upper: number; lower: number; };
+  sar: number;
+  adx: number;
 }
 
 const generateMockData = (symbol: Symbol): MarketData => {
@@ -51,6 +58,15 @@ const generateMockData = (symbol: Symbol): MarketData => {
     volume24h,
     marketCap,
     longShortRatio: parseFloat((50 + (Math.random() - 0.5) * 5).toFixed(2)),
+    rsi: parseFloat((30 + Math.random() * 40).toFixed(2)),
+    ema: price * (1 - 0.01 * (Math.random() - 0.5)),
+    vwap: price * (1 - 0.01 * (Math.random() - 0.5)),
+    bollingerBands: {
+        upper: price * 1.05,
+        lower: price * 0.95
+    },
+    sar: price * (1 - 0.02 * (Math.random() > 0.5 ? 1 : -1)),
+    adx: parseFloat((10 + Math.random() * 40).toFixed(2))
   };
 };
 
@@ -70,7 +86,7 @@ export default function TradeVisionPage() {
     const data = generateMockData(symbol);
     setMarketData(data);
     setSignal(null);
-  }, [symbol]);
+  }, [symbol, interval]);
 
   const handleGetSignal = async () => {
     startTransition(async () => {
@@ -82,12 +98,12 @@ export default function TradeVisionPage() {
           volume24h: marketData.volume24h,
           marketCap: marketData.marketCap,
           sentiment: 'Bullish', // Mock data
-          rsi: 35.7,
-          ema: 67000,
-          vwap: 67100,
-          bollingerBands: { upper: 68000, lower: 66000 },
-          sar: 65000,
-          adx: 68.2,
+          rsi: marketData.rsi,
+          ema: marketData.ema,
+          vwap: marketData.vwap,
+          bollingerBands: marketData.bollingerBands,
+          sar: marketData.sar,
+          adx: marketData.adx,
           riskLevel,
         };
         const result = await getTradingSignalAction(input);
@@ -137,6 +153,14 @@ export default function TradeVisionPage() {
           ratio={marketData.longShortRatio}
           selectedInterval={interval}
           onSelectInterval={setInterval}
+        />
+        <TechnicalAnalysisCard 
+            rsi={marketData.rsi}
+            ema={marketData.ema}
+            vwap={marketData.vwap}
+            bollingerBands={marketData.bollingerBands}
+            sar={marketData.sar}
+            adx={marketData.adx}
         />
         
         <Button
