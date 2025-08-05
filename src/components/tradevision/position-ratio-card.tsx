@@ -1,10 +1,10 @@
 'use client';
 import type { Dispatch, SetStateAction } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Interval } from './tradevision-page';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Badge } from '../ui/badge';
+import { Progress } from '../ui/progress';
 
 interface PositionRatioCardProps {
   ratio: number;
@@ -20,13 +20,16 @@ export function PositionRatioCard({ ratio, selectedInterval, onSelectInterval }:
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span className='text-base font-semibold'>Long/Short Position Ratio</span>
-           <Badge variant="outline" className='rounded-md bg-muted text-muted-foreground'>1d</Badge>
         </CardTitle>
+        <CardDescription>Overall market sentiment based on positions.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Badge variant="default" className="bg-green-500/20 text-green-400 border-none font-semibold">LONG</Badge>
-          <span className="text-xl font-semibold">{ratio}%</span>
+        <div>
+          <div className="flex justify-between text-sm mb-1">
+            <span className="text-green-400">Long {ratio.toFixed(2)}%</span>
+            <span className="text-red-400">Short {(100-ratio).toFixed(2)}%</span>
+          </div>
+          <Progress value={ratio} className="h-2 [&>div]:bg-gradient-to-r [&>div]:from-green-500 [&>div]:to-red-500" />
         </div>
         <div className="flex items-center gap-2">
           {intervals.map((interval) => (
@@ -36,7 +39,7 @@ export function PositionRatioCard({ ratio, selectedInterval, onSelectInterval }:
               size="sm"
               onClick={() => onSelectInterval(interval)}
               className={cn(
-                'rounded-lg text-sm font-medium flex-1 h-8',
+                'rounded-lg text-xs font-medium flex-1 h-8',
                 'bg-muted hover:bg-primary/20 text-muted-foreground',
                 selectedInterval === interval && 'bg-primary text-primary-foreground'
               )}

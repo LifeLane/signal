@@ -1,41 +1,26 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HelpCircle } from 'lucide-react';
-
-const TrendMeter = ({ value, label, color }: { value: number; label: string; color: string }) => (
-  <div className="flex flex-col items-center gap-2">
-    <div className="w-12 h-20 bg-muted rounded-full overflow-hidden flex flex-col-reverse">
-      <div style={{ height: `${value}%` }} className={color} />
-    </div>
-    <span className="text-sm text-muted-foreground">{label} {value}</span>
-  </div>
-);
+import { Info } from 'lucide-react';
 
 export function CurrentTrendCard() {
   return (
     <Card className='bg-card'>
       <CardHeader className="flex-row items-center justify-between pb-2">
-        <CardTitle className='text-base font-semibold text-primary'>Current Trend</CardTitle>
-        <span className="text-xs text-muted-foreground">05:30 Analysis</span>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center gap-4">
-        <div className="w-32 h-32 rounded-full bg-yellow-400/20 flex items-center justify-center text-center">
-          <div className="w-28 h-28 rounded-full bg-yellow-400 flex items-center justify-center">
-            <span className="font-semibold text-lg text-background">Weak<br />Uptrend</span>
-          </div>
-        </div>
-        <div className="text-center">
-          <p className="text-muted-foreground">Momentum</p>
-          <p className="text-red-400 font-semibold text-lg">Increased Downtrend potential</p>
-        </div>
-        <div className="flex justify-around w-full">
-          <TrendMeter value={25} label="Uptrend" color="bg-green-500" />
-          <TrendMeter value={50} label="Downtrend" color="bg-red-500" />
-          <TrendMeter value={25} label="Consolidation" color="bg-yellow-500" />
-        </div>
+        <CardTitle className='text-base font-semibold'>Current Trend</CardTitle>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>Momentum: Indicates potential gradual trend shift</span>
-          <HelpCircle className="w-4 h-4" />
+          <span>1h</span>
+          <Info className="w-4 h-4" />
+        </div>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-4 items-center">
+        <div className="w-32 h-32 rounded-full border-[6px] border-primary bg-primary/20 flex items-center justify-center text-center mx-auto">
+            <span className="font-semibold text-lg text-foreground">Strong<br />Sell</span>
+        </div>
+        <div className="text-sm space-y-2">
+            <div className='flex justify-between'><span>RSI (14)</span> <strong>35.7 (Sell)</strong></div>
+            <div className='flex justify-between'><span>STOCH (9,6)</span> <strong>42.1 (Sell)</strong></div>
+            <div className='flex justify-between'><span>MACD (12,26)</span> <strong>-2.3 (Sell)</strong></div>
+            <div className='flex justify-between'><span>ADX (14)</span> <strong>68.2 (Sell)</strong></div>
         </div>
       </CardContent>
     </Card>

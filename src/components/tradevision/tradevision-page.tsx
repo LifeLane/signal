@@ -44,7 +44,15 @@ export default function TradeVisionPage() {
   const [marketData, setMarketData] = useState<MarketData>(generateMockData('BTC'));
 
   useEffect(() => {
-    setMarketData(generateMockData(symbol));
+    const data = generateMockData(symbol)
+    setMarketData(data);
+  }, [symbol]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setMarketData(generateMockData(symbol));
+    }, 5000);
+    return () => clearInterval(intervalId);
   }, [symbol]);
 
   return (
@@ -59,7 +67,6 @@ export default function TradeVisionPage() {
           selectedInterval={interval}
           onSelectInterval={setInterval}
         />
-        {/* Placeholder for future components */}
         <div className="h-24"></div>
       </main>
       <Separator className="bg-border/20"/>
