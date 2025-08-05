@@ -97,7 +97,7 @@ export default function TradeVisionPage() {
     return (
       <div className="bg-background text-foreground h-full flex flex-col">
         <AppHeader />
-        <div className="h-full flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center">
           <Loader className="animate-spin" />
         </div>
         <Separator className="bg-border/20" />
