@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { getTradingSignalAction } from '@/app/actions';
+import { getTradingSignalAction, getMarketDataAction } from '@/app/actions';
 
 import { AppHeader } from './header';
 import { SymbolSelector } from './symbol-selector';
@@ -19,60 +19,15 @@ import { MarketDataCard } from './market-data-card';
 import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
 import { TechnicalAnalysisCard } from './technical-analysis-card';
 import { IndicatorCard } from './indicator-card';
+import type { MarketData } from '@/services/market-data';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
-export interface MarketData {
-  price: number;
-  change: number;
-  volume24h: number;
-  marketCap: number;
-  longShortRatio: number;
-  rsi: number;
-  ema: number;
-  vwap: number;
-  bollingerBands: { upper: number; lower: number };
-  sar: number;
-  adx: number;
-}
-
-const generateMockData = (symbol: Symbol): MarketData => {
-  const basePrices: Record<Symbol, number> = {
-    BTC: 67215.4,
-    ETH: 3400.5,
-    XRP: 0.48,
-    SOL: 150.2,
-    DOGE: 0.15,
-  };
-  const basePrice = basePrices[symbol];
-  const price = parseFloat(
-    (basePrice + (Math.random() - 0.5) * (basePrice * 0.05))
-  );
-  const change = parseFloat(((Math.random() - 0.4) * 5).toFixed(2));
-  const volume24h = Math.random() * 1000000000;
-  const marketCap = Math.random() * 1000000000000;
-  return {
-    price,
-    change,
-    volume24h,
-    marketCap,
-    longShortRatio: parseFloat((50 + (Math.random() - 0.5) * 5).toFixed(2)),
-    rsi: parseFloat((30 + Math.random() * 40).toFixed(2)),
-    ema: price * (1 - 0.01 * (Math.random() - 0.5)),
-    vwap: price * (1 - 0.01 * (Math.random() - 0.5)),
-    bollingerBands: {
-      upper: price * 1.05,
-      lower: price * 0.95,
-    },
-    sar: price * (1 - 0.02 * (Math.random() > 0.5 ? 1 : -1)),
-    adx: parseFloat((10 + Math.random() * 40).toFixed(2)),
-  };
-};
-
 export default function TradeVisionPage() {
   const [isPending, startTransition] = useTransition();
+  const [isDataLoading, setDataLoading] = useState(true);
   const [symbol, setSymbol] = useState<Symbol>('BTC');
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
@@ -81,37 +36,43 @@ export default function TradeVisionPage() {
     null
   );
 
-  useEffect(() => {
-    const data = generateMockData(symbol);
-    setMarketData(data);
-    setSignal(null);
+  const fetchMarketData = useCallback(() => {
+    setDataLoading(true);
+    getMarketDataAction(symbol)
+      .then((data) => {
+        setMarketData(data);
+      })
+      .catch((e) => {
+        toast({
+          variant: 'destructive',
+          title: 'Error fetching market data',
+          description: e.message,
+        });
+        setMarketData(null);
+      })
+      .finally(() => {
+        setDataLoading(false);
+      });
   }, [symbol]);
 
   useEffect(() => {
+    fetchMarketData();
+    setSignal(null);
+  }, [symbol, fetchMarketData]);
+
+  useEffect(() => {
     if (interval) {
-        const data = generateMockData(symbol);
-        setMarketData(data);
-        setSignal(null);
+      fetchMarketData();
+      setSignal(null);
     }
-  }, [interval, symbol]);
+  }, [interval, fetchMarketData]);
 
   const handleGetSignal = async () => {
     if (!marketData) return;
     startTransition(async () => {
       try {
         const input = {
-          symbol: `${symbol}USDT`,
-          interval,
-          price: marketData.price,
-          volume24h: marketData.volume24h,
-          marketCap: marketData.marketCap,
-          sentiment: 'Bullish', // Mock data
-          rsi: marketData.rsi,
-          ema: marketData.ema,
-          vwap: marketData.vwap,
-          bollingerBands: marketData.bollingerBands,
-          sar: marketData.sar,
-          adx: marketData.adx,
+          symbol: symbol,
           riskLevel,
         };
         const result = await getTradingSignalAction(input);
@@ -126,10 +87,19 @@ export default function TradeVisionPage() {
     });
   };
 
-  if (!marketData) {
+  if (isDataLoading && !marketData) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (!marketData) {
+     return (
+      <div className="h-full flex flex-col items-center justify-center text-center p-4">
+        <p className="text-destructive mb-4">Failed to load market data.</p>
+        <Button onClick={fetchMarketData}>Retry</Button>
       </div>
     );
   }
@@ -217,9 +187,9 @@ export default function TradeVisionPage() {
           size="lg"
           className="w-full h-12 text-lg font-bold"
           onClick={handleGetSignal}
-          disabled={isPending}
+          disabled={isPending || isDataLoading}
         >
-          {isPending ? <Loader className="animate-spin" /> : 'Get Signal'}
+          {isPending || isDataLoading ? <Loader className="animate-spin" /> : 'Get Signal'}
         </Button>
         <div className="h-24"></div>
       </main>

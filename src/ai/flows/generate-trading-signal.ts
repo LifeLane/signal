@@ -11,25 +11,10 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { fetchNews } from '../tools/news-tool';
+import { fetchMarketData } from '../tools/market-data-tool';
 
 const GenerateTradingSignalInputSchema = z.object({
-  symbol: z.string().describe('The trading symbol (e.g., BTCUSDT).'),
-  interval: z.string().describe('The time interval (e.g., 1m, 15m, 1h, 4h).'),
-  price: z.number().describe('The current price of the symbol.'),
-  volume24h: z.number().describe('The 24-hour trading volume.'),
-  marketCap: z.number().describe('The market capitalization of the symbol.'),
-  sentiment: z.string().describe('The current market sentiment (e.g., Bullish, Bearish).'),
-  rsi: z.number().describe('The Relative Strength Index value.'),
-  ema: z.number().describe('The Exponential Moving Average value.'),
-  vwap: z.number().describe('The Volume Weighted Average Price value.'),
-  bollingerBands: z
-    .object({
-      upper: z.number(),
-      lower: z.number(),
-    })
-    .describe('Bollinger Bands values.'),
-  sar: z.number().describe('The Parabolic SAR value.'),
-  adx: z.number().describe('The Average Directional Index value.'),
+  symbol: z.string().describe('The trading symbol (e.g., BTC, ETH).'),
   riskLevel: z
     .enum(['Low', 'Medium', 'High'])
     .describe('The user-selected risk level.'),
@@ -69,40 +54,24 @@ const generateTradingSignalPrompt = ai.definePrompt({
   name: 'generateTradingSignalPrompt',
   input: {schema: GenerateTradingSignalInputSchema},
   output: {schema: GenerateTradingSignalOutputSchema},
-  tools: [fetchNews],
+  tools: [fetchNews, fetchMarketData],
   prompt: `You are an AI trading strategy assistant. Analyze the provided market data, technical indicators, and user risk level to generate a trading signal.
 
-First, use the fetchNews tool to get the latest news about the provided symbol.
-
-Market Data:
-- Symbol: {{symbol}}
-- Interval: {{interval}}
-- Price: {{price}}
-- 24h Volume: {{volume24h}}
-- Market Cap: {{marketCap}}
-- Sentiment: {{sentiment}}
-
-Technical Indicators:
-- RSI: {{rsi}}
-- EMA: {{ema}}
-- VWAP: {{vwap}}
-- Bollinger Bands Upper: {{bollingerBands.upper}}
-- Bollinger Bands Lower: {{bollingerBands.lower}}
-- SAR: {{sar}}
-- ADX: {{adx}}
+First, use the fetchMarketData tool to get the latest market data for the provided symbol.
+Then, use the fetchNews tool to get the latest news about the provided symbol.
 
 User Risk Level: {{riskLevel}}
 
-Based on this information and the latest news, provide a trading signal (BUY, SELL, or HOLD), an entry zone, stop loss, take profit, confidence level, AI-assessed risk rating, a sentiment summary, and a sarcastic disclaimer.
+Based on the live market data and news, provide a trading signal (BUY, SELL, or HOLD), an entry zone, stop loss, take profit, confidence level, AI-assessed risk rating, a sentiment summary, and a sarcastic disclaimer.
 
-For each technical indicator, provide a detailed interpretation. Explain what the current value means and its potential impact on the price.
+For each technical indicator from the market data, provide a detailed interpretation. Explain what the current value means and its potential impact on the price.
 
-- rsiInterpretation: "The RSI is at {{rsi}}. An RSI below 30 suggests the asset may be oversold..."
-- emaInterpretation: "The price is trading relative to the {{ema}} EMA. This can indicate trend direction..."
-- vwapInterpretation: "The VWAP is at {{vwap}}. Trading above the VWAP is bullish..."
-- bollingerBandsInterpretation: "The price is near the {{bollingerBands.upper/lower}} band. This can signal overbought/oversold conditions..."
-- sarInterpretation: "The Parabolic SAR is at {{sar}}. A value below the price suggests an uptrend..."
-- adxInterpretation: "The ADX is at {{adx}}. A value above 25 indicates a strong trend..."
+- rsiInterpretation: "The RSI is at [RSI_VALUE]. An RSI below 30 suggests the asset may be oversold..."
+- emaInterpretation: "The price is trading relative to the [EMA_VALUE] EMA. This can indicate trend direction..."
+- vwapInterpretation: "The VWAP is at [VWAP_VALUE]. Trading above the VWAP is bullish..."
+- bollingerBandsInterpretation: "The price is near the [BB_VALUE] band. This can signal overbought/oversold conditions..."
+- sarInterpretation: "The Parabolic SAR is at [SAR_VALUE]. A value below the price suggests an uptrend..."
+- adxInterpretation: "The ADX is at [ADX_VALUE]. A value above 25 indicates a strong trend..."
 
 Consider the user's risk level when determining the trading signal and confidence level. Higher risk tolerance may allow for more aggressive signals.
 
