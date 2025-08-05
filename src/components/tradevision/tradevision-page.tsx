@@ -18,6 +18,7 @@ import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
 import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
 import { TechnicalAnalysisCard } from './technical-analysis-card';
+import { IndicatorCard } from './indicator-card';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -32,7 +33,7 @@ export interface MarketData {
   rsi: number;
   ema: number;
   vwap: number;
-  bollingerBands: { upper: number; lower: number; };
+  bollingerBands: { upper: number; lower: number };
   sar: number;
   adx: number;
 }
@@ -62,11 +63,11 @@ const generateMockData = (symbol: Symbol): MarketData => {
     ema: price * (1 - 0.01 * (Math.random() - 0.5)),
     vwap: price * (1 - 0.01 * (Math.random() - 0.5)),
     bollingerBands: {
-        upper: price * 1.05,
-        lower: price * 0.95
+      upper: price * 1.05,
+      lower: price * 0.95,
     },
     sar: price * (1 - 0.02 * (Math.random() > 0.5 ? 1 : -1)),
-    adx: parseFloat((10 + Math.random() * 40).toFixed(2))
+    adx: parseFloat((10 + Math.random() * 40).toFixed(2)),
   };
 };
 
@@ -75,9 +76,7 @@ export default function TradeVisionPage() {
   const [symbol, setSymbol] = useState<Symbol>('BTC');
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
-  const [marketData, setMarketData] = useState<MarketData>(
-    generateMockData('BTC')
-  );
+  const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [signal, setSignal] = useState<GenerateTradingSignalOutput | null>(
     null
   );
@@ -86,9 +85,18 @@ export default function TradeVisionPage() {
     const data = generateMockData(symbol);
     setMarketData(data);
     setSignal(null);
-  }, [symbol, interval]);
+  }, [symbol]);
+
+  useEffect(() => {
+    if (interval) {
+        const data = generateMockData(symbol);
+        setMarketData(data);
+        setSignal(null);
+    }
+  }, [interval, symbol]);
 
   const handleGetSignal = async () => {
+    if (!marketData) return;
     startTransition(async () => {
       try {
         const input = {
@@ -118,13 +126,21 @@ export default function TradeVisionPage() {
     });
   };
 
+  if (!marketData) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader className="animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background text-foreground h-full flex flex-col">
       <AppHeader />
       <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         <SymbolSelector selectedSymbol={symbol} onSelectSymbol={setSymbol} />
         <PriceDisplay price={marketData.price} change={marketData.change} />
-        
+
         {signal ? (
           <>
             <StrategyCard strategy={signal} />
@@ -134,6 +150,40 @@ export default function TradeVisionPage() {
               riskRating={signal.riskRating}
               gptConfidence={signal.gptConfidenceScore}
             />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <IndicatorCard
+                title="RSI"
+                value={marketData.rsi.toFixed(2)}
+                interpretation={signal.rsiInterpretation}
+                gaugeValue={marketData.rsi}
+              />
+              <IndicatorCard
+                title="ADX"
+                value={marketData.adx.toFixed(2)}
+                interpretation={signal.adxInterpretation}
+                gaugeValue={marketData.adx}
+              />
+              <IndicatorCard
+                title="EMA"
+                value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                interpretation={signal.emaInterpretation}
+              />
+              <IndicatorCard
+                title="VWAP"
+                value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                interpretation={signal.vwapInterpretation}
+              />
+              <IndicatorCard
+                title="Parabolic SAR"
+                value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                interpretation={signal.sarInterpretation}
+              />
+              <IndicatorCard
+                title="Bollinger Bands"
+                value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                interpretation={signal.bollingerBandsInterpretation}
+              />
+            </div>
           </>
         ) : (
           <>
@@ -154,26 +204,22 @@ export default function TradeVisionPage() {
           selectedInterval={interval}
           onSelectInterval={setInterval}
         />
-        <TechnicalAnalysisCard 
-            rsi={marketData.rsi}
-            ema={marketData.ema}
-            vwap={marketData.vwap}
-            bollingerBands={marketData.bollingerBands}
-            sar={marketData.sar}
-            adx={marketData.adx}
-        />
-        
+        {!signal && <TechnicalAnalysisCard
+          rsi={marketData.rsi}
+          ema={marketData.ema}
+          vwap={marketData.vwap}
+          bollingerBands={marketData.bollingerBands}
+          sar={marketData.sar}
+          adx={marketData.adx}
+        />}
+
         <Button
           size="lg"
           className="w-full h-12 text-lg font-bold"
           onClick={handleGetSignal}
           disabled={isPending}
         >
-          {isPending ? (
-            <Loader className="animate-spin" />
-          ) : (
-            'Get Signal'
-          )}
+          {isPending ? <Loader className="animate-spin" /> : 'Get Signal'}
         </Button>
         <div className="h-24"></div>
       </main>

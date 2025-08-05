@@ -49,6 +49,12 @@ const GenerateTradingSignalOutputSchema = z.object({
     .describe('The AI confidence score (0-100).'),
   sentiment: z.string().describe('A summary of the market sentiment.'),
   disclaimer: z.string().describe('A sarcastic disclaimer.'),
+  rsiInterpretation: z.string().describe("Interpretation of the RSI value."),
+  emaInterpretation: z.string().describe("Interpretation of the EMA value."),
+  vwapInterpretation: z.string().describe("Interpretation of the VWAP value."),
+  bollingerBandsInterpretation: z.string().describe("Interpretation of the Bollinger Bands."),
+  sarInterpretation: z.string().describe("Interpretation of the Parabolic SAR value."),
+  adxInterpretation: z.string().describe("Interpretation of the ADX value."),
 });
 export type GenerateTradingSignalOutput = z.infer<typeof GenerateTradingSignalOutputSchema>;
 
@@ -84,6 +90,15 @@ Technical Indicators:
 User Risk Level: {{riskLevel}}
 
 Based on this information, provide a trading signal (BUY, SELL, or HOLD), an entry zone, stop loss, take profit, confidence level, AI-assessed risk rating, a sentiment summary, and a sarcastic disclaimer.
+
+For each technical indicator, provide a detailed interpretation. Explain what the current value means and its potential impact on the price.
+
+- rsiInterpretation: "The RSI is at {{rsi}}. An RSI below 30 suggests the asset may be oversold..."
+- emaInterpretation: "The price is trading relative to the {{ema}} EMA. This can indicate trend direction..."
+- vwapInterpretation: "The VWAP is at {{vwap}}. Trading above the VWAP is bullish..."
+- bollingerBandsInterpretation: "The price is near the {{bollingerBands.upper/lower}} band. This can signal overbought/oversold conditions..."
+- sarInterpretation: "The Parabolic SAR is at {{sar}}. A value below the price suggests an uptrend..."
+- adxInterpretation: "The ADX is at {{adx}}. A value above 25 indicates a strong trend..."
 
 Consider the user's risk level when determining the trading signal and confidence level. Higher risk tolerance may allow for more aggressive signals.
 
