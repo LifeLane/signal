@@ -7,7 +7,7 @@ import { getTradingSignalAction } from '@/app/actions';
 import { AppHeader } from './header';
 import { SymbolSelector } from './symbol-selector';
 import { PriceDisplay } from './price-display';
-import { CurrentTrendCard } from './current-trend-card';
+import { MomentumCard } from './momentum-card';
 import { PositionRatioCard } from './position-ratio-card';
 import { BottomBar } from './bottom-bar';
 import { Separator } from '../ui/separator';
@@ -121,7 +121,7 @@ export default function TradeVisionPage() {
           </>
         ) : (
           <>
-            <CurrentTrendCard />
+            <MomentumCard />
             <RiskAnalysisCard
               riskLevel={riskLevel}
               onSetRiskLevel={setRiskLevel}

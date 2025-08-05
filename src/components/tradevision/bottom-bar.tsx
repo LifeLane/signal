@@ -1,13 +1,14 @@
 'use client';
-import { Home, Compass, BarChart, User } from 'lucide-react';
+import { LayoutGrid, Star, BarChart, Newspaper, Gem } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export function BottomBar() {
   const navItems = [
-    { icon: Home, label: 'Home' },
-    { icon: Compass, label: 'Discover' },
-    { icon: BarChart, label: 'Analytics' },
-    { icon: User, label: 'Profile' },
+    { icon: LayoutGrid, label: 'Prime' },
+    { icon: Star, label: 'Favorites' },
+    { icon: BarChart, label: 'Dashboard' },
+    { icon: Newspaper, label: 'AI News' },
+    { icon: Gem, label: 'Premium' },
   ];
 
   return (
