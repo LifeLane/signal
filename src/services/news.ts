@@ -26,6 +26,14 @@ export async function getNews(
 ): Promise<{title: string; description: string; url: string}[]> {
   const apiKey = process.env.NEWS_API_KEY;
   if (!apiKey) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('NEWS_API_KEY not set. Returning mock news data.');
+        return [
+            { title: 'Crypto Market Sees Unprecedented Surge', description: 'Experts weigh in on the recent bull run.', url: '#' },
+            { title: 'New Regulations Proposed for Digital Assets', description: 'Governments worldwide are considering new frameworks.', url: '#' },
+            { title: 'The Rise of Decentralized Finance (DeFi)', description: 'A look into the future of finance.', url: '#' },
+        ];
+    }
     throw new Error('NEWS_API_KEY is not set in the environment variables.');
   }
 
@@ -39,6 +47,10 @@ export async function getNews(
       throw new Error(`NewsAPI request failed with status ${response.status}`);
     }
     const data: NewsApiResponse = await response.json();
+
+    if (!data.articles || data.articles.length === 0) {
+        return [{title: `No recent news found for ${query}`, description: 'Please try another search term or check back later.', url: '#'}]
+    }
 
     return data.articles.map(article => ({
       title: article.title,

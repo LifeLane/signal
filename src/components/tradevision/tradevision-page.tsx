@@ -17,7 +17,6 @@ import { StrategyCard } from './strategy-card';
 import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
 import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
-import { TechnicalAnalysisCard } from './technical-analysis-card';
 import { IndicatorCard } from './indicator-card';
 import type { MarketData } from '@/services/market-data';
 
@@ -26,7 +25,8 @@ export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 export default function TradeVisionPage() {
-  const [isPending, startTransition] = useTransition();
+  const [isMounted, setIsMounted] = useState(false);
+  const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(true);
   const [symbol, setSymbol] = useState<Symbol>('BTC');
   const [interval, setInterval] = useState<Interval>('1d');
@@ -36,9 +36,10 @@ export default function TradeVisionPage() {
     null
   );
 
-  const fetchMarketData = useCallback(() => {
+  const fetchMarketData = useCallback((currentSymbol: Symbol) => {
     setDataLoading(true);
-    getMarketDataAction(symbol)
+    setSignal(null);
+    getMarketDataAction(currentSymbol)
       .then((data) => {
         setMarketData(data);
       })
@@ -53,23 +54,26 @@ export default function TradeVisionPage() {
       .finally(() => {
         setDataLoading(false);
       });
-  }, [symbol]);
+  }, []);
 
   useEffect(() => {
-    fetchMarketData();
-    setSignal(null);
-  }, [symbol, fetchMarketData]);
+    setIsMounted(true);
+    fetchMarketData(symbol);
+  }, []);
 
-  useEffect(() => {
-    if (interval) {
-      fetchMarketData();
-      setSignal(null);
-    }
-  }, [interval, fetchMarketData]);
+  const handleSymbolChange = (newSymbol: Symbol) => {
+    setSymbol(newSymbol);
+    fetchMarketData(newSymbol);
+  };
+
+  const handleIntervalChange = (newInterval: Interval) => {
+    setInterval(newInterval);
+    // Refetch or update data based on interval if necessary
+  };
 
   const handleGetSignal = async () => {
     if (!marketData) return;
-    startTransition(async () => {
+    startSignalTransition(async () => {
       try {
         const input = {
           symbol: symbol,
@@ -80,12 +84,21 @@ export default function TradeVisionPage() {
       } catch (e: any) {
         toast({
           variant: 'destructive',
-          title: 'Error',
+          title: 'Error Generating Signal',
           description: e.message,
         });
       }
     });
   };
+  
+  if (!isMounted) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader className="animate-spin" />
+      </div>
+    );
+  }
+
 
   if (isDataLoading && !marketData) {
     return (
@@ -99,7 +112,7 @@ export default function TradeVisionPage() {
      return (
       <div className="h-full flex flex-col items-center justify-center text-center p-4">
         <p className="text-destructive mb-4">Failed to load market data.</p>
-        <Button onClick={fetchMarketData}>Retry</Button>
+        <Button onClick={() => fetchMarketData(symbol)}>Retry</Button>
       </div>
     );
   }
@@ -108,7 +121,7 @@ export default function TradeVisionPage() {
     <div className="bg-background text-foreground h-full flex flex-col">
       <AppHeader />
       <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-        <SymbolSelector selectedSymbol={symbol} onSelectSymbol={setSymbol} />
+        <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         <PriceDisplay price={marketData.price} change={marketData.change} />
 
         {signal ? (
@@ -172,24 +185,16 @@ export default function TradeVisionPage() {
         <PositionRatioCard
           ratio={marketData.longShortRatio}
           selectedInterval={interval}
-          onSelectInterval={setInterval}
+          onSelectInterval={handleIntervalChange}
         />
-        {!signal && <TechnicalAnalysisCard
-          rsi={marketData.rsi}
-          ema={marketData.ema}
-          vwap={marketData.vwap}
-          bollingerBands={marketData.bollingerBands}
-          sar={marketData.sar}
-          adx={marketData.adx}
-        />}
 
         <Button
           size="lg"
           className="w-full h-12 text-lg font-bold"
           onClick={handleGetSignal}
-          disabled={isPending || isDataLoading}
+          disabled={isSignalPending || isDataLoading}
         >
-          {isPending || isDataLoading ? <Loader className="animate-spin" /> : 'Get Signal'}
+          {isSignalPending || isDataLoading ? <Loader className="animate-spin" /> : 'Get Signal'}
         </Button>
         <div className="h-24"></div>
       </main>

@@ -58,7 +58,7 @@ const generateTradingSignalPrompt = ai.definePrompt({
   prompt: `You are an AI trading strategy assistant. Analyze the provided market data, technical indicators, and user risk level to generate a trading signal.
 
 First, use the fetchMarketData tool to get the latest market data for the provided symbol.
-Then, use the fetchNews tool to get the latest news about the provided symbol.
+Then, use the fetchNews tool to get the latest news about the provided symbol. The query for the news tool should be the full name of the cryptocurrency (e.g. Bitcoin, Ethereum).
 
 User Risk Level: {{riskLevel}}
 

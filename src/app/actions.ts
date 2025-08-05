@@ -27,6 +27,13 @@ export async function getMarketDataAction(
     return result;
   } catch (error) {
     console.error('Error fetching market data:', error);
-    throw new Error('Failed to fetch market data. Please try again.');
+    // This is a user-facing error, so make it helpful.
+    if (error instanceof Error && error.message.includes('401')) {
+         throw new Error('Unauthorized: Invalid API Key. Please check your CoinMarketCap API key in the .env file.');
+    }
+     if (error instanceof Error && error.message.includes('400')) {
+         throw new Error(`Invalid request for symbol "${symbol}". Please check if the symbol is correct and supported.`);
+    }
+    throw new Error('Failed to fetch market data. Please try again later.');
   }
 }
