@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -101,7 +102,7 @@ export default function TradeVisionPage() {
       <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         
-        {isClient && (
+        {isClient ? (
           <>
             {isDataLoading && !marketData ? (
               <div className="h-48 flex items-center justify-center">
@@ -191,7 +192,9 @@ export default function TradeVisionPage() {
             </Button>
             <div className="h-24"></div>
           </>
-        )}
+        ) : <div className="h-48 flex items-center justify-center">
+                <Loader className="animate-spin" />
+              </div>}
       </main>
       <Separator className="bg-border/20" />
       <BottomBar />
