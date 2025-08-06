@@ -38,7 +38,7 @@ export function IntroHooks() {
       {hooks.map((line, i) => (
         <p key={i} className="overflow-hidden whitespace-nowrap">
             <span className="text-primary mr-2">&gt;</span>
-            <span className={visibleHooks[i] ? 'animate-typing' : 'opacity-0'}>
+            <span className={visibleHooks.length > i ? 'animate-typing' : 'opacity-0'}>
               {line}
             </span>
             {i === hooks.length - 1 && visibleHooks.length === hooks.length && (
