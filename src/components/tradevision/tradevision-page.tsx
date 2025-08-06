@@ -165,12 +165,6 @@ export default function TradeVisionPage() {
                 ) : null}
             </div>
 
-            <RiskAnalysisCard
-              riskLevel={riskLevel}
-              onSetRiskLevel={setRiskLevel}
-              riskRating={signal?.riskRating}
-              gptConfidence={signal?.gptConfidenceScore}
-            />
             
             {signal ? (
                <div className="grid grid-cols-1 gap-4">
@@ -222,6 +216,12 @@ export default function TradeVisionPage() {
               ratio={marketData.longShortRatio}
               selectedInterval={interval}
               onSelectInterval={handleIntervalChange}
+            />
+            <RiskAnalysisCard
+              riskLevel={riskLevel}
+              onSetRiskLevel={setRiskLevel}
+              riskRating={signal?.riskRating}
+              gptConfidence={signal?.gptConfidenceScore}
             />
              <Button
                 size="lg"
