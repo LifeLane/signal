@@ -13,7 +13,7 @@ import { PositionRatioCard } from './position-ratio-card';
 import { BottomBar } from './bottom-bar';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
-import { Loader } from 'lucide-react';
+import { Bot, Loader } from 'lucide-react';
 import { StrategyCard } from './strategy-card';
 import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
@@ -28,8 +28,8 @@ export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
-  const [isDataLoading, setDataLoading] = useState(true);
-  const [symbol, setSymbol] = useState<Symbol>('BTC');
+  const [isDataLoading, setDataLoading] = useState(false);
+  const [symbol, setSymbol] = useState<Symbol | null>(null);
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
   const [marketData, setMarketData] = useState<MarketData | null>(null);
@@ -57,13 +57,6 @@ export default function TradeVisionPage() {
         setDataLoading(false);
       });
   }, [toast]);
-
-  useEffect(() => {
-    if (symbol) {
-      fetchMarketData(symbol);
-    }
-  }, []);
-
 
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
@@ -97,14 +90,14 @@ export default function TradeVisionPage() {
   return (
     <div className="bg-background text-foreground h-full flex flex-col">
       <AppHeader />
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar neural-pulse-bg">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         
         {isDataLoading && !marketData ? (
           <div className="h-full flex items-center justify-center">
             <Loader className="animate-spin h-10 w-10 text-primary" />
           </div>
         ) : !symbol ? (
-          <div className="h-full flex flex-col justify-between">
+          <div className="h-full flex flex-col justify-center">
             <IntroAnimation />
             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
           </div>
@@ -177,11 +170,15 @@ export default function TradeVisionPage() {
             />
              <Button
                 size="lg"
-                className="w-full h-12 text-lg font-bold"
+                className="w-full h-12 text-lg font-bold relative group"
                 onClick={handleGetSignal}
                 disabled={isSignalPending || isDataLoading || !marketData}
               >
-                {isSignalPending ? <Loader className="animate-spin" /> : 'Get AI Signal'}
+                {isSignalPending ? <Loader className="animate-spin" /> : 
+                <span className="transition-all duration-200 group-hover:glitch-text" data-text="Get AI Signal">
+                    Get AI Signal
+                </span>
+                }
               </Button>
           </>
         ) : (

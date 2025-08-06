@@ -78,9 +78,28 @@
 }
 
 @layer utilities {
-  .neural-pulse-bg {
-    background-image: radial-gradient(hsl(var(--primary) / 0.1) 1px, transparent 1px);
-    background-size: 2rem 2rem;
-    animation: background-pan 20s linear infinite;
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: hsl(var(--background));
+  }
+
+  .glitch-text::before {
+    left: 2px;
+    text-shadow: -1px 0 hsl(var(--primary));
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+  }
+
+  .glitch-text::after {
+    left: -2px;
+    text-shadow: -1px 0 hsl(var(--accent));
+    clip: rect(85px, 450px, 90px, 0);
+    animation: glitch-anim-2 5s infinite linear alternate-reverse;
   }
 }

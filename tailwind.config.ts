@@ -94,25 +94,33 @@ export default {
           from: { width: '0' },
           to: { width: '100%' },
         },
-        'pulse-glow': {
-          '0%, 100%': {
-            boxShadow: '0 0 0 0px hsl(var(--primary) / 0.3)',
-          },
-          '50%': {
-            boxShadow: '0 0 0 4px hsl(var(--primary) / 0)',
-          },
+        'snap-in': {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
         },
-        'background-pan': {
-          '0%': { backgroundPosition: '0% 0%' },
-          '100%': { backgroundPosition: '-200% -200%' },
+        'glitch-anim': {
+          '0%': { clip: 'rect(32px, 9999px, 94px, 0)' },
+          '20%': { clip: 'rect(7px, 9999px, 86px, 0)' },
+          '40%': { clip: 'rect(48px, 9999px, 49px, 0)' },
+          '60%': { clip: 'rect(19px, 9999px, 98px, 0)' },
+          '80%': { clip: 'rect(4px, 9999px, 79px, 0)' },
+          '100%': { clip: 'rect(41px, 9999px, 98px, 0)' },
+        },
+        'glitch-anim-2': {
+            '0%': { clip: 'rect(63px, 9999px, 16px, 0)' },
+            '20%': { clip: 'rect(66px, 9999px, 3px, 0)' },
+            '40%': { clip: 'rect(8px, 9999px, 45px, 0)' },
+            '60%': { clip: 'rect(30px, 9999px, 4px, 0)' },
+            '80%': { clip: 'rect(94px, 9999px, 45px, 0)' },
+            '100%': { clip: 'rect(1px, 9999px, 74px, 0)' },
         },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         typing: 'typing 2s steps(40, end)',
-        'pulse-glow': 'pulse-glow 2s infinite',
-        'background-pan': 'background-pan 15s linear infinite',
+        'snap-in': 'snap-in 0.3s ease-out',
+        'glitch-text': 'glitch-anim 2s infinite linear alternate-reverse',
       },
     },
   },
