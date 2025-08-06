@@ -20,6 +20,7 @@ import { MarketDataCard } from './market-data-card';
 import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
 import { IndicatorCard } from './indicator-card';
 import type { MarketData } from '@/services/market-data';
+import { IntroAnimation } from './intro-animation';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -91,20 +92,19 @@ export default function TradeVisionPage() {
     <div className="bg-background text-foreground h-full flex flex-col">
       <AppHeader />
       <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-        <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         
         {isDataLoading ? (
-          <div className="h-48 flex items-center justify-center">
-            <Loader className="animate-spin" />
+          <div className="h-full flex items-center justify-center">
+            <Loader className="animate-spin h-10 w-10 text-primary" />
           </div>
         ) : !marketData || !symbol ? (
-          <div className="h-48 flex flex-col items-center justify-center text-center p-4 rounded-lg bg-card">
-            <Bot className="w-12 h-12 text-primary mb-4" />
-            <h3 className="text-lg font-semibold">Unlock AI-Powered Trading Signals</h3>
-            <p className="text-muted-foreground">Select an asset to let SHADOW analyze market data, news, and technical indicators to generate your next trading strategy.</p>
+          <div className="h-full flex flex-col justify-between">
+            <IntroAnimation />
+            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
           </div>
         ) : (
           <>
+            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
             <PriceDisplay price={marketData.price} change={marketData.change} />
             {signal ? (
               <>
