@@ -12,29 +12,29 @@ import { Label } from '../ui/label';
 
 const subscriptionTiers = [
     {
-        name: "Basic",
-        price: "$9.99/mo",
-        features: ["Standard AI Analysis", "Limited Signals", "Basic News Feed"],
-        cta: "Subscribe Now"
+        name: "Trial",
+        price: "10K SHADOW",
+        features: ["3 Day Trial"],
+        cta: "Start Trial"
     },
     {
-        name: "Pro",
-        price: "$29.99/mo",
-        features: ["Advanced AI Analysis", "Unlimited Signals", "Real-time News", "Priority Support"],
-        cta: "Go Pro",
+        name: "Monthly",
+        price: "100K SHADOW",
+        features: ["1 Month Unlimited Access"],
+        cta: "Go Monthly",
         popular: true
     },
     {
-        name: "Expert",
-        price: "$59.99/mo",
-        features: ["All Pro Features", "Personalized Strategies", "Direct Analyst Access"],
-        cta: "Become an Expert"
+        name: "Yearly",
+        price: "1 Million SHADOW",
+        features: ["1 Year Unlimited Access"],
+        cta: "Go Yearly"
     },
     {
-        name: "Enterprise",
-        price: "Contact Us",
-        features: ["Custom Solutions", "Team Accounts", "Dedicated Infrastructure"],
-        cta: "Contact Sales"
+        name: "Lifetime",
+        price: "10 Million SHADOW",
+        features: ["Lifetime Access"],
+        cta: "Go Lifetime"
     }
 ]
 
