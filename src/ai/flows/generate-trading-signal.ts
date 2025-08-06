@@ -67,7 +67,7 @@ const generateTradingSignalPrompt = ai.definePrompt({
 1.  **Fetch Market Data:** First, call the \`fetchMarketData\` tool using the provided \`symbol\`. This is your primary source of quantitative data.
 2.  **Fetch News:** Then, call the \`fetchNews\` tool using the provided \`newsQuery\` to get relevant news. This is your primary source for market sentiment.
 3.  **Analyze and Strategize:** Your entire analysis and the final trading signal must be based *exclusively* on the data returned by these tools for the specified symbol. Do not use any other data, examples, or prior knowledge. Your analysis must directly correlate to the provided data.
-4.  **User Risk Level:** The user's selected risk level is: {{riskLevel}}. Adjust your Entry, Stop, and Profit targets accordingly. Higher risk means wider targets, lower risk means tighter targets.
+4.  **User Risk Level:** The user's selected risk level is: {{riskLevel}}. Adjust your Entry, Stop, and Profit targets accordingly. Higher risk means wider targets, lower risk means tighter targets. All targets MUST be relative to the current price from the market data tool.
 
 **Strategy Logic:**
 -   Base your strategy on a holistic analysis of the technical indicators from the market data and the sentiment from the news.
