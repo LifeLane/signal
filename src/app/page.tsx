@@ -2,7 +2,6 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { Loader } from 'lucide-react';
-import { useTheme } from './theme-provider';
 
 const TradeVisionPageWithNoSSR = dynamic(
   () => import('@/components/tradevision/tradevision-page'),
@@ -17,7 +16,5 @@ const TradeVisionPageWithNoSSR = dynamic(
 );
 
 export default function Home() {
-  const { theme } = useTheme();
-
-  return <TradeVisionPageWithNoSSR theme={theme} />;
+  return <TradeVisionPageWithNoSSR />;
 }

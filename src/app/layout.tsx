@@ -25,13 +25,19 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased bg-background">
-        <ThemeProvider>
-            <WalletProvider>
-                <div className="relative mx-auto max-w-sm h-dvh overflow-hidden border-x border-border/20">
-                    {children}
-                </div>
-                <Toaster />
-            </WalletProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="neural-pulse"
+          themes={['neural-pulse', 'neon-future', 'forest-reserve', 'solana-summer', 'desert-mirage']}
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <WalletProvider>
+              <div className="relative mx-auto max-w-sm h-dvh overflow-hidden border-x border-border/20">
+                  {children}
+              </div>
+              <Toaster />
+          </WalletProvider>
         </ThemeProvider>
       </body>
     </html>

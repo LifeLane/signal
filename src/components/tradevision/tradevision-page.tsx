@@ -28,19 +28,14 @@ import { AiNewsPage } from './ai-news-page';
 import { ShadowPage } from './shadow-page';
 import { PremiumPage } from './premium-page';
 import { SignalLoadingHooks } from './signal-loading-hooks';
-import type { Theme } from '@/app/theme-provider';
+import { useTheme } from '@/app/theme-provider';
 import { AnimatedIntroText } from './animated-intro-text';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
-interface TradeVisionPageProps {
-  theme: Theme;
-}
-
-
-export default function TradeVisionPage({ theme }: TradeVisionPageProps) {
+export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(false);
   const [symbol, setSymbol] = useState<Symbol | null>(null);
@@ -54,6 +49,7 @@ export default function TradeVisionPage({ theme }: TradeVisionPageProps) {
   const { toast } = useToast();
   const [activeView, setActiveView] = useState<NavItem>('Dashboard');
   const strategyCardRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
 
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
