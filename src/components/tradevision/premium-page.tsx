@@ -232,7 +232,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             const transaction = new VersionedTransaction(messageV0);
 
             // Use the wallet adapter's sendTransaction to sign and send.
-            const signature = await sendTransaction(transaction, connection, { skipPreflight: true });
+            const signature = await sendTransaction(transaction, connection);
             
             // Wait for confirmation.
             await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
@@ -294,7 +294,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             </CardContent>
         </Card>
 
-        {connected && (
+        {/* {connected && (
             <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
                 <CardHeader>
                     <CardTitle>2. Get SHADOW Tokens</CardTitle>
@@ -327,12 +327,12 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                     </Button>
                 </CardContent>
             </Card>
-        )}
+        )} */}
 
         <Card className='bg-transparent border-none shadow-none'>
             <CardHeader className='text-center'>
                 <CardTitle>
-                    {connected ? "3. Choose Your Plan" : "2. Choose Your Plan"}
+                    {connected ? "2. Choose Your Plan" : "2. Choose Your Plan"}
                 </CardTitle>
                 <CardDescription>Select the plan that best fits your trading style.</CardDescription>
             </CardHeader>
@@ -399,5 +399,3 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
-
-    
