@@ -6,13 +6,13 @@
  *
  * - generateTradingSignal - A function that generates trading signals based on market data, indicators, and risk level.
  * - GenerateTradingSignalInput - The input type for the generateTradingSignal function.
- * - GenerateTradingSignalOutput - The return type for the generateTradingSignal function.
+ * - GenerateTradingSignalOutput - The return type for the generateTradingsignal function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
 import { fetchNews } from '../tools/news-tool';
-import { fetchMarketData } from '../tools/market-data-tool';
+import { getMarketData, MarketData } from '@/services/market-data';
 
 const GenerateTradingSignalInputSchema = z.object({
   symbol: z.string().describe('The trading symbol (e.g., BTC, ETH).'),
@@ -54,43 +54,61 @@ export async function generateTradingSignal(
 }
 
 const generateTradingSignalPrompt = ai.definePrompt({
-  name: 'generateTradingSignalPrompt',
-  input: {schema: z.object({
-    ...GenerateTradingSignalInputSchema.shape,
-    newsQuery: z.string(),
-  })},
-  output: {schema: GenerateTradingSignalOutputSchema},
-  tools: [fetchNews, fetchMarketData],
-  prompt: `You are an expert AI trading strategy assistant. Your task is to analyze market data, technical indicators, and news to generate a coherent and actionable trading signal for the given cryptocurrency symbol.
+    name: 'generateTradingSignalPrompt',
+    input: {
+        schema: z.object({
+            symbol: z.string(),
+            riskLevel: z.string(),
+            marketData: z.any(), // Using any() because the MarketData type is complex for the prompt schema
+            newsSentiment: z.string(),
+            newsReasoning: z.string(),
+        }),
+    },
+    output: { schema: GenerateTradingSignalOutputSchema },
+    prompt: `You are an expert AI trading strategy assistant. Your task is to analyze pre-processed market data, technical indicator interpretations, and news sentiment to generate a coherent and actionable trading signal for the given cryptocurrency symbol: {{{symbol}}}.
 
-**Instructions:**
-1.  **Fetch Market Data:** First, call the \`fetchMarketData\` tool using the provided \`symbol\`. This is your primary source of quantitative data.
-2.  **Fetch News:** Then, call the \`fetchNews\` tool using the provided \`newsQuery\` to get relevant news. This is your primary source for market sentiment.
-3.  **Analyze and Strategize:** Your entire analysis and the final trading signal must be based *exclusively* on the data returned by these tools for the specified symbol. Do not use any other data, examples, or prior knowledge. Your analysis must directly correlate to the provided data.
-4.  **User Risk Level:** The user's selected risk level is: {{riskLevel}}. Adjust your Entry, Stop, and Profit targets accordingly. Higher risk means wider targets, lower risk means tighter targets. All targets MUST be relative to the current price from the market data tool.
+Your entire analysis and the final trading signal MUST be based *exclusively* on the data provided below. Do not use any other data, examples, or prior knowledge. Your analysis must directly correlate to the provided information.
 
-**Strategy Logic:**
--   Base your strategy on a holistic analysis of the technical indicators from the market data and the sentiment from the news.
--   For a 'BUY' signal, the Stop Loss must be below the Entry Zone, and the Take Profit must be above it.
--   For a 'SELL' signal, the Stop Loss must be above the Entry Zone, and the Take Profit must be below it.
--   For a 'HOLD' signal, provide a relevant price range to watch. Set entry, stop, and profit to "N/A".
+**Provided Information:**
 
-**Indicator Interpretation:**
-For each technical indicator provided by the \`fetchMarketData\` tool, you MUST provide a detailed, one-sentence interpretation of its specific value in the context of the current market.
--   **rsiInterpretation**: Based on the RSI value, interpret whether the asset is overbought, oversold, or neutral.
--   **emaInterpretation**: Based on the price relative to the EMA, interpret the current trend direction.
--   **vwapInterpretation**: Based on the price relative to the VWAP, interpret the current intraday momentum.
--   **bollingerBandsInterpretation**: Based on the price's position relative to the Bollinger Bands, interpret the current volatility and potential for mean reversion or breakout.
--   **sarInterpretation**: Based on the Parabolic SAR value relative to the price, interpret the potential trend direction and reversal points.
--   **adxInterpretation**: Based on the ADX value, interpret the strength of the current trend (strong or weak).
+*   **Symbol:** {{{symbol}}}
+*   **Current Price:** {{{marketData.price}}}
+*   **User's Risk Level:** {{{riskLevel}}}
+
+**News Analysis:**
+*   **Overall Sentiment:** {{{newsSentiment}}}
+*   **Reasoning:** {{{newsReasoning}}}
+
+**Technical Indicator Interpretations:**
+*   **RSI Analysis:** {{{marketData.rsiInterpretation}}}
+*   **ADX Analysis:** {{{marketData.adxInterpretation}}}
+*   **EMA Analysis:** {{{marketData.emaInterpretation}}}
+*   **VWAP Analysis:** {{{marketData.vwapInterpretation}}}
+*   **Parabolic SAR Analysis:** {{{marketData.sarInterpretation}}}
+*   **Bollinger Bands Analysis:** {{{marketData.bollingerBandsInterpretation}}}
+
+**Your Task:**
+1.  **Synthesize:** Combine the news sentiment with all the technical indicator interpretations to form a holistic view of the market for {{{symbol}}}.
+2.  **Determine Signal:** Based on your synthesis, decide on a final trading signal: 'BUY', 'SELL', or 'HOLD'.
+3.  **Set Targets:** Calculate the 'entryZone', 'stopLoss', and 'takeProfit' levels. These MUST be mathematically relative to the provided **Current Price ({{{marketData.price}}})**. Adjust the range of these targets based on the **User's Risk Level ({{{riskLevel}}})**:
+    *   **Low Risk:** Tighter targets, closer to the current price. (e.g., 1-2% for stop-loss, 2-4% for take-profit)
+    *   **Medium Risk:** Moderate targets. (e.g., 3-5% for stop-loss, 5-8% for take-profit)
+    *   **High Risk:** Wider targets. (e.g., 6-10% for stop-loss, 10-15% for take-profit)
+    *   For a 'BUY' signal, Stop Loss must be below Entry, Take Profit must be above.
+    *   For a 'SELL' signal, Stop Loss must be above Entry, Take Profit must be below.
+    *   For a 'HOLD' signal, set entry, stop, and profit to "N/A".
+4.  **Assess Confidence:** Provide a 'confidence' percentage and an AI 'gptConfidenceScore' (0-100) based on how strongly the combined data points to your decided signal.
+5.  **Assess Risk:** Provide an AI-assessed 'riskRating' based on market volatility and indicator alignment.
+6.  **Populate Output:** Fill out the entire JSON output object. The interpretations fields (e.g., \`rsiInterpretation\`) should be populated with the exact interpretation text provided above.
 
 **Disclaimer:**
 Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
 
 **Final Output:**
-Adhere strictly to the output JSON format. Ensure all generated values and interpretations are directly derived from the tool outputs for the correct symbol. The output 'symbol' field must match the input 'symbol' field.
+Adhere strictly to the output JSON format. The output 'symbol' field must match the input 'symbol' field. All generated values MUST be directly derived from the provided information.
 `,
 });
+
 
 const generateTradingSignalFlow = ai.defineFlow(
   {
@@ -109,7 +127,23 @@ const generateTradingSignalFlow = ai.defineFlow(
     
     const newsQuery = symbolToNameMapping[input.symbol] || input.symbol;
 
-    const {output} = await generateTradingSignalPrompt({ ...input, newsQuery });
+    // 1. Fetch all data first
+    const marketData = await getMarketData(input.symbol);
+    const news = await fetchNews(newsQuery); // Using a simplified news tool for now
+
+    // 2. Prepare data for the prompt
+    const newsSentiment = news.length > 0 ? "Neutral" : "Unavailable"; // Simplified sentiment
+    const newsReasoning = news.length > 0 
+        ? `Based on headlines like "${news[0].title}", the sentiment is neutral.` 
+        : "News data was not available for sentiment analysis.";
+
+    // 3. Call the AI with pre-processed data
+    const {output} = await generateTradingSignalPrompt({ 
+        ...input,
+        marketData,
+        newsSentiment,
+        newsReasoning,
+    });
     return output!;
   }
 );
