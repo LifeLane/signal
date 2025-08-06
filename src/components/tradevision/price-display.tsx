@@ -1,19 +1,25 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ChevronDown } from 'lucide-react';
+import { Bell } from 'lucide-react';
+import type { Symbol } from './tradevision-page';
 
 interface PriceDisplayProps {
+  symbol: Symbol;
   price: number;
   change: number;
 }
 
-export function PriceDisplay({ price, change }: PriceDisplayProps) {
+export function PriceDisplay({ symbol, price, change }: PriceDisplayProps) {
   const isPositive = change >= 0;
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <h2 className="text-2xl font-semibold">{price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h2>
+      <div className="flex items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold">{price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h2>
+          <span className="text-sm text-muted-foreground">{symbol} / USD</span>
+        </div>
         <div className={cn(
           "text-sm font-medium",
           isPositive ? 'text-green-400' : 'text-red-400'
@@ -21,8 +27,8 @@ export function PriceDisplay({ price, change }: PriceDisplayProps) {
           {isPositive ? '+' : ''}{change.toFixed(2)}%
         </div>
       </div>
-      <Button variant='link' className='text-muted-foreground'>
-        Notifications
+      <Button variant='ghost' size='icon'>
+        <Bell className="h-5 w-5 text-muted-foreground" />
       </Button>
     </div>
   );

@@ -22,6 +22,7 @@ import { IndicatorCard } from './indicator-card';
 import type { MarketData } from '@/services/market-data';
 import { IntroAnimation } from './intro-animation';
 import { cn } from '@/lib/utils';
+import { TechnicalAnalysisCard } from './technical-analysis-card';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -45,7 +46,7 @@ export default function TradeVisionPage() {
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
     setDataLoading(true);
-    setSignal(null);
+    setSignal(null); // Reset signal when symbol changes
     getMarketDataAction(currentSymbol)
       .then((data) => {
         setMarketData(data);
@@ -63,6 +64,7 @@ export default function TradeVisionPage() {
       });
   }, [toast]);
 
+
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
     fetchMarketData(newSymbol);
@@ -73,7 +75,7 @@ export default function TradeVisionPage() {
   };
 
   const handleGetSignal = async () => {
-    if (!symbol) return;
+    if (!symbol || !marketData) return;
     startSignalTransition(async () => {
       try {
         const input = {
@@ -108,29 +110,38 @@ export default function TradeVisionPage() {
         theme === 'neural-pulse' && 'bg-pulse-grid'
       )}>
         
-        {isDataLoading && !marketData ? (
+        {!symbol && !isDataLoading && (
+          <div className="h-full flex flex-col justify-center">
+            <IntroAnimation />
+          </div>
+        )}
+        
+        <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
+        
+        {isDataLoading && (
           <div className="h-full flex items-center justify-center">
             <Loader className="animate-spin h-10 w-10 text-primary" />
           </div>
-        ) : !symbol ? (
-          <div className="h-full flex flex-col justify-center">
-            <IntroAnimation />
-            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
-          </div>
-        ) : marketData ? (
+        )}
+
+        {marketData && symbol && !isDataLoading && (
           <>
-            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
-            <PriceDisplay price={marketData.price} change={marketData.change} />
+            <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} />
+            <Separator />
+
+            {isSignalPending || signal ? (
+               <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
+            ) : null}
+
+            <RiskAnalysisCard
+              riskLevel={riskLevel}
+              onSetRiskLevel={setRiskLevel}
+              riskRating={signal?.riskRating}
+              gptConfidence={signal?.gptConfidenceScore}
+            />
+            
             {signal ? (
-              <>
-                <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
-                <RiskAnalysisCard
-                  riskLevel={riskLevel}
-                  onSetRiskLevel={setRiskLevel}
-                  riskRating={signal.riskRating}
-                  gptConfidence={signal.gptConfidenceScore}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 gap-4">
                   <IndicatorCard
                     title="RSI"
                     value={marketData.rsi.toFixed(2)}
@@ -163,15 +174,11 @@ export default function TradeVisionPage() {
                     value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
                     interpretation={signal.bollingerBandsInterpretation}
                   />
-                </div>
-              </>
+              </div>
             ) : (
               <>
                 <MomentumCard />
-                <RiskAnalysisCard
-                  riskLevel={riskLevel}
-                  onSetRiskLevel={setRiskLevel}
-                />
+                <TechnicalAnalysisCard {...marketData} />
               </>
             )}
 
@@ -192,20 +199,21 @@ export default function TradeVisionPage() {
                   theme === 'glitch' && 'hover:animate-glitch'
                 )}
                 onClick={handleGetSignal}
-                disabled={isSignalPending || isDataLoading || !marketData}
+                disabled={isSignalPending || isDataLoading}
               >
                 {isSignalPending ? <Loader className="animate-spin" /> : 
-                <span>
-                    Get AI Signal
+                <span className="flex items-center gap-2">
+                    <Bot /> Get SHADOW Signal
                 </span>
                 }
               </Button>
           </>
-        ) : (
+        )}
+
+        {!isDataLoading && symbol && !marketData && (
              <div className="h-full flex flex-col justify-center items-center text-center">
                 <p className='text-destructive'>Could not load data for {symbol}.</p>
                 <p className='text-muted-foreground text-sm'>Please check your network or try a different symbol.</p>
-                <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
             </div>
         )}
 

@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -33,7 +34,7 @@ const GenerateTradingSignalOutputSchema = z.object({
   gptConfidenceScore: z
     .string()
     .describe('The AI confidence score (0-100).'),
-  sentiment: z.string().describe('A summary of the market sentiment.'),
+  sentiment: z.string().describe('A summary of the market sentiment based on news.'),
   disclaimer: z.string().describe('A standard financial disclaimer.'),
   rsiInterpretation: z.string().describe("Interpretation of the RSI value."),
   emaInterpretation: z.string().describe("Interpretation of the EMA value."),
@@ -58,31 +59,31 @@ const generateTradingSignalPrompt = ai.definePrompt({
   prompt: `You are an expert AI trading strategy assistant. Your task is to analyze market data, technical indicators, and news to generate a coherent and actionable trading signal for the given cryptocurrency symbol.
 
 **Instructions:**
-1.  **Fetch Market Data:** First, call the \`fetchMarketData\` tool using the provided \`symbol\`.
-2.  **Fetch News:** Then, call the \`fetchNews\` tool. The query for the news tool should be the full name of the cryptocurrency (e.g., for 'BTC', use 'Bitcoin'; for 'ETH', use 'Ethereum').
-3.  **Analyze and Strategize:** Analyze the *entire output* from both tools. Your entire analysis and the final trading signal must be based *exclusively* on the data returned by these tools for the specified symbol. Do not use any other data or examples.
-4.  **User Risk Level:** The user's selected risk level is: {{riskLevel}}.
+1.  **Fetch Market Data:** First, call the \`fetchMarketData\` tool using the provided \`symbol\`. This is your primary source of quantitative data.
+2.  **Fetch News:** Then, call the \`fetchNews\` tool. The query for the news tool should be the full name of the cryptocurrency (e.g., for 'BTC', use 'Bitcoin'; for 'ETH', use 'Ethereum'). This is your primary source for market sentiment.
+3.  **Analyze and Strategize:** Your entire analysis and the final trading signal must be based *exclusively* on the data returned by these tools for the specified symbol. Do not use any other data, examples, or prior knowledge. Your analysis must directly correlate to the provided data.
+4.  **User Risk Level:** The user's selected risk level is: {{riskLevel}}. Adjust your Entry, Stop, and Profit targets accordingly. Higher risk means wider targets, lower risk means tighter targets.
 
 **Strategy Logic:**
--   Base your strategy on the technical indicators from the market data and the sentiment from the news.
+-   Base your strategy on a holistic analysis of the technical indicators from the market data and the sentiment from the news.
 -   For a 'BUY' signal, the Stop Loss must be below the Entry Zone, and the Take Profit must be above it.
 -   For a 'SELL' signal, the Stop Loss must be above the Entry Zone, and the Take Profit must be below it.
--   For a 'HOLD' signal, provide a wider range or relevant levels to watch, but do not provide specific entry/stop/profit points.
+-   For a 'HOLD' signal, provide a relevant price range to watch. Set entry, stop, and profit to "N/A".
 
 **Indicator Interpretation:**
-Provide a detailed interpretation for each technical indicator from the market data. Explain what the current value means and its potential impact on the price.
--   rsiInterpretation: "The RSI is at [RSI_VALUE]. An RSI below 30 suggests the asset may be oversold..."
--   emaInterpretation: "The price is trading relative to the [EMA_VALUE] EMA. This can indicate trend direction..."
--   vwapInterpretation: "The VWAP is at [VWAP_VALUE]. Trading above the VWAP is bullish..."
--   bollingerBandsInterpretation: "The price is near the [BB_VALUE] band. This can signal overbought/oversold conditions..."
--   sarInterpretation: "The Parabolic SAR is at [SAR_VALUE]. A value below the price suggests an uptrend..."
--   adxInterpretation: "The ADX is at [ADX_VALUE]. A value above 25 indicates a strong trend..."
+For each technical indicator provided by the \`fetchMarketData\` tool, you MUST provide a detailed, one-sentence interpretation of its specific value in the context of the current market.
+-   **rsiInterpretation**: Based on the RSI value of [RSI_VALUE], interpret whether the asset is overbought, oversold, or neutral.
+-   **emaInterpretation**: Based on the price relative to the EMA of [EMA_VALUE], interpret the current trend direction.
+-   **vwapInterpretation**: Based on the price relative to the VWAP of [VWAP_VALUE], interpret the current intraday momentum.
+-   **bollingerBandsInterpretation**: Based on the price's position relative to the Bollinger Bands ([BB_LOWER] - [BB_UPPER]), interpret the current volatility and potential for mean reversion or breakout.
+-   **sarInterpretation**: Based on the Parabolic SAR value of [SAR_VALUE] relative to the price, interpret the potential trend direction and reversal points.
+-   **adxInterpretation**: Based on the ADX value of [ADX_VALUE], interpret the strength of the current trend (strong or weak).
 
 **Disclaimer:**
-Provide a standard, serious financial disclaimer. Example: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results."
+Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
 
 **Final Output:**
-Adhere strictly to the output JSON format. Ensure the generated values are directly derived from the tool outputs for the correct symbol.
+Adhere strictly to the output JSON format. Ensure all generated values and interpretations are directly derived from the tool outputs for the correct symbol.
 `,
 });
 

@@ -1,3 +1,4 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -7,7 +8,6 @@ interface IndicatorCardProps {
   value: string | number;
   interpretation: string;
   gaugeValue?: number;
-  gaugeColor?: string;
 }
 
 export function IndicatorCard({
@@ -15,22 +15,19 @@ export function IndicatorCard({
   value,
   interpretation,
   gaugeValue,
-  gaugeColor,
 }: IndicatorCardProps) {
   return (
-    <Card className="bg-card">
+    <Card className="bg-card/50">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
           <span className="text-sm font-semibold">{value}</span>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
         {gaugeValue !== undefined && (
-          <div className='space-y-1'>
-            <Progress value={gaugeValue} className="h-2" />
-          </div>
+            <Progress value={gaugeValue} className="h-1 mt-1" />
         )}
+      </CardHeader>
+      <CardContent>
         <CardDescription className='text-xs'>{interpretation}</CardDescription>
       </CardContent>
     </Card>

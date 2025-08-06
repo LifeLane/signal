@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -15,12 +16,12 @@ import { Badge } from '../ui/badge';
 import type { Theme } from './tradevision-page';
 
 interface StrategyCardProps {
-  strategy: GenerateTradingSignalOutput;
+  strategy: GenerateTradingSignalOutput | null;
   isPending: boolean;
   theme: Theme;
 }
 
-const getSignalClass = (signal: 'BUY' | 'SELL' | 'HOLD') => {
+const getSignalClass = (signal?: 'BUY' | 'SELL' | 'HOLD') => {
   switch (signal) {
     case 'BUY':
       return {
@@ -38,10 +39,10 @@ const getSignalClass = (signal: 'BUY' | 'SELL' | 'HOLD') => {
       };
     default:
       return {
-        text: 'text-gray-400',
-        bg: 'bg-gray-500/20',
-        border: 'border-primary/50',
-        glow: '[--glow-color:theme(colors.primary.DEFAULT)]'
+        text: 'text-amber-400',
+        bg: 'bg-amber-500/20',
+        border: 'border-amber-400/50',
+        glow: '[--glow-color:theme(colors.amber.400)]'
       };
   }
 };
@@ -69,9 +70,9 @@ const PendingContent = () => (
 
 
 export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) {
-    const signalClasses = getSignalClass(strategy.signal);
+    const signalClasses = getSignalClass(strategy?.signal);
 
-    if (isPending) {
+    if (isPending || !strategy) {
         return (
             <Card className={cn(
                 'transition-all',
@@ -95,15 +96,11 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
                            ANALYZING...
                         </Badge>
                     </CardTitle>
-                    <CardDescription>Processing signal...</CardDescription>
+                    <CardDescription>Processing signal based on market data...</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <PendingContent/>
                 </CardContent>
-                <CardFooter className="text-xs text-muted-foreground flex gap-2 items-start">
-                    <Info className="w-4 h-4 mt-0.5 shrink-0" />
-                    <span>Please wait. Signal is being computed.</span>
-                </CardFooter>
             </Card>
         )
     }
