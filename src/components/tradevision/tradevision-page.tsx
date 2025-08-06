@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { TechnicalAnalysisCard } from './technical-analysis-card';
 import { SignalsHistoryPage } from './signals-history-page';
 import { AiNewsPage } from './ai-news-page';
+import { ShadowPage } from './shadow-page';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -47,7 +48,7 @@ export default function TradeVisionPage() {
   const [signalHistory, setSignalHistory] = useState<GenerateTradingSignalOutput[]>([]);
   const { toast } = useToast();
   const [theme, setTheme] = useState<Theme>('neural-pulse');
-  const [activeView, setActiveView] = useState<NavItem>('Prime');
+  const [activeView, setActiveView] = useState<NavItem>('SHADOW');
 
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
@@ -131,6 +132,10 @@ export default function TradeVisionPage() {
   );
 
   const renderContent = () => {
+    if (activeView === 'SHADOW') {
+      return <ShadowPage />;
+    }
+
     if (activeView === 'Signals') {
       return <SignalsHistoryPage signals={signalHistory} theme={theme} />;
     }
@@ -139,7 +144,8 @@ export default function TradeVisionPage() {
         return <AiNewsPage theme={theme} />;
     }
 
-    // Prime View
+    // Fallback or other views can be handled here.
+    // For now, if no other view is matched, maybe default to the intro/main analysis screen.
     return (
       <main className={cn(
         "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all",
