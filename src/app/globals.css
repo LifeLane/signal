@@ -178,9 +178,11 @@
   
   .theme-neural-pulse .bg-pulse-grid {
     background-image:
-      linear-gradient(to right, hsl(var(--primary) / 0.1) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--primary) / 0.1) 1px, transparent 1px);
-    background-size: 3rem 3rem;
+      linear-gradient(hsl(var(--chart-1) / 0.1) 1px, transparent 1px),
+      linear-gradient(to right, hsl(var(--chart-2) / 0.1) 1px, transparent 1px),
+      linear-gradient(hsl(var(--chart-3) / 0.05) 1px, transparent 1px),
+      linear-gradient(to right, hsl(var(--chart-4) / 0.05) 1px, transparent 1px);
+    background-size: 3.5rem 3.5rem, 3.5rem 3.5rem, 7rem 7rem, 7rem 7rem;
     animation: background-pan 30s linear infinite;
   }
   
