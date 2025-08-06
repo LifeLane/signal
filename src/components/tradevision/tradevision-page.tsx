@@ -27,6 +27,7 @@ import { TechnicalAnalysisCard } from './technical-analysis-card';
 import { SignalsHistoryPage } from './signals-history-page';
 import { AiNewsPage } from './ai-news-page';
 import { ShadowPage } from './shadow-page';
+import { PremiumPage } from './premium-page';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -48,7 +49,7 @@ export default function TradeVisionPage() {
   const [signalHistory, setSignalHistory] = useState<GenerateTradingSignalOutput[]>([]);
   const { toast } = useToast();
   const [theme, setTheme] = useState<Theme>('neural-pulse');
-  const [activeView, setActiveView] = useState<NavItem>('SHADOW');
+  const [activeView, setActiveView] = useState<NavItem>('Dashboard');
 
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
@@ -253,8 +254,10 @@ export default function TradeVisionPage() {
         return <SignalsHistoryPage signals={signalHistory} theme={theme} />;
       case 'AI News':
         return <AiNewsPage theme={theme} />;
+      case 'Premium':
+        return <PremiumPage theme={theme} />;
       default:
-        return <ShadowPage />;
+        return renderDashboard();
     }
   }
 

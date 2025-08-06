@@ -1,6 +1,6 @@
 
 'use client';
-import { Home, History, Newspaper, Gem, LineChart } from 'lucide-react';
+import { Home, History, Newspaper, Gem, LineChart, Shield } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import { Button } from '../ui/button';
 
@@ -13,10 +13,11 @@ interface BottomBarProps {
 
 export function BottomBar({ activeView, setActiveView }: BottomBarProps) {
   const navItems: { icon: React.ElementType, label: NavItem }[] = [
-    { icon: Home, label: 'SHADOW' },
-    { icon: LineChart, label: 'Dashboard' },
+    { icon: Shield, label: 'SHADOW' },
     { icon: History, label: 'Signals' },
+    { icon: Home, label: 'Dashboard' },
     { icon: Newspaper, label: 'AI News' },
+    { icon: Gem, label: 'Premium' },
   ];
 
   return (
