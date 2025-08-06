@@ -32,9 +32,9 @@ import { SignalLoadingHooks } from './signal-loading-hooks';
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
-export type Theme = 'holographic' | 'neural-pulse' | 'glitch';
+export type Theme = 'holographic' | 'neural-pulse' | 'glitch' | 'neon-future' | 'forest-reserve' | 'solana-summer' | 'desert-mirage';
 
-const themes: Theme[] = ['holographic', 'neural-pulse', 'glitch'];
+const themes: Theme[] = ['holographic', 'neural-pulse', 'glitch', 'neon-future', 'forest-reserve', 'solana-summer', 'desert-mirage'];
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
