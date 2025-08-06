@@ -4,7 +4,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { VersionedTransaction, TransactionMessage, PublicKey } from '@solana/web3.js';
+import { VersionedTransaction, Transaction, TransactionMessage, PublicKey, SystemProgram } from '@solana/web3.js';
+import { getOrCreateAssociatedTokenAccount, createTransferInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import bs58 from 'bs58';
 
 import { Button } from '@/components/ui/button';
@@ -16,16 +17,18 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 
-const SHADOW_TOKEN_MINT = "B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR";
+const SHADOW_TOKEN_MINT = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR");
 const SOL_TOKEN_MINT = "So11111111111111111111111111111111111111112";
 const SHADOW_TOKEN_DECIMALS = 6;
 const SOL_TOKEN_DECIMALS = 9;
+const CREATOR_WALLET_ADDRESS = new PublicKey("38XnV4BZownmFeFrykAYhfMJvWxaZ31t4zBa96HqChEe");
 
 
 const subscriptionTiers = [
     {
         name: "Monthly Pro",
-        price: "100K SHADOW",
+        price: 100_000,
+        priceLabel: "100K SHADOW",
         features: ["Unlimited AI Signals", "Priority Analysis", "All Premium Features"],
         cta: "Go Monthly",
         popular: true,
@@ -33,14 +36,16 @@ const subscriptionTiers = [
     },
     {
         name: "Yearly Elite",
-        price: "1 Million SHADOW",
+        price: 1_000_000,
+        priceLabel: "1 Million SHADOW",
         features: ["12 Months for the Price of 10", "Everything in Monthly Pro", "Exclusive Future Updates"],
         cta: "Go Yearly",
         hook: "Best value & long-term growth."
     },
     {
         name: "Lifetime Access",
-        price: "10 Million SHADOW",
+        price: 10_000_000,
+        priceLabel: "10 Million SHADOW",
         features: ["One-Time Payment, Forever", "Everything in Yearly Elite", "Become a SHADOW OG"],
         cta: "Go Lifetime",
         hook: "For the ultimate conviction."
@@ -61,7 +66,7 @@ const debounce = (func: (...args: any[]) => void, delay: number) => {
 };
 
 export function PremiumPage({ theme }: PremiumPageProps) {
-  const { publicKey, connected, signTransaction } = useWallet();
+  const { publicKey, connected, signTransaction, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const { toast } = useToast();
   
@@ -72,6 +77,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
   const [quote, setQuote] = useState<any | null>(null);
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
+  const [isSubscribing, setIsSubscribing] = useState<string | null>(null);
 
   const getQuote = async (amount: number) => {
     if (amount <= 0) {
@@ -82,7 +88,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     setIsFetchingQuote(true);
     try {
       const amountInLamports = Math.round(amount * (10 ** SOL_TOKEN_DECIMALS));
-      const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${SOL_TOKEN_MINT}&outputMint=${SHADOW_TOKEN_MINT}&amount=${amountInLamports}&slippageBps=50`);
+      const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${SOL_TOKEN_MINT}&outputMint=${SHADOW_TOKEN_MINT.toBase58()}&amount=${amountInLamports}&slippageBps=50`);
       if (!response.ok) throw new Error('Failed to fetch quote');
       const data = await response.json();
       setQuote(data);
@@ -118,7 +124,6 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     }
     setIsSwapping(true);
     try {
-        // Get swap transaction
         const { swapTransaction } = await (await fetch('https://quote-api.jup.ag/v6/swap', {
             method: 'POST',
             headers: {
@@ -131,21 +136,16 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             })
         })).json();
 
-        // Deserialize the transaction
         const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
         const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
         
-        // Sign the transaction
         const signedTransaction = await signTransaction(transaction);
 
-        // Execute the transaction
         const rawTransaction = signedTransaction.serialize();
         const txid = await connection.sendRawTransaction(rawTransaction, {
             skipPreflight: true,
             maxRetries: 2
         });
-
-        // Confirm the transaction
         await connection.confirmTransaction(txid, 'confirmed');
 
         toast({ title: "Swap Successful!", description: `Transaction ID: ${txid}`, action: (
@@ -161,6 +161,57 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         setQuote(null);
     }
   };
+
+    const handleSubscription = async (tierName: string, amount: number) => {
+        if (!publicKey || !sendTransaction) {
+            toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet to subscribe.' });
+            return;
+        }
+
+        setIsSubscribing(tierName);
+        try {
+            // Get the sender's token account for SHADOW
+            const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
+                connection,
+                publicKey, // Payer
+                SHADOW_TOKEN_MINT,
+                publicKey // Owner
+            );
+
+            // Get the recipient's token account for SHADOW
+            const toTokenAccount = await getOrCreateAssociatedTokenAccount(
+                connection,
+                publicKey, // Payer
+                SHADOW_TOKEN_MINT,
+                CREATOR_WALLET_ADDRESS // Owner
+            );
+
+            const transaction = new Transaction().add(
+                createTransferInstruction(
+                    fromTokenAccount.address,
+                    toTokenAccount.address,
+                    publicKey,
+                    amount * (10 ** SHADOW_TOKEN_DECIMALS) // Amount in smallest unit
+                )
+            );
+
+            const signature = await sendTransaction(transaction, connection);
+            await connection.confirmTransaction(signature, 'confirmed');
+
+            toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature}`, action: (
+                <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
+            )});
+
+        } catch (error: any) {
+            toast({
+                variant: 'destructive',
+                title: 'Subscription Failed',
+                description: error?.message || 'An unknown error occurred during the transaction.',
+            });
+        } finally {
+            setIsSubscribing(null);
+        }
+    };
 
 
   return (
@@ -254,7 +305,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                             <span>{tier.name}</span>
                             {tier.popular && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
                         </CardTitle>
-                        <CardDescription className="text-2xl font-bold">{tier.price}</CardDescription>
+                        <CardDescription className="text-2xl font-bold">{tier.priceLabel}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-3">
                         <p className='text-sm text-amber-400 font-semibold'>{tier.hook}</p>
@@ -266,8 +317,9 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                         ))}
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full" disabled={!connected}>
-                           <Gem className="mr-2 h-4 w-4" /> {tier.cta}
+                        <Button className="w-full" onClick={() => handleSubscription(tier.name, tier.price)} disabled={!connected || !!isSubscribing}>
+                           {isSubscribing === tier.name ? <Loader className="animate-spin" /> : <Gem className="mr-2 h-4 w-4" />} 
+                           {isSubscribing === tier.name ? 'Processing...' : tier.cta}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -278,4 +330,3 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
-
