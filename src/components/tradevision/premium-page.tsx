@@ -9,19 +9,19 @@ import { getOrCreateAssociatedTokenAccount, createTransferInstruction } from '@s
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader } from 'lucide-react';
+import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader, LogOut } from 'lucide-react';
 import type { Theme } from './tradevision-page';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '../ui/separator';
 
 const SHADOW_TOKEN_MINT = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR");
 const SOL_TOKEN_MINT = "So11111111111111111111111111111111111111112";
 const SHADOW_TOKEN_DECIMALS = 6;
 const SOL_TOKEN_DECIMALS = 9;
 const CREATOR_WALLET_ADDRESS = new PublicKey("38XnV4BZownmFeFrykAYhfMJvWxaZ31t4zBa96HqChEe");
-
 
 const subscriptionTiers = [
     {
@@ -51,6 +51,16 @@ const subscriptionTiers = [
     },
 ]
 
+const trialTier = {
+    name: "7-Day Free Trial",
+    price: 0,
+    priceLabel: "FREE",
+    features: ["3 Free AI Signals", "Limited News Analysis", "Experience the power of SHADOW"],
+    cta: "Start Free Trial",
+    hook: "Get a taste of the future."
+};
+
+
 interface PremiumPageProps {
   theme: Theme;
 }
@@ -65,7 +75,7 @@ const debounce = (func: (...args: any[]) => void, delay: number) => {
 };
 
 export function PremiumPage({ theme }: PremiumPageProps) {
-  const { publicKey, connected, signTransaction, sendTransaction } = useWallet();
+  const { publicKey, connected, signTransaction, sendTransaction, disconnect } = useWallet();
   const { connection } = useConnection();
   const { toast } = useToast();
   
@@ -138,14 +148,8 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
         const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
         
-        const signedTransaction = await signTransaction(transaction);
+        const txid = await sendTransaction(transaction, connection);
 
-        const rawTransaction = signedTransaction.serialize();
-        const txid = await connection.sendRawTransaction(rawTransaction, {
-            skipPreflight: true,
-            maxRetries: 2
-        });
-        
         const latestBlockHash = await connection.getLatestBlockhash();
         await connection.confirmTransaction({
           blockhash: latestBlockHash.blockhash,
@@ -173,22 +177,25 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             return;
         }
 
+        if (amount === 0) {
+            toast({ title: "Free Trial Activated!", description: "Enjoy your 7-day trial of SHADOW."});
+            return;
+        }
+
         setIsSubscribing(tierName);
         try {
-            // Get or create the sender's token account
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
                 connection,
-                publicKey, // Payer
+                publicKey,
                 SHADOW_TOKEN_MINT,
-                publicKey  // Owner
+                publicKey
             );
 
-            // Get or create the recipient's token account
             const toTokenAccount = await getOrCreateAssociatedTokenAccount(
                 connection,
-                publicKey, // Payer
+                publicKey,
                 SHADOW_TOKEN_MINT,
-                CREATOR_WALLET_ADDRESS // Owner
+                CREATOR_WALLET_ADDRESS
             );
             
             const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
@@ -251,9 +258,14 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             </CardHeader>
             <CardContent>
                 {connected ? (
-                    <div className="flex items-center justify-center p-3 rounded-lg bg-green-500/20 text-green-400">
-                        <Check className="mr-2 h-5 w-5" />
-                        <span className='font-semibold'>Wallet Connected</span>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/20 text-green-400">
+                        <div className='flex items-center'>
+                           <Check className="mr-2 h-5 w-5" />
+                           <span className='font-semibold'>Wallet Connected</span>
+                        </div>
+                        <Button variant='ghost' size='icon' onClick={disconnect} className="text-green-400 hover:text-white h-7 w-7">
+                            <LogOut className='h-5 w-5' />
+                        </Button>
                     </div>
                 ) : (
                     <WalletMultiButton style={{width: '100%',
@@ -311,6 +323,30 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             </CardHeader>
         </Card>
 
+        <Card key={trialTier.name} className={cn('bg-card/50 border-primary/50 border-dashed')}>
+            <CardHeader>
+                <CardTitle>{trialTier.name}</CardTitle>
+                <CardDescription className="text-2xl font-bold">{trialTier.priceLabel}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 space-y-3">
+                <p className='text-sm text-amber-400 font-semibold'>{trialTier.hook}</p>
+                {trialTier.features.map(feature => (
+                    <div key={feature} className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-green-500" />
+                        <span className="text-sm">{feature}</span>
+                    </div>
+                ))}
+            </CardContent>
+            <CardFooter>
+                <Button variant='outline' className="w-full" onClick={() => handleSubscription(trialTier.name, trialTier.price)} disabled={!connected || !!isSubscribing}>
+                   {isSubscribing === trialTier.name ? <Loader className="animate-spin" /> : <Gem className="mr-2 h-4 w-4" />} 
+                   {isSubscribing === trialTier.name ? 'Processing...' : trialTier.cta}
+                </Button>
+            </CardFooter>
+        </Card>
+
+        <Separator />
+
         <div className="grid grid-cols-1 gap-6">
             {subscriptionTiers.map(tier => (
                 <Card key={tier.name} className={cn(
@@ -348,3 +384,5 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
+
+    
