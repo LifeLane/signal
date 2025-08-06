@@ -10,13 +10,14 @@ import bs58 from 'bs58';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader, LogOut } from 'lucide-react';
+import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader, LogOut, Info } from 'lucide-react';
 import type { Theme } from './tradevision-page';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 const SHADOW_TOKEN_MINT = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR");
 const SOL_TOKEN_MINT = "So11111111111111111111111111111111111111112";
@@ -88,6 +89,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
   const [isFetchingQuote, setIsFetchingQuote] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState<string | null>(null);
+  const [activeSubscription, setActiveSubscription] = useState<string | null>(null);
 
   const getQuote = async (amount: number) => {
     if (amount <= 0) {
@@ -185,38 +187,43 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet to subscribe.' });
             return;
         }
+        
+        setIsSubscribing(tierName);
 
         if (amount === 0) {
             toast({ title: "Free Trial Activated!", description: "Enjoy your 7-day trial of SHADOW."});
+            setActiveSubscription(tierName);
+            setIsSubscribing(null);
             return;
         }
-
-        setIsSubscribing(tierName);
+        
         try {
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
-            const instructions = [
-                createAssociatedTokenAccountInstruction(
-                    publicKey,
-                    toTokenAccountAddress,
-                    CREATOR_WALLET_ADDRESS,
-                    SHADOW_TOKEN_MINT
-                ),
-                createTransferInstruction(
-                    fromTokenAccountAddress,
-                    toTokenAccountAddress,
-                    publicKey,
-                    BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
-                ),
-            ];
+            // This instruction is idempotent. If the account already exists, it will be successfully ignored.
+            // The fee for this instruction is paid by the `publicKey` (the user).
+            const createAccountInstruction = createAssociatedTokenAccountInstruction(
+                publicKey,
+                toTokenAccountAddress,
+                CREATOR_WALLET_ADDRESS,
+                SHADOW_TOKEN_MINT
+            );
 
+            const transferInstruction = createTransferInstruction(
+                fromTokenAccountAddress,
+                toTokenAccountAddress,
+                publicKey,
+                BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
+            );
+
+            // Fetch the latest blockhash inside the function right before sending.
             const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             
             const messageV0 = new TransactionMessage({
                 payerKey: publicKey,
                 recentBlockhash: blockhash,
-                instructions: instructions,
+                instructions: [createAccountInstruction, transferInstruction],
             }).compileToV0Message();
 
             const transaction = new VersionedTransaction(messageV0);
@@ -228,14 +235,24 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
                 <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
             )});
+            setActiveSubscription(tierName);
 
         } catch (error: any) {
             console.error("Subscription failed:", error);
-            toast({
-                variant: 'destructive',
-                title: 'Subscription Failed',
-                description: error?.message || 'An unknown error occurred during the transaction.',
-            });
+            // Check for a specific "Account not found" error to provide a more helpful message
+            if (error.message?.includes('could not find account')) {
+                 toast({
+                    variant: 'destructive',
+                    title: 'Subscription Failed',
+                    description: 'You may not have enough SHADOW tokens. Please acquire some via the swap feature.',
+                });
+            } else {
+                toast({
+                    variant: 'destructive',
+                    title: 'Subscription Failed',
+                    description: error?.message || 'An unknown error occurred during the transaction.',
+                });
+            }
         } finally {
             setIsSubscribing(null);
         }
@@ -252,6 +269,16 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             <p className="text-muted-foreground mt-2">Unlock the full power of SHADOW and gain your unfair advantage.</p>
         </div>
         
+        {activeSubscription && (
+            <Alert variant="default" className="border-green-500/50 bg-green-500/20 text-green-300">
+                <ShieldCheck className="h-5 w-5 text-green-400" />
+                <AlertTitle>Subscription Active!</AlertTitle>
+                <AlertDescription>
+                    You are currently subscribed to the <strong>{activeSubscription}</strong> plan.
+                </AlertDescription>
+            </Alert>
+        )}
+
         <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
             <CardHeader>
                 <CardTitle>1. Connect Your Wallet</CardTitle>
@@ -320,13 +347,18 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         <Card className='bg-transparent border-none shadow-none'>
             <CardHeader className='text-center'>
                 <CardTitle>
-                    {connected ? "2. Choose Your Plan" : "2. Choose Your Plan"}
+                    {activeSubscription ? "Your Active Plan" : "2. Choose Your Plan"}
                 </CardTitle>
-                <CardDescription>Select the plan that best fits your trading style.</CardDescription>
+                {!activeSubscription && (
+                    <CardDescription>Select the plan that best fits your trading style.</CardDescription>
+                )}
             </CardHeader>
         </Card>
 
-        <Card key={trialTier.name} className={cn('bg-card/50 border-primary/50 border-dashed')}>
+        <Card key={trialTier.name} className={cn(
+            'bg-card/50 border-primary/50 border-dashed',
+            activeSubscription === trialTier.name && 'ring-2 ring-green-500 border-green-500'
+        )}>
             <CardHeader>
                 <CardTitle>{trialTier.name}</CardTitle>
                 <CardDescription className="text-2xl font-bold">{trialTier.priceLabel}</CardDescription>
@@ -341,9 +373,9 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 ))}
             </CardContent>
             <CardFooter>
-                <Button variant='outline' className="w-full" onClick={() => handleSubscription(trialTier.name, trialTier.price)} disabled={!connected || !!isSubscribing}>
-                   {isSubscribing === trialTier.name ? <Loader className="animate-spin" /> : <Gem className="mr-2 h-4 w-4" />} 
-                   {isSubscribing === trialTier.name ? 'Processing...' : trialTier.cta}
+                <Button variant='outline' className="w-full" onClick={() => handleSubscription(trialTier.name, trialTier.price)} disabled={!connected || !!isSubscribing || !!activeSubscription}>
+                   {isSubscribing === trialTier.name ? <Loader className="animate-spin" /> : (activeSubscription === trialTier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
+                   {isSubscribing === trialTier.name ? 'Processing...' : (activeSubscription === trialTier.name ? 'Trial Active' : trialTier.cta)}
                 </Button>
             </CardFooter>
         </Card>
@@ -354,7 +386,8 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             {subscriptionTiers.map(tier => (
                 <Card key={tier.name} className={cn(
                     'bg-card flex flex-col',
-                    tier.popular && 'border-primary ring-2 ring-primary',
+                    tier.popular && !activeSubscription && 'border-primary ring-2 ring-primary',
+                    activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500',
                     theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
                 )}>
                     <CardHeader>
@@ -374,9 +407,9 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                         ))}
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full" onClick={() => handleSubscription(tier.name, tier.price)} disabled={!connected || !!isSubscribing}>
-                           {isSubscribing === tier.name ? <Loader className="animate-spin" /> : <Gem className="mr-2 h-4 w-4" />} 
-                           {isSubscribing === tier.name ? 'Processing...' : tier.cta}
+                        <Button className="w-full" onClick={() => handleSubscription(tier.name, tier.price)} disabled={!connected || !!isSubscribing || !!activeSubscription}>
+                           {isSubscribing === tier.name ? <Loader className="animate-spin" /> : (activeSubscription === tier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
+                           {isSubscribing === tier.name ? 'Processing...' : (activeSubscription === tier.name ? 'Subscribed' : tier.cta)}
                         </Button>
                     </CardFooter>
                 </Card>
@@ -389,4 +422,6 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 }
 
     
+    
+
     
