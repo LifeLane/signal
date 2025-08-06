@@ -20,9 +20,7 @@ import { Separator } from '../ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 const SHADOW_TOKEN_MINT = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR");
-const SOL_TOKEN_MINT = "So11111111111111111111111111111111111111112";
 const SHADOW_TOKEN_DECIMALS = 6;
-const SOL_TOKEN_DECIMALS = 9;
 const CREATOR_WALLET_ADDRESS = new PublicKey("38XnV4BZownmFeFrykAYhfMJvWxaZ31t4zBa96HqChEe");
 
 const subscriptionTiers = [
@@ -67,196 +65,101 @@ interface PremiumPageProps {
   theme: Theme;
 }
 
-// Simple debounce function
-const debounce = (func: (...args: any[]) => void, delay: number) => {
-  let timeout: NodeJS.Timeout;
-  return (...args: any[]) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), delay);
-  };
-};
-
 export function PremiumPage({ theme }: PremiumPageProps) {
-  const { publicKey, connected, signTransaction, sendTransaction, disconnect } = useWallet();
+  const { publicKey, connected, sendTransaction, disconnect } = useWallet();
   const { connection } = useConnection();
   const { toast } = useToast();
   
-  const [fromToken, setFromToken] = useState('SOL');
-  const [toToken, setToToken] = useState('SHADOW');
-  const [fromAmount, setFromAmount] = useState('');
-  const [toAmount, setToAmount] = useState('');
-  const [quote, setQuote] = useState<any | null>(null);
-  const [isFetchingQuote, setIsFetchingQuote] = useState(false);
-  const [isSwapping, setIsSwapping] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState<string | null>(null);
   const [activeSubscription, setActiveSubscription] = useState<string | null>(null);
 
-  const getQuote = async (amount: number) => {
-    if (amount <= 0) {
-      setToAmount('');
-      setQuote(null);
-      return;
+  const handleSubscription = async (tierName: string, amount: number) => {
+    if (!publicKey || !sendTransaction) {
+        toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet to subscribe.' });
+        return;
     }
-    setIsFetchingQuote(true);
+    
+    setIsSubscribing(tierName);
+
+    if (amount === 0) {
+        toast({ title: "Free Trial Activated!", description: "Enjoy your 7-day trial of SHADOW."});
+        setActiveSubscription(tierName);
+        setIsSubscribing(null);
+        return;
+    }
+    
     try {
-      const amountInLamports = Math.round(amount * (10 ** SOL_TOKEN_DECIMALS));
-      const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${SOL_TOKEN_MINT}&outputMint=${SHADOW_TOKEN_MINT.toBase58()}&amount=${amountInLamports}&slippageBps=50`);
-      if (!response.ok) throw new Error('Failed to fetch quote');
-      const data = await response.json();
-      setQuote(data);
-      if (data.outAmount) {
-        setToAmount((parseInt(data.outAmount) / (10 ** SHADOW_TOKEN_DECIMALS)).toFixed(4));
-      }
-    } catch (e: any) {
-      toast({ variant: 'destructive', title: "Error Fetching Quote", description: e.message });
-      setToAmount('');
-      setQuote(null);
-    } finally {
-      setIsFetchingQuote(false);
-    }
-  };
-
-  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), []);
-
-  useEffect(() => {
-    const amount = parseFloat(fromAmount);
-    if (!isNaN(amount)) {
-      debouncedGetQuote(amount);
-    } else {
-      setToAmount('');
-      setQuote(null);
-    }
-  }, [fromAmount, debouncedGetQuote]);
-
-
-  const handleSwap = async () => {
-    if (!publicKey || !quote || !signTransaction) {
-      toast({ variant: 'destructive', title: "Swap Error", description: "Wallet not connected or quote not available." });
-      return;
-    }
-    setIsSwapping(true);
-    try {
-        const { swapTransaction } = await (await fetch('https://quote-api.jup.ag/v6/swap', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                quoteResponse: quote,
-                userPublicKey: publicKey.toBase58(),
-                wrapAndUnwrapSol: true,
-            })
-        })).json();
-
-        const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
-        var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
-
-        // sign the transaction
-        const signedTransaction = await signTransaction(transaction);
-        // Execute the transaction
-        const rawTransaction = signedTransaction.serialize()
-        const txid = await connection.sendRawTransaction(rawTransaction, {
-            skipPreflight: true,
-            maxRetries: 2
-        });
-
-        const latestBlockHash = await connection.getLatestBlockhash();
-        await connection.confirmTransaction({
-          blockhash: latestBlockHash.blockhash,
-          lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-          signature: txid
-        }, 'confirmed');
-
-        toast({ title: "Swap Successful!", description: `Transaction ID: ${txid.substring(0,10)}...`, action: (
-            <a href={`https://solscan.io/tx/${txid}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
-        ) });
-
-    } catch (e: any) {
-        console.error("Swap failed", e);
-        toast({ variant: 'destructive', title: "Swap Failed", description: e.message || "An unknown error occurred." });
-    } finally {
-        setIsSwapping(false);
-        setFromAmount('');
-        setToAmount('');
-        setQuote(null);
-    }
-  };
-
-    const handleSubscription = async (tierName: string, amount: number) => {
-        if (!publicKey || !sendTransaction) {
-            toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet to subscribe.' });
-            return;
-        }
+        // 1. Get Associated Token Accounts
+        const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
+        const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
         
-        setIsSubscribing(tierName);
-
-        if (amount === 0) {
-            toast({ title: "Free Trial Activated!", description: "Enjoy your 7-day trial of SHADOW."});
-            setActiveSubscription(tierName);
-            setIsSubscribing(null);
-            return;
-        }
+        // 2. Fetch the latest blockhash
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
         
-        try {
-            const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
-            const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
-            
-            // This instruction is idempotent. If the account already exists, it will be successfully ignored.
-            // The fee for this instruction is paid by the `publicKey` (the user).
-            const createAccountInstruction = createAssociatedTokenAccountInstruction(
-                publicKey,
-                toTokenAccountAddress,
-                CREATOR_WALLET_ADDRESS,
-                SHADOW_TOKEN_MINT
+        const instructions = [];
+        
+        // 3. Check if recipient's ATA exists and add creation instruction if not
+        const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
+        if (!toTokenAccountInfo) {
+            instructions.push(
+                createAssociatedTokenAccountInstruction(
+                    publicKey, // Payer
+                    toTokenAccountAddress, // ATA address
+                    CREATOR_WALLET_ADDRESS, // Owner
+                    SHADOW_TOKEN_MINT // Mint
+                )
             );
+        }
 
-            const transferInstruction = createTransferInstruction(
+        // 4. Create the main transfer instruction
+        instructions.push(
+            createTransferInstruction(
                 fromTokenAccountAddress,
                 toTokenAccountAddress,
                 publicKey,
                 BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
-            );
+            )
+        );
+        
+        // 5. Build the transaction
+        const messageV0 = new TransactionMessage({
+            payerKey: publicKey,
+            recentBlockhash: blockhash,
+            instructions: instructions,
+        }).compileToV0Message();
 
-            // Fetch the latest blockhash inside the function right before sending.
-            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-            
-            const messageV0 = new TransactionMessage({
-                payerKey: publicKey,
-                recentBlockhash: blockhash,
-                instructions: [createAccountInstruction, transferInstruction],
-            }).compileToV0Message();
+        const transaction = new VersionedTransaction(messageV0);
+        
+        // 6. Send the transaction using the wallet adapter
+        const signature = await sendTransaction(transaction, connection);
+        
+        // 7. Confirm the transaction
+        await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
 
-            const transaction = new VersionedTransaction(messageV0);
+        toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
+            <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
+        )});
+        setActiveSubscription(tierName);
 
-            const signature = await sendTransaction(transaction, connection);
-            
-            await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
-
-            toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
-                <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
-            )});
-            setActiveSubscription(tierName);
-
-        } catch (error: any) {
-            console.error("Subscription failed:", error);
-            // Check for a specific "Account not found" error to provide a more helpful message
-            if (error.message?.includes('could not find account')) {
-                 toast({
-                    variant: 'destructive',
-                    title: 'Subscription Failed',
-                    description: 'You may not have enough SHADOW tokens. Please acquire some via the swap feature.',
-                });
-            } else {
-                toast({
-                    variant: 'destructive',
-                    title: 'Subscription Failed',
-                    description: error?.message || 'An unknown error occurred during the transaction.',
-                });
-            }
-        } finally {
-            setIsSubscribing(null);
+    } catch (error: any) {
+        console.error("Subscription failed:", error);
+        if (error.message?.includes('could not find account') || error.message?.includes('TokenAccountNotFoundError')) {
+             toast({
+                variant: 'destructive',
+                title: 'Subscription Failed',
+                description: 'You may not have enough SHADOW tokens, or an account error occurred. Please acquire some tokens first.',
+            });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Subscription Failed',
+                description: error?.message || 'An unknown error occurred during the transaction.',
+            });
         }
-    };
+    } finally {
+        setIsSubscribing(null);
+    }
+  };
 
 
   return (
@@ -309,40 +212,12 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             </CardContent>
         </Card>
 
-        {/* {connected && (
-            <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
-                <CardHeader>
-                    <CardTitle>2. Get SHADOW Tokens</CardTitle>
-                    <CardDescription>Swap SOL for SHADOW to unlock premium access. Powered by Jupiter.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="from-amount">You Pay</Label>
-                        <div className="flex gap-2">
-                            <Input id="from-amount" type="number" placeholder="0.0" value={fromAmount} onChange={(e) => setFromAmount(e.target.value)} disabled={isSwapping}/>
-                            <Button variant="outline" className="min-w-[100px]">{fromToken}</Button>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center my-2">
-                        <ArrowRight className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label htmlFor="to-amount">You Receive</Label>
-                         <div className="relative flex gap-2">
-                            <Input id="to-amount" type="number" placeholder="0.0" value={toAmount} readOnly disabled={isSwapping}/>
-                            {isFetchingQuote && <Loader className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin"/>}
-                            <Button variant="outline" className="min-w-[100px]">{toToken}</Button>
-                        </div>
-                    </div>
-                    <Button className="w-full" size="lg" onClick={handleSwap} disabled={!connected || !quote || fromAmount === '' || isFetchingQuote || isSwapping}>
-                        {isSwapping ? <Loader className="animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
-                        {isSwapping ? 'Swapping...' : 'Swap Tokens'}
-                    </Button>
-                </CardContent>
-            </Card>
-        )} */}
+        {/* <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
+            <CardHeader>
+                <CardTitle>2. Get SHADOW Tokens (Optional)</CardTitle>
+                <CardDescription>Swap SOL for SHADOW to unlock premium access. Powered by Jupiter.</CardDescription>
+            </CardHeader>
+        </Card> */}
 
         <Card className='bg-transparent border-none shadow-none'>
             <CardHeader className='text-center'>
@@ -420,8 +295,5 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
-
-    
-    
 
     
