@@ -43,6 +43,7 @@
     "@solana/wallet-adapter-solflare": "^0.6.28",
     "@solana/wallet-adapter-torus": "^0.11.28",
     "@solana/web3.js": "^1.95.1",
+    "bs58": "^5.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
@@ -65,6 +66,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/bs58": "^4.0.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

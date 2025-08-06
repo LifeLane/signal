@@ -1,17 +1,26 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { VersionedTransaction, TransactionMessage, PublicKey } from '@solana/web3.js';
+import bs58 from 'bs58';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
+import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader } from 'lucide-react';
 import type { Theme } from './tradevision-page';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { useToast } from '@/hooks/use-toast';
+
+const SHADOW_TOKEN_MINT = "B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR";
+const SOL_TOKEN_MINT = "So11111111111111111111111111111111111111112";
+const SHADOW_TOKEN_DECIMALS = 6;
+const SOL_TOKEN_DECIMALS = 9;
+
 
 const subscriptionTiers = [
     {
@@ -42,17 +51,117 @@ interface PremiumPageProps {
   theme: Theme;
 }
 
+// Simple debounce function
+const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timeout: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), delay);
+  };
+};
+
 export function PremiumPage({ theme }: PremiumPageProps) {
-  const { publicKey, connected } = useWallet();
+  const { publicKey, connected, signTransaction } = useWallet();
+  const { connection } = useConnection();
+  const { toast } = useToast();
+  
   const [fromToken, setFromToken] = useState('SOL');
   const [toToken, setToToken] = useState('SHADOW');
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
+  const [quote, setQuote] = useState<any | null>(null);
+  const [isFetchingQuote, setIsFetchingQuote] = useState(false);
+  const [isSwapping, setIsSwapping] = useState(false);
 
-  const handleSwap = () => {
-    // Placeholder for swap logic
-    console.log(`Swapping ${fromAmount} ${fromToken} for ${toAmount} ${toToken}`);
+  const getQuote = async (amount: number) => {
+    if (amount <= 0) {
+      setToAmount('');
+      setQuote(null);
+      return;
+    }
+    setIsFetchingQuote(true);
+    try {
+      const amountInLamports = Math.round(amount * (10 ** SOL_TOKEN_DECIMALS));
+      const response = await fetch(`https://quote-api.jup.ag/v6/quote?inputMint=${SOL_TOKEN_MINT}&outputMint=${SHADOW_TOKEN_MINT}&amount=${amountInLamports}&slippageBps=50`);
+      if (!response.ok) throw new Error('Failed to fetch quote');
+      const data = await response.json();
+      setQuote(data);
+      if (data.outAmount) {
+        setToAmount((parseInt(data.outAmount) / (10 ** SHADOW_TOKEN_DECIMALS)).toFixed(4));
+      }
+    } catch (e: any) {
+      toast({ variant: 'destructive', title: "Error Fetching Quote", description: e.message });
+      setToAmount('');
+      setQuote(null);
+    } finally {
+      setIsFetchingQuote(false);
+    }
   };
+
+  const debouncedGetQuote = useMemo(() => debounce(getQuote, 500), []);
+
+  useEffect(() => {
+    const amount = parseFloat(fromAmount);
+    if (!isNaN(amount)) {
+      debouncedGetQuote(amount);
+    } else {
+      setToAmount('');
+      setQuote(null);
+    }
+  }, [fromAmount, debouncedGetQuote]);
+
+
+  const handleSwap = async () => {
+    if (!publicKey || !quote || !signTransaction) {
+      toast({ variant: 'destructive', title: "Swap Error", description: "Wallet not connected or quote not available." });
+      return;
+    }
+    setIsSwapping(true);
+    try {
+        // Get swap transaction
+        const { swapTransaction } = await (await fetch('https://quote-api.jup.ag/v6/swap', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                quoteResponse: quote,
+                userPublicKey: publicKey.toBase58(),
+                wrapAndUnwrapSol: true,
+            })
+        })).json();
+
+        // Deserialize the transaction
+        const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
+        const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+        
+        // Sign the transaction
+        const signedTransaction = await signTransaction(transaction);
+
+        // Execute the transaction
+        const rawTransaction = signedTransaction.serialize();
+        const txid = await connection.sendRawTransaction(rawTransaction, {
+            skipPreflight: true,
+            maxRetries: 2
+        });
+
+        // Confirm the transaction
+        await connection.confirmTransaction(txid, 'confirmed');
+
+        toast({ title: "Swap Successful!", description: `Transaction ID: ${txid}`, action: (
+            <a href={`https://solscan.io/tx/${txid}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
+        ) });
+
+    } catch (e: any) {
+        toast({ variant: 'destructive', title: "Swap Failed", description: e.message || "An unknown error occurred." });
+    } finally {
+        setIsSwapping(false);
+        setFromAmount('');
+        setToAmount('');
+        setQuote(null);
+    }
+  };
+
 
   return (
     <div className={cn(
@@ -99,32 +208,26 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                     <div className="space-y-2">
                         <Label htmlFor="from-amount">You Pay</Label>
                         <div className="flex gap-2">
-                            <Input id="from-amount" type="number" placeholder="0.0" value={fromAmount} onChange={(e) => setFromAmount(e.target.value)} />
+                            <Input id="from-amount" type="number" placeholder="0.0" value={fromAmount} onChange={(e) => setFromAmount(e.target.value)} disabled={isSwapping}/>
                             <Button variant="outline" className="min-w-[100px]">{fromToken}</Button>
                         </div>
                     </div>
 
-                    <div className="flex justify-center">
-                        <Button variant="ghost" size="icon" onClick={() => {
-                            setFromToken(toToken);
-                            setToToken(fromToken);
-                            setFromAmount(toAmount);
-                            setToAmount(fromAmount);
-                        }}>
-                            <ArrowRight className="h-4 w-4" />
-                        </Button>
+                    <div className="flex justify-center my-2">
+                        <ArrowRight className="h-5 w-5 text-muted-foreground" />
                     </div>
                     
                     <div className="space-y-2">
                         <Label htmlFor="to-amount">You Receive</Label>
-                         <div className="flex gap-2">
-                            <Input id="to-amount" type="number" placeholder="0.0" value={toAmount} onChange={(e) => setToAmount(e.target.value)} />
+                         <div className="relative flex gap-2">
+                            <Input id="to-amount" type="number" placeholder="0.0" value={toAmount} readOnly disabled={isSwapping}/>
+                            {isFetchingQuote && <Loader className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin"/>}
                             <Button variant="outline" className="min-w-[100px]">{toToken}</Button>
                         </div>
                     </div>
-                    <Button className="w-full" size="lg" onClick={handleSwap} disabled={!connected}>
-                        <Zap className="mr-2 h-4 w-4" />
-                        Swap Tokens
+                    <Button className="w-full" size="lg" onClick={handleSwap} disabled={!connected || !quote || fromAmount === '' || isFetchingQuote || isSwapping}>
+                        {isSwapping ? <Loader className="animate-spin" /> : <Zap className="mr-2 h-4 w-4" />}
+                        {isSwapping ? 'Swapping...' : 'Swap Tokens'}
                     </Button>
                 </CardContent>
             </Card>
@@ -175,3 +278,4 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
+
