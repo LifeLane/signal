@@ -5,6 +5,7 @@
 import fetch from 'node-fetch';
 
 export interface MarketData {
+  name: string;
   price: number;
   change: number;
   volume24h: number;
@@ -16,13 +17,6 @@ export interface MarketData {
   bollingerBands: { upper: number; lower: number };
   sar: number;
   adx: number;
-  // Adding interpretation fields
-  rsiInterpretation: string;
-  emaInterpretation: string;
-  vwapInterpretation: string;
-  bollingerBandsInterpretation: string;
-  sarInterpretation: string;
-  adxInterpretation: string;
 }
 
 
@@ -58,6 +52,12 @@ interface CoinGeckoSimplePriceResponse {
         usd_market_cap: number;
     }
 }
+interface CoinGeckoCoinResponse {
+    id: string;
+    symbol: string;
+    name: string;
+}
+
 
 // This function fakes technical indicator data for now.
 // In a real application, you would use a library like 'technicalindicators'
@@ -75,14 +75,6 @@ const generateTechnicalIndicators = (price: number) => {
     const upperBand = price * (1 + volatility);
     const lowerBand = price * (1 - volatility);
 
-    const rsiInterpretation = rsi > 70 ? `RSI is ${rsi.toFixed(2)}, which is considered overbought.` : rsi < 30 ? `RSI is ${rsi.toFixed(2)}, which is considered oversold.` : `RSI is ${rsi.toFixed(2)}, which is neutral.`;
-    const adxInterpretation = adx > 25 ? `ADX is ${adx.toFixed(2)}, indicating a strong trend.` : `ADX is ${adx.toFixed(2)}, indicating a weak or non-trending market.`;
-    const emaInterpretation = price > ema ? `Price is above the EMA (${ema.toFixed(2)}), suggesting a potential uptrend.` : `Price is below the EMA (${ema.toFixed(2)}), suggesting a potential downtrend.`;
-    const vwapInterpretation = price > vwap ? `Price is trading above the VWAP (${vwap.toFixed(2)}), indicating bullish intraday momentum.` : `Price is trading below the VWAP (${vwap.toFixed(2)}), indicating bearish intraday momentum.`;
-    const sarInterpretation = price > sar ? `Parabolic SAR (${sar.toFixed(2)}) is below the price, suggesting an uptrend.` : `Parabolic SAR (${sar.toFixed(2)}) is above the price, suggesting a downtrend.`;
-    const bollingerBandsInterpretation = `Price is trading between the upper (${upperBand.toFixed(2)}) and lower (${lowerBand.toFixed(2)}) Bollinger Bands, indicating typical volatility.`;
-
-
     return {
         longShortRatio: 50 + randomFactor() * 10, // e.g., 40% to 60%
         rsi,
@@ -94,24 +86,19 @@ const generateTechnicalIndicators = (price: number) => {
         },
         sar,
         adx,
-        rsiInterpretation,
-        adxInterpretation,
-        emaInterpretation,
-        vwapInterpretation,
-        sarInterpretation,
-        bollingerBandsInterpretation,
     }
 }
 
-const getCoinGeckoId = (symbol: string): string => {
-    const mapping: { [key: string]: string } = {
-        'BTC': 'bitcoin',
-        'ETH': 'ethereum',
-        'XRP': 'ripple',
-        'SOL': 'solana',
-        'DOGE': 'dogecoin',
-    };
-    return mapping[symbol.toUpperCase()] || symbol.toLowerCase();
+const coinMapping: { [key: string]: {id: string, name: string} } = {
+    'BTC': { id: 'bitcoin', name: 'Bitcoin' },
+    'ETH': { id: 'ethereum', name: 'Ethereum' },
+    'XRP': { id: 'ripple', name: 'Ripple' },
+    'SOL': { id: 'solana', name: 'Solana' },
+    'DOGE': { id: 'dogecoin', name: 'Dogecoin' },
+};
+
+const getCoinGeckoInfo = (symbol: string): {id: string, name: string} => {
+    return coinMapping[symbol.toUpperCase()] || { id: symbol.toLowerCase(), name: symbol };
 }
 
 
@@ -135,11 +122,13 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
 
       if (cmcResponse.ok) {
         const cmcData: CmcResponse = await cmcResponse.json() as CmcResponse;
-        const quote = cmcData.data[symbol]?.quote?.USD;
+        const data = cmcData.data[symbol];
+        const quote = data?.quote?.USD;
         if (quote) {
           console.log(`Successfully fetched data from CoinMarketCap for ${symbol}`);
           const indicators = generateTechnicalIndicators(quote.price);
           return {
+            name: data.name,
             price: quote.price,
             change: quote.percent_change_24h,
             volume24h: quote.volume_24h,
@@ -160,24 +149,25 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
 
   // Fallback to CoinGecko
   try {
-    const coinGeckoId = getCoinGeckoId(symbol);
-    const cgUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`;
+    const coinInfo = getCoinGeckoInfo(symbol);
+    const cgUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinInfo.id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`;
 
     const cgResponse = await fetch(cgUrl);
     if (!cgResponse.ok) {
       throw new Error(`CoinGecko API request failed with status ${cgResponse.status}`);
     }
     const cgData: CoinGeckoSimplePriceResponse = await cgResponse.json() as CoinGeckoSimplePriceResponse;
-    const data = cgData[coinGeckoId];
+    const data = cgData[coinInfo.id];
 
     if (!data) {
-      throw new Error(`No data found for symbol "${symbol}" (CoinGecko ID: "${coinGeckoId}") in CoinGecko response.`);
+      throw new Error(`No data found for symbol "${symbol}" (CoinGecko ID: "${coinInfo.id}") in CoinGecko response.`);
     }
     
     console.log(`Successfully fetched data from CoinGecko for ${symbol}`);
     const indicators = generateTechnicalIndicators(data.usd);
     
     return {
+      name: coinInfo.name,
       price: data.usd,
       change: data.usd_24h_change,
       volume24h: data.usd_24h_vol,

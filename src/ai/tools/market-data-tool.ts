@@ -19,6 +19,7 @@ export const fetchMarketData = ai.defineTool(
       symbol: z.string().describe('The cryptocurrency symbol (e.g., BTC, ETH).'),
     }),
     outputSchema: z.object({
+        name: z.string().describe('The full name of the cryptocurrency (e.g., Bitcoin).'),
         price: z.number(),
         change: z.number(),
         volume24h: z.number(),
