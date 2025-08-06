@@ -12,10 +12,12 @@ import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-si
 import { Bot, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
+import type { Theme } from './tradevision-page';
 
 interface StrategyCardProps {
   strategy: GenerateTradingSignalOutput;
   isPending: boolean;
+  theme: Theme;
 }
 
 const getSignalClass = (signal: 'BUY' | 'SELL' | 'HOLD') => {
@@ -25,18 +27,21 @@ const getSignalClass = (signal: 'BUY' | 'SELL' | 'HOLD') => {
         text: 'text-green-400',
         bg: 'bg-green-500/20',
         border: 'border-green-400/50',
+        glow: '[--glow-color:theme(colors.green.400)]'
       };
     case 'SELL':
       return {
         text: 'text-red-400',
         bg: 'bg-red-500/20',
         border: 'border-red-400/50',
+        glow: '[--glow-color:theme(colors.red.400)]'
       };
     default:
       return {
         text: 'text-gray-400',
         bg: 'bg-gray-500/20',
         border: 'border-primary/50',
+        glow: '[--glow-color:theme(colors.primary.DEFAULT)]'
       };
   }
 };
@@ -63,20 +68,28 @@ const PendingContent = () => (
 );
 
 
-export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
+export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) {
     const signalClasses = getSignalClass(strategy.signal);
 
     if (isPending) {
         return (
-            <Card className='border-primary/50 animate-pulse'>
+            <Card className={cn(
+                'transition-all',
+                theme === 'holographic' && 'border-primary/50 animate-pulse',
+                theme === 'neural-pulse' && 'animate-none border-primary/50',
+                theme === 'glitch' && 'animate-snap-in',
+            )}>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Bot className="text-primary" /> 
                             <span>AI Strategy</span>
                         </div>
-                        <Badge
-                            className={cn('text-base text-primary/80 bg-primary/20')}
+                         <Badge
+                            className={cn(
+                                'text-base',
+                                theme === 'glitch' ? 'animate-glitch text-transparent' : 'text-primary/80 bg-primary/20'
+                            )}
                             variant="secondary"
                         >
                            ANALYZING...
@@ -98,8 +111,10 @@ export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
     return (
     <Card
       className={cn(
-        'shadow-lg',
-        signalClasses.border
+        'shadow-lg transition-all',
+        theme === 'holographic' && signalClasses.border,
+        theme === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`,
+        theme === 'glitch' && 'animate-snap-in'
       )}
     >
       <CardHeader>

@@ -78,11 +78,12 @@
 }
 
 @layer utilities {
-  .animate-border-shine {
+  /* Holographic Theme Animations */
+  .theme-holographic .animate-border-shine {
     position: relative;
     overflow: hidden;
   }
-  .animate-border-shine::before {
+  .theme-holographic .animate-border-shine::before {
     content: '';
     position: absolute;
     top: 0;
@@ -96,5 +97,74 @@
       transparent
     );
     animation: border-shine 2s linear infinite;
+  }
+
+  @keyframes border-shine {
+    '0%' {
+      transform: translateX(-100%);
+    }
+    '100%' {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Neural Pulse Theme Animations */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 2px var(--glow-color), 0 0 5px var(--glow-color), 0 0 10px var(--glow-color);
+    }
+    50% {
+      box-shadow: 0 0 5px var(--glow-color), 0 0 15px var(--glow-color), 0 0 25px var(--glow-color);
+    }
+  }
+  
+  .theme-neural-pulse .bg-pulse-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--primary) / 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--primary) / 0.1) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+    animation: background-pan 30s linear infinite;
+  }
+
+  @keyframes background-pan {
+    from { background-position: 0 0; }
+    to { background-position: -200% -200%; }
+  }
+
+
+  /* Glitch & Refine Theme Animations */
+  @keyframes snap-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95) translateY(-10px);
+    }
+    80% {
+      transform: scale(1.02) translateY(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes glitch {
+    0% {
+      text-shadow:
+        -2px -2px 0 hsl(var(--primary)),
+        2px 2px 0 hsl(var(--accent));
+      clip-path: inset(30% 0 30% 0);
+    }
+    25% {
+      clip-path: inset(10% 0 50% 0);
+    }
+    50% {
+      clip-path: inset(60% 0 10% 0);
+    }
+    75% {
+      clip-path: inset(40% 0 20% 0);
+    }
+    100% {
+      clip-path: inset(50% 0 35% 0);
+    }
   }
 }

@@ -21,15 +21,19 @@ import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-si
 import { IndicatorCard } from './indicator-card';
 import type { MarketData } from '@/services/market-data';
 import { IntroAnimation } from './intro-animation';
+import { cn } from '@/lib/utils';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
+export type Theme = 'holographic' | 'neural-pulse' | 'glitch';
+
+const themes: Theme[] = ['holographic', 'neural-pulse', 'glitch'];
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
-  const [isDataLoading, setDataLoading] = useState(true);
-  const [symbol, setSymbol] = useState<Symbol | null>('BTC');
+  const [isDataLoading, setDataLoading] = useState(false);
+  const [symbol, setSymbol] = useState<Symbol | null>(null);
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
   const [marketData, setMarketData] = useState<MarketData | null>(null);
@@ -37,6 +41,7 @@ export default function TradeVisionPage() {
     null
   );
   const { toast } = useToast();
+  const [theme, setTheme] = useState<Theme>('holographic');
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
     setDataLoading(true);
@@ -57,12 +62,6 @@ export default function TradeVisionPage() {
         setDataLoading(false);
       });
   }, [toast]);
-
-  useEffect(() => {
-    if (symbol) {
-        fetchMarketData(symbol)
-    }
-  }, []);
 
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
@@ -93,10 +92,21 @@ export default function TradeVisionPage() {
     });
   };
 
+  const handleThemeToggle = () => {
+    setTheme(prevTheme => {
+      const currentIndex = themes.indexOf(prevTheme);
+      const nextIndex = (currentIndex + 1) % themes.length;
+      return themes[nextIndex];
+    })
+  }
+
   return (
-    <div className="bg-background text-foreground h-full flex flex-col">
-      <AppHeader />
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+    <div className={cn("bg-background text-foreground h-full flex flex-col", `theme-${theme}`)}>
+      <AppHeader onThemeToggle={handleThemeToggle} />
+      <main className={cn(
+        "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all",
+        theme === 'neural-pulse' && 'bg-pulse-grid'
+      )}>
         
         {isDataLoading && !marketData ? (
           <div className="h-full flex items-center justify-center">
@@ -113,7 +123,7 @@ export default function TradeVisionPage() {
             <PriceDisplay price={marketData.price} change={marketData.change} />
             {signal ? (
               <>
-                <StrategyCard strategy={signal} isPending={isSignalPending}/>
+                <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
                 <RiskAnalysisCard
                   riskLevel={riskLevel}
                   onSetRiskLevel={setRiskLevel}
@@ -176,7 +186,11 @@ export default function TradeVisionPage() {
             />
              <Button
                 size="lg"
-                className="w-full h-12 text-lg font-bold relative group transition-transform duration-200 hover:-translate-y-1"
+                className={cn(
+                  "w-full h-12 text-lg font-bold relative group transition-transform duration-200",
+                  theme === 'holographic' && 'hover:-translate-y-1',
+                  theme === 'glitch' && 'hover:animate-glitch'
+                )}
                 onClick={handleGetSignal}
                 disabled={isSignalPending || isDataLoading || !marketData}
               >

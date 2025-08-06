@@ -25,6 +25,8 @@ const allSymbols: { value: Symbol; label: string }[] = [
 export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelectorProps) {
   const [search, setSearch] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<{ value: Symbol; label: string }[]>([]);
+  const [isActivated, setIsActivated] = React.useState(false);
+
 
   React.useEffect(() => {
     if (search) {
@@ -39,10 +41,17 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     setSearch('');
     setSearchResults([]);
     onSelectSymbol(symbol);
+    
+    // Trigger animation
+    setIsActivated(true);
+    setTimeout(() => setIsActivated(false), 2000);
   }
 
   return (
-    <div className="space-y-4">
+    <div className={cn(
+        "space-y-4 p-4 rounded-xl border",
+        isActivated && 'animate-border-shine'
+      )}>
       <div className="grid grid-cols-4 gap-2">
         {popularSymbols.map((symbol) => (
           <Button

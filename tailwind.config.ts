@@ -90,19 +90,15 @@ export default {
             height: '0',
           },
         },
-        'border-shine': {
-          '0%': {
-            transform: 'translateX(-100%)',
-          },
-          '100%': {
-            transform: 'translateX(100%)',
-          },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'border-shine': 'border-shine 2s linear infinite',
+        'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+        'background-pan': 'background-pan 30s linear infinite',
+        'snap-in': 'snap-in 0.5s ease-out',
+        'glitch': 'glitch 0.25s linear infinite',
       },
     },
   },
