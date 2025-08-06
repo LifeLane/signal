@@ -198,15 +198,15 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
             const instructions = [];
-            
+
             // This instruction is now idempotent. It will only create the account if it doesn't exist.
             // The connected user (publicKey) will be the payer for this potential creation.
              instructions.push(
                 createAssociatedTokenAccountInstruction(
-                    publicKey, // Payer
-                    toTokenAccountAddress, // Associated token account address
-                    CREATOR_WALLET_ADDRESS, // Owner of the account
-                    SHADOW_TOKEN_MINT // Mint for the account
+                    publicKey, // Payer of the transaction fee
+                    toTokenAccountAddress, // Associated token account address to be created
+                    CREATOR_WALLET_ADDRESS, // Owner of the new account
+                    SHADOW_TOKEN_MINT // Mint for the new account
                 )
             );
             
