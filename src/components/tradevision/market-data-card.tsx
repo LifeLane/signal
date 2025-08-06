@@ -1,13 +1,17 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, BarChart2 } from 'lucide-react';
+import type { Theme } from './tradevision-page';
+import { cn } from '@/lib/utils';
 
 interface MarketDataCardProps {
   volume: number;
   marketCap: number;
+  theme: Theme;
 }
 
-export function MarketDataCard({ volume, marketCap }: MarketDataCardProps) {
+export function MarketDataCard({ volume, marketCap, theme }: MarketDataCardProps) {
   const formatNumber = (num: number) => {
     if (num >= 1_000_000_000) {
       return `${(num / 1_000_000_000).toFixed(2)}B`;
@@ -22,7 +26,10 @@ export function MarketDataCard({ volume, marketCap }: MarketDataCardProps) {
   };
 
   return (
-    <Card className="bg-card">
+    <Card className={cn(
+      'bg-card',
+      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.accent/0.7)]'
+    )}>
       <CardHeader>
         <CardTitle>Market Data</CardTitle>
       </CardHeader>

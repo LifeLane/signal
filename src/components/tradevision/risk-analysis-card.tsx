@@ -1,8 +1,9 @@
+
 'use client';
 
 import type { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import type { RiskLevel } from './tradevision-page';
+import type { RiskLevel, Theme } from './tradevision-page';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Shield, Zap, TrendingUp } from 'lucide-react';
@@ -12,6 +13,7 @@ interface RiskAnalysisCardProps {
   onSetRiskLevel: Dispatch<SetStateAction<RiskLevel>>;
   riskRating?: 'Low' | 'Medium' | 'High';
   gptConfidence?: string;
+  theme: Theme;
 }
 
 const riskLevels: RiskLevel[] = ['Low', 'Medium', 'High'];
@@ -21,9 +23,13 @@ export function RiskAnalysisCard({
   onSetRiskLevel,
   riskRating,
   gptConfidence,
+  theme,
 }: RiskAnalysisCardProps) {
   return (
-    <Card className="bg-card">
+    <Card className={cn(
+      'bg-card',
+      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.400/0.5)]'
+    )}>
       <CardHeader>
         <CardTitle>Risk Analysis</CardTitle>
         <CardDescription>Select your risk appetite.</CardDescription>

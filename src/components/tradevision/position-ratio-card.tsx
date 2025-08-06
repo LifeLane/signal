@@ -1,7 +1,8 @@
+
 'use client';
 import type { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import type { Interval } from './tradevision-page';
+import type { Interval, Theme } from './tradevision-page';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Progress } from '../ui/progress';
@@ -10,16 +11,20 @@ interface PositionRatioCardProps {
   ratio: number;
   selectedInterval: Interval;
   onSelectInterval: Dispatch<SetStateAction<Interval>>;
+  theme: Theme;
 }
 
 const intervals: Interval[] = ['5m', '15m', '1h', '4h', '1d'];
 
-export function PositionRatioCard({ ratio, selectedInterval, onSelectInterval }: PositionRatioCardProps) {
+export function PositionRatioCard({ ratio, selectedInterval, onSelectInterval, theme }: PositionRatioCardProps) {
   const longRatio = ratio;
   const shortRatio = 100 - ratio;
 
   return (
-    <Card className='bg-card'>
+    <Card className={cn(
+      'bg-card',
+      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.400/0.5)]'
+    )}>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span className='text-base font-semibold'>Long/Short Position Ratio</span>

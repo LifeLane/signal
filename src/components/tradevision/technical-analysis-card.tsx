@@ -1,6 +1,9 @@
+
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, MoveDown, MoveUp, Waves, Gauge, Rss } from 'lucide-react';
+import type { Theme } from './tradevision-page';
+import { cn } from '@/lib/utils';
 
 interface IndicatorProps {
   icon: React.ElementType;
@@ -26,11 +29,15 @@ interface TechnicalAnalysisCardProps {
     bollingerBands: { upper: number; lower: number; };
     sar: number;
     adx: number;
+    theme: Theme;
 }
 
-export function TechnicalAnalysisCard({ rsi, ema, vwap, bollingerBands, sar, adx }: TechnicalAnalysisCardProps) {
+export function TechnicalAnalysisCard({ rsi, ema, vwap, bollingerBands, sar, adx, theme }: TechnicalAnalysisCardProps) {
   return (
-    <Card className="bg-card">
+    <Card className={cn(
+      'bg-card',
+      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.cyan.400/0.5)]'
+    )}>
       <CardHeader>
         <CardTitle>Technical Analysis</CardTitle>
       </CardHeader>

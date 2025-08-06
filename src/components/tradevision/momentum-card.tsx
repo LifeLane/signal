@@ -1,7 +1,9 @@
+
 'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Info, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { Theme } from './tradevision-page';
 
 interface MomentumIndicatorProps {
   label: string;
@@ -21,9 +23,16 @@ const MomentumIndicator = ({ label, value, color }: MomentumIndicatorProps) => (
   </div>
 );
 
-export function MomentumCard() {
+interface MomentumCardProps {
+    theme: Theme;
+}
+
+export function MomentumCard({ theme }: MomentumCardProps) {
   return (
-    <Card className='bg-card'>
+    <Card className={cn(
+        'bg-card',
+        theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]'
+    )}>
       <CardHeader className="flex-row items-center justify-between pb-2">
         <CardTitle className='text-base font-semibold text-primary'>Current Trend</CardTitle>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">

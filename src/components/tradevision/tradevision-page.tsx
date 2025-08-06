@@ -162,8 +162,8 @@ export default function TradeVisionPage() {
             {/* Pre-signal general analysis */}
             {!signal && !isSignalPending && (
                 <>
-                    <MomentumCard />
-                    <TechnicalAnalysisCard {...marketData} />
+                    <MomentumCard theme={theme} />
+                    <TechnicalAnalysisCard {...marketData} theme={theme} />
                 </>
             )}
 
@@ -181,32 +181,38 @@ export default function TradeVisionPage() {
                       value={marketData.rsi.toFixed(2)}
                       interpretation={signal.rsiInterpretation}
                       gaugeValue={marketData.rsi}
+                      theme={theme}
                     />
                     <IndicatorCard
                       title="ADX (Average Directional Index)"
                       value={marketData.adx.toFixed(2)}
                       interpretation={signal.adxInterpretation}
                       gaugeValue={marketData.adx}
+                      theme={theme}
                     />
                     <IndicatorCard
                       title="EMA (Exponential Moving Average)"
                       value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       interpretation={signal.emaInterpretation}
+                      theme={theme}
                     />
                     <IndicatorCard
                       title="VWAP (Volume-Weighted Average Price)"
                       value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       interpretation={signal.vwapInterpretation}
+                      theme={theme}
                     />
                     <IndicatorCard
                       title="Parabolic SAR"
                       value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       interpretation={signal.sarInterpretation}
+                      theme={theme}
                     />
                     <IndicatorCard
                       title="Bollinger Bands"
                       value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
                       interpretation={signal.bollingerBandsInterpretation}
+                      theme={theme}
                     />
                 </div>
               )}
@@ -215,17 +221,20 @@ export default function TradeVisionPage() {
             <MarketDataCard
               volume={marketData.volume24h}
               marketCap={marketData.marketCap}
+              theme={theme}
             />
             <PositionRatioCard
               ratio={marketData.longShortRatio}
               selectedInterval={interval}
               onSelectInterval={handleIntervalChange}
+              theme={theme}
             />
             <RiskAnalysisCard
               riskLevel={riskLevel}
               onSetRiskLevel={setRiskLevel}
               riskRating={signal?.riskRating}
               gptConfidence={signal?.gptConfidenceScore}
+              theme={theme}
             />
              <Button
                 size="lg"
