@@ -176,6 +176,29 @@
     }
   }
   
+  @keyframes multi-color-pulse-glow {
+      0% {
+        box-shadow: 0 0 5px hsl(var(--chart-1)), 0 0 10px hsl(var(--chart-2)), 0 0 15px hsl(var(--chart-3));
+      }
+      25% {
+        box-shadow: 0 0 5px hsl(var(--chart-2)), 0 0 10px hsl(var(--chart-3)), 0 0 15px hsl(var(--chart-4));
+      }
+      50% {
+        box-shadow: 0 0 5px hsl(var(--chart-3)), 0 0 10px hsl(var(--chart-4)), 0 0 15px hsl(var(--chart-5));
+      }
+      75% {
+        box-shadow: 0 0 5px hsl(var(--chart-4)), 0 0 10px hsl(var(--chart-5)), 0 0 15px hsl(var(--chart-1));
+      }
+      100% {
+        box-shadow: 0 0 5px hsl(var(--chart-5)), 0 0 10px hsl(var(--chart-1)), 0 0 15px hsl(var(--chart-2));
+      }
+  }
+
+  .animate-multi-color-pulse-glow {
+    animation: multi-color-pulse-glow 4s linear infinite;
+  }
+
+
   .theme-neural-pulse .bg-pulse-grid {
     background-image:
       linear-gradient(hsl(var(--chart-1) / 0.1) 1px, transparent 1px),

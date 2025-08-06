@@ -53,7 +53,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
             onClick={() => handleSelect(symbol)}
             className={cn(
                 "h-12 text-base transition-all",
-                selectedSymbol === symbol && "animate-pulse-glow [--glow-color:theme(colors.primary/0.7)]"
+                selectedSymbol === symbol && "animate-multi-color-pulse-glow"
             )}
           >
             {symbol}
@@ -65,7 +65,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
         <Input
           type="text"
           placeholder="Search for other symbols..."
-          className="h-12 pl-10 text-base focus-visible:animate-pulse-glow [--glow-color:theme(colors.primary/0.7)]"
+          className="h-12 pl-10 text-base focus-visible:animate-multi-color-pulse-glow"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
