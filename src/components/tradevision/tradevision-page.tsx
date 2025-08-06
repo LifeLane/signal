@@ -29,6 +29,7 @@ import { ShadowPage } from './shadow-page';
 import { PremiumPage } from './premium-page';
 import { SignalLoadingHooks } from './signal-loading-hooks';
 import type { Theme } from '@/app/theme-provider';
+import { AnimatedIntroText } from './animated-intro-text';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -127,7 +128,7 @@ export default function TradeVisionPage({ theme, handleThemeToggle }: TradeVisio
              <IntroHooks />
         </div>
         
-        <p className="text-muted-foreground text-lg">Select a symbol to begin analysis.</p>
+        <AnimatedIntroText />
 
         <div className="w-full max-w-sm">
             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
