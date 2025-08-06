@@ -10,7 +10,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import { fetchNews } from '../tools/news-tool';
 import { fetchMarketData } from '../tools/market-data-tool';
 
@@ -62,7 +62,13 @@ const generateTradingSignalPrompt = ai.definePrompt({
 
 **Instructions:**
 1.  **Fetch Market Data:** First, call the \`fetchMarketData\` tool using the provided \`symbol\`. This is your primary source of quantitative data.
-2.  **Fetch News:** Then, call the \`fetchNews\` tool. The query for the news tool should be the full name of the cryptocurrency (e.g., for 'BTC', use 'Bitcoin'; for 'ETH', use 'Ethereum'). This is your primary source for market sentiment.
+2.  **Fetch News:** Then, call the \`fetchNews\` tool. To get the query for the news tool, you MUST map the provided symbol to its full name. Use the following mapping:
+    - BTC -> Bitcoin
+    - ETH -> Ethereum
+    - SOL -> Solana
+    - XRP -> Ripple
+    - DOGE -> Dogecoin
+    For example, if the input symbol is 'BTC', the news query must be 'Bitcoin'. This is your primary source for market sentiment.
 3.  **Analyze and Strategize:** Your entire analysis and the final trading signal must be based *exclusively* on the data returned by these tools for the specified symbol. Do not use any other data, examples, or prior knowledge. Your analysis must directly correlate to the provided data.
 4.  **User Risk Level:** The user's selected risk level is: {{riskLevel}}. Adjust your Entry, Stop, and Profit targets accordingly. Higher risk means wider targets, lower risk means tighter targets.
 
@@ -85,7 +91,7 @@ For each technical indicator provided by the \`fetchMarketData\` tool, you MUST 
 Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
 
 **Final Output:**
-Adhere strictly to the output JSON format. Ensure all generated values and interpretations are directly derived from the tool outputs for the correct symbol.
+Adhere strictly to the output JSON format. Ensure all generated values and interpretations are directly derived from the tool outputs for the correct symbol. The output 'symbol' field must match the input 'symbol' field.
 `,
 });
 
