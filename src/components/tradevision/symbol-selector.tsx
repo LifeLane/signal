@@ -53,7 +53,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
             onClick={() => handleSelect(symbol)}
             className={cn(
                 "h-12 text-base transition-all",
-                selectedSymbol === symbol && "shadow-[0_0_15px_hsl(var(--primary))]"
+                selectedSymbol === symbol && "animate-pulse-glow [--glow-color:theme(colors.primary/0.7)]"
             )}
           >
             {symbol}
