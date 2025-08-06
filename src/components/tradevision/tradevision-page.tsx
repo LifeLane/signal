@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useTransition, useCallback } from 'react';
+import { useState, useTransition, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getTradingSignalAction, getMarketDataAction } from '@/app/actions';
 
@@ -13,7 +13,7 @@ import { PositionRatioCard } from './position-ratio-card';
 import { BottomBar } from './bottom-bar';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
-import { Loader } from 'lucide-react';
+import { Loader, BarChart } from 'lucide-react';
 import { StrategyCard } from './strategy-card';
 import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
@@ -25,12 +25,10 @@ export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
-const REFRESH_INTERVAL = 10000; // 10 seconds
-
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
-  const [isDataLoading, setDataLoading] = useState(true);
-  const [symbol, setSymbol] = useState<Symbol>('BTC');
+  const [isDataLoading, setDataLoading] = useState(false);
+  const [symbol, setSymbol] = useState<Symbol | null>(null);
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
   const [marketData, setMarketData] = useState<MarketData | null>(null);
@@ -39,46 +37,30 @@ export default function TradeVisionPage() {
   );
   const { toast } = useToast();
 
-  const fetchMarketData = useCallback((currentSymbol: Symbol, isInitialLoad: boolean) => {
-    if (isInitialLoad) {
-      setDataLoading(true);
-      setSignal(null);
-    }
+  const fetchMarketData = useCallback((currentSymbol: Symbol) => {
+    setDataLoading(true);
+    setSignal(null);
     getMarketDataAction(currentSymbol)
       .then((data) => {
         setMarketData(data);
       })
       .catch((e) => {
-        if (isInitialLoad) {
-          toast({
-            variant: 'destructive',
-            title: 'Error fetching market data',
-            description: e.message,
-          });
-          setMarketData(null);
-        }
-        console.error("Silent refresh failed:", e.message)
+        toast({
+          variant: 'destructive',
+          title: 'Error fetching market data',
+          description: e.message,
+        });
+        setMarketData(null);
       })
       .finally(() => {
-        if (isInitialLoad) {
-          setDataLoading(false);
-        }
+        setDataLoading(false);
       });
   }, [toast]);
 
 
-  useEffect(() => {
-    fetchMarketData(symbol, true);
-    const intervalId = setInterval(() => {
-      fetchMarketData(symbol, false);
-    }, REFRESH_INTERVAL);
-
-    return () => clearInterval(intervalId);
-  }, [symbol, fetchMarketData]);
-
-
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
+    fetchMarketData(newSymbol);
   };
 
   const handleIntervalChange = (newInterval: Interval) => {
@@ -86,7 +68,7 @@ export default function TradeVisionPage() {
   };
 
   const handleGetSignal = async () => {
-    if (!marketData) return;
+    if (!symbol) return;
     startSignalTransition(async () => {
       try {
         const input = {
@@ -109,20 +91,20 @@ export default function TradeVisionPage() {
     <div className="bg-background text-foreground h-full flex flex-col">
       <AppHeader />
       <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+        <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         
-        {isDataLoading && !marketData ? (
+        {isDataLoading ? (
           <div className="h-48 flex items-center justify-center">
             <Loader className="animate-spin" />
           </div>
-        ) : !marketData ? (
-          <div className="h-48 flex flex-col items-center justify-center text-center p-4">
-             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
-            <p className="text-destructive my-4">Failed to load market data for {symbol}.</p>
-            <Button onClick={() => fetchMarketData(symbol, true)}>Retry</Button>
+        ) : !marketData || !symbol ? (
+          <div className="h-48 flex flex-col items-center justify-center text-center p-4 rounded-lg bg-card">
+            <BarChart className="w-12 h-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold">Select an Asset</h3>
+            <p className="text-muted-foreground">Choose an asset above to view its real-time market data and analysis.</p>
           </div>
         ) : (
           <>
-            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
             <PriceDisplay price={marketData.price} change={marketData.change} />
             {signal ? (
               <>
@@ -187,17 +169,17 @@ export default function TradeVisionPage() {
               selectedInterval={interval}
               onSelectInterval={handleIntervalChange}
             />
+             <Button
+                size="lg"
+                className="w-full h-12 text-lg font-bold"
+                onClick={handleGetSignal}
+                disabled={isSignalPending || isDataLoading || !marketData}
+              >
+                {isSignalPending ? <Loader className="animate-spin" /> : 'Get AI Signal'}
+              </Button>
           </>
         )}
 
-        <Button
-          size="lg"
-          className="w-full h-12 text-lg font-bold"
-          onClick={handleGetSignal}
-          disabled={isSignalPending || isDataLoading || !marketData}
-        >
-          {isSignalPending ? <Loader className="animate-spin" /> : 'Get AI Signal'}
-        </Button>
         <div className="h-24"></div>
       </main>
       <Separator className="bg-border/20" />
