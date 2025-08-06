@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Service for interacting with CoinMarketCap and CoinGecko to fetch market data.
  */
@@ -51,17 +52,21 @@ interface CoinGeckoSimplePriceResponse {
 // In a real application, you would use a library like 'technicalindicators'
 // and real historical data to calculate these values.
 const generateTechnicalIndicators = (price: number) => {
+    // Simulate some realistic volatility and indicator behavior.
+    const volatility = 0.05; // 5% volatility
+    const randomFactor = () => (Math.random() - 0.5) * 2; // -1 to 1
+
     return {
-        longShortRatio: 50 + (Math.random() - 0.5) * 5,
-        rsi: 30 + Math.random() * 40,
-        ema: price * (1 - 0.01 * (Math.random() - 0.5)),
-        vwap: price * (1 - 0.01 * (Math.random() - 0.5)),
+        longShortRatio: 50 + randomFactor() * 10, // e.g., 40% to 60%
+        rsi: 50 + randomFactor() * 25, // e.g., 25 to 75
+        ema: price * (1 - 0.02 * randomFactor()),
+        vwap: price * (1 - 0.01 * randomFactor()),
         bollingerBands: {
-          upper: price * 1.05,
-          lower: price * 0.95,
+          upper: price * (1 + volatility),
+          lower: price * (1 - volatility),
         },
-        sar: price * (1 - 0.02 * (Math.random() > 0.5 ? 1 : -1)),
-        adx: 10 + Math.random() * 40,
+        sar: price * (1 - 0.03 * (Math.random() > 0.5 ? 1 : -1)),
+        adx: 25 + randomFactor() * 15, // e.g., 10 to 40
     }
 }
 
@@ -101,39 +106,30 @@ export async function getMarketData(
       },
     });
 
+    // Check for specific HTTP errors like 401 Unauthorized
+    if (cmcResponse.status === 401) {
+        throw new Error('Unauthorized: Invalid or missing CoinMarketCap API Key. Please check your .env file.');
+    }
+     if (cmcResponse.status === 400) {
+        throw new Error(`Invalid request for symbol "${symbol}". Please check if the symbol is correct and supported.`);
+    }
+
     if (!cmcResponse.ok) {
         const errorBody = await cmcResponse.text();
         console.error('CoinMarketCap API Error:', errorBody);
-        throw new Error(`CoinMarketCap API request failed with status ${cmcResponse.status}: ${cmcResponse.statusText}`);
+        throw new Error(`CoinMarketCap API request failed with status ${cmcResponse.status}`);
     }
 
     const cmcData: CmcResponse = await cmcResponse.json();
-    
-    if (cmcData.status.error_code !== 0) {
+
+    if (cmcData.status.error_code !== 0 && cmcData.status.error_message) {
+      // Forward the specific error message from the API
       throw new Error(`CoinMarketCap API Error: ${cmcData.status.error_message}`);
     }
-    
+
     const quote = cmcData.data[symbol]?.quote?.USD;
     if (!quote) {
-        throw new Error(`No data found for symbol ${symbol} in CoinMarketCap response`);
-    }
-
-    // Fetch from CoinGecko to get additional data or for cross-verification
-    const coinGeckoId = getCoinGeckoId(symbol);
-    const coinGeckoUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`;
-
-    const coinGeckoResponse = await fetch(coinGeckoUrl);
-    if (!coinGeckoResponse.ok) {
-        console.warn(`CoinGecko API request failed with status ${coinGeckoResponse.status}. Using CoinMarketCap data only.`);
-    } else {
-        const coinGeckoData: CoinGeckoSimplePriceResponse = await coinGeckoResponse.json();
-        const coinGeckoPrice = coinGeckoData[coinGeckoId]?.usd;
-
-        if (coinGeckoPrice) {
-            // Optional: You could average the prices or use one as a fallback.
-            // For now, we'll just log it and use CMC's comprehensive quote.
-            console.log(`CoinGecko price for ${symbol}: ${coinGeckoPrice}`);
-        }
+        throw new Error(`No data found for symbol "${symbol}" in CoinMarketCap response. It may be an invalid symbol.`);
     }
 
     const indicators = generateTechnicalIndicators(quote.price);
@@ -146,10 +142,12 @@ export async function getMarketData(
       ...indicators
     };
   } catch (error) {
-    console.error('Error fetching market data:', error);
+    console.error(`Full error fetching market data for ${symbol}:`, error);
     if (error instanceof Error) {
+        // Re-throw the specific error to be caught by the action
         throw error;
     }
-    throw new Error('Failed to fetch data from market APIs.');
+    // Fallback for unknown errors
+    throw new Error('An unexpected error occurred while fetching market data.');
   }
 }
