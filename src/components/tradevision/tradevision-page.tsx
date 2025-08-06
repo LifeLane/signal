@@ -27,6 +27,7 @@ import { SignalsHistoryPage } from './signals-history-page';
 import { AiNewsPage } from './ai-news-page';
 import { ShadowPage } from './shadow-page';
 import { PremiumPage } from './premium-page';
+import { SignalLoadingHooks } from './signal-loading-hooks';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -246,7 +247,7 @@ export default function TradeVisionPage() {
                 onClick={handleGetSignal}
                 disabled={isSignalPending || isDataLoading}
               >
-                {isSignalPending ? <Loader className="animate-spin" /> : 
+                {isSignalPending ? <SignalLoadingHooks /> : 
                 <span className="flex items-center gap-2">
                     <Bot /> Get {symbol ? `${symbol} Signal` : 'SHADOW Signal'}
                 </span>
