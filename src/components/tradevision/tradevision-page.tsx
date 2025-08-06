@@ -115,7 +115,7 @@ export default function TradeVisionPage() {
             <IntroLogo />
         </div>
         
-        <p className="text-base md:text-lg font-semibold text-primary whitespace-nowrap">Your Unfair Advantage in Volatile Markets.</p>
+        <p className="text-base md:text-lg font-semibold text-primary whitespace-nowrap">Your Unfair Advantage.</p>
         
         <div className="w-full max-w-sm p-4 rounded-xl border border-primary/20 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
              <IntroHooks />
