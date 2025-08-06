@@ -63,7 +63,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             <p className="text-muted-foreground mt-2">Choose a plan that fits your trading style and goals.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
             {subscriptionTiers.map(tier => (
                 <Card key={tier.name} className={cn('flex flex-col', tier.popular && 'border-primary ring-2 ring-primary')}>
                     <CardHeader>
