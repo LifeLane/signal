@@ -34,7 +34,7 @@ const GenerateTradingSignalOutputSchema = z.object({
     .string()
     .describe('The AI confidence score (0-100).'),
   sentiment: z.string().describe('A summary of the market sentiment.'),
-  disclaimer: z.string().describe('A sarcastic disclaimer.'),
+  disclaimer: z.string().describe('A standard financial disclaimer.'),
   rsiInterpretation: z.string().describe("Interpretation of the RSI value."),
   emaInterpretation: z.string().describe("Interpretation of the EMA value."),
   vwapInterpretation: z.string().describe("Interpretation of the VWAP value."),
@@ -55,16 +55,19 @@ const generateTradingSignalPrompt = ai.definePrompt({
   input: {schema: GenerateTradingSignalInputSchema},
   output: {schema: GenerateTradingSignalOutputSchema},
   tools: [fetchNews, fetchMarketData],
-  prompt: `You are an AI trading strategy assistant. Analyze the provided market data, technical indicators, and user risk level to generate a trading signal.
+  prompt: `You are an expert AI trading strategy assistant. Your task is to analyze market data, technical indicators, and news to generate a coherent and actionable trading signal.
 
 First, use the fetchMarketData tool to get the latest market data for the provided symbol.
 Then, use the fetchNews tool to get the latest news about the provided symbol. The query for the news tool should be the full name of the cryptocurrency (e.g. Bitcoin, Ethereum).
 
 User Risk Level: {{riskLevel}}
 
-Based on the live market data and news, provide a trading signal (BUY, SELL, or HOLD), an entry zone, stop loss, take profit, confidence level, AI-assessed risk rating, a sentiment summary, and a sarcastic disclaimer.
+Based on the live market data and news, provide a complete trading strategy. The strategy must be logical.
+- For a 'BUY' signal, the Stop Loss must be below the Entry Zone, and the Take Profit must be above the Entry Zone.
+- For a 'SELL' signal, the Stop Loss must be above the Entry Zone, and the Take Profit must be below the Entry Zone.
+- For a 'HOLD' signal, you can provide a wider range or relevant levels to watch.
 
-For each technical indicator from the market data, provide a detailed interpretation. Explain what the current value means and its potential impact on the price.
+Provide a detailed interpretation for each technical indicator from the market data. Explain what the current value means and its potential impact on the price.
 
 - rsiInterpretation: "The RSI is at [RSI_VALUE]. An RSI below 30 suggests the asset may be oversold..."
 - emaInterpretation: "The price is trading relative to the [EMA_VALUE] EMA. This can indicate trend direction..."
@@ -72,6 +75,8 @@ For each technical indicator from the market data, provide a detailed interpreta
 - bollingerBandsInterpretation: "The price is near the [BB_VALUE] band. This can signal overbought/oversold conditions..."
 - sarInterpretation: "The Parabolic SAR is at [SAR_VALUE]. A value below the price suggests an uptrend..."
 - adxInterpretation: "The ADX is at [ADX_VALUE]. A value above 25 indicates a strong trend..."
+
+Finally, provide a standard financial disclaimer. It should be serious and advise users of the risks of trading. Example: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results."
 
 Consider the user's risk level when determining the trading signal and confidence level. Higher risk tolerance may allow for more aggressive signals.
 
