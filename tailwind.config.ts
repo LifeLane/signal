@@ -94,11 +94,25 @@ export default {
           from: { width: '0' },
           to: { width: '100%' },
         },
+        'pulse-glow': {
+          '0%, 100%': {
+            boxShadow: '0 0 0 0px hsl(var(--primary) / 0.3)',
+          },
+          '50%': {
+            boxShadow: '0 0 0 4px hsl(var(--primary) / 0)',
+          },
+        },
+        'background-pan': {
+          '0%': { backgroundPosition: '0% 0%' },
+          '100%': { backgroundPosition: '-200% -200%' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         typing: 'typing 2s steps(40, end)',
+        'pulse-glow': 'pulse-glow 2s infinite',
+        'background-pan': 'background-pan 15s linear infinite',
       },
     },
   },

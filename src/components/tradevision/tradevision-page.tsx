@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useTransition, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getTradingSignalAction, getMarketDataAction } from '@/app/actions';
 
@@ -13,7 +13,7 @@ import { PositionRatioCard } from './position-ratio-card';
 import { BottomBar } from './bottom-bar';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
-import { Loader, Bot } from 'lucide-react';
+import { Loader } from 'lucide-react';
 import { StrategyCard } from './strategy-card';
 import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
@@ -28,8 +28,8 @@ export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
-  const [isDataLoading, setDataLoading] = useState(false);
-  const [symbol, setSymbol] = useState<Symbol | null>(null);
+  const [isDataLoading, setDataLoading] = useState(true);
+  const [symbol, setSymbol] = useState<Symbol>('BTC');
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
   const [marketData, setMarketData] = useState<MarketData | null>(null);
@@ -57,6 +57,12 @@ export default function TradeVisionPage() {
         setDataLoading(false);
       });
   }, [toast]);
+
+  useEffect(() => {
+    if (symbol) {
+      fetchMarketData(symbol);
+    }
+  }, []);
 
 
   const handleSymbolChange = (newSymbol: Symbol) => {
@@ -91,24 +97,24 @@ export default function TradeVisionPage() {
   return (
     <div className="bg-background text-foreground h-full flex flex-col">
       <AppHeader />
-      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+      <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar neural-pulse-bg">
         
-        {isDataLoading ? (
+        {isDataLoading && !marketData ? (
           <div className="h-full flex items-center justify-center">
             <Loader className="animate-spin h-10 w-10 text-primary" />
           </div>
-        ) : !marketData || !symbol ? (
+        ) : !symbol ? (
           <div className="h-full flex flex-col justify-between">
             <IntroAnimation />
             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
           </div>
-        ) : (
+        ) : marketData ? (
           <>
             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
             <PriceDisplay price={marketData.price} change={marketData.change} />
             {signal ? (
               <>
-                <StrategyCard strategy={signal} />
+                <StrategyCard strategy={signal} isPending={isSignalPending}/>
                 <RiskAnalysisCard
                   riskLevel={riskLevel}
                   onSetRiskLevel={setRiskLevel}
@@ -178,6 +184,12 @@ export default function TradeVisionPage() {
                 {isSignalPending ? <Loader className="animate-spin" /> : 'Get AI Signal'}
               </Button>
           </>
+        ) : (
+             <div className="h-full flex flex-col justify-center items-center text-center">
+                <p className='text-destructive'>Could not load data for {symbol}.</p>
+                <p className='text-muted-foreground text-sm'>Please check your network or try a different symbol.</p>
+                <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
+            </div>
         )}
 
         <div className="h-24"></div>

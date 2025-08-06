@@ -9,28 +9,50 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
-import { Bot, Check, Info, X } from 'lucide-react';
+import { Bot, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 
 interface StrategyCardProps {
   strategy: GenerateTradingSignalOutput;
+  isPending: boolean;
 }
 
 const getSignalClass = (signal: 'BUY' | 'SELL' | 'HOLD') => {
   switch (signal) {
     case 'BUY':
-      return 'text-green-400';
+      return {
+        text: 'text-green-400',
+        bg: 'bg-green-500/20',
+        border: 'border-green-400/50 shadow-green-400/20',
+      };
     case 'SELL':
-      return 'text-red-400';
+      return {
+        text: 'text-red-400',
+        bg: 'bg-red-500/20',
+        border: 'border-red-400/50 shadow-red-400/20',
+      };
     default:
-      return 'text-gray-400';
+      return {
+        text: 'text-gray-400',
+        bg: 'bg-gray-500/20',
+        border: 'border-primary/50 shadow-primary/10',
+      };
   }
 };
 
-export function StrategyCard({ strategy }: StrategyCardProps) {
-  return (
-    <Card className="border-primary/50 shadow-lg shadow-primary/10">
+export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
+    const signalClasses = getSignalClass(strategy.signal);
+
+    return (
+    <Card
+      className={cn(
+        'shadow-lg transition-all',
+        isPending
+          ? 'border-primary/80 animate-pulse-glow'
+          : signalClasses.border
+      )}
+    >
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -39,10 +61,8 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
           <Badge
             className={cn(
               'text-base',
-              getSignalClass(strategy.signal),
-              strategy.signal === 'BUY' && 'bg-green-500/20',
-              strategy.signal === 'SELL' && 'bg-red-500/20',
-              strategy.signal === 'HOLD' && 'bg-gray-500/20'
+              signalClasses.text,
+              signalClasses.bg
             )}
             variant="secondary"
           >
@@ -58,13 +78,13 @@ export function StrategyCard({ strategy }: StrategyCardProps) {
         </div>
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">Stop Loss</span>
-          <span className="font-semibold text-red-400">
+          <span className={cn('font-semibold', getSignalClass('SELL').text)}>
             {strategy.stopLoss}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground">Take Profit</span>
-          <span className="font-semibold text-green-400">
+          <span className={cn('font-semibold', getSignalClass('BUY').text)}>
             {strategy.takeProfit}
           </span>
         </div>

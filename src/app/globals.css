@@ -76,3 +76,11 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
+@layer utilities {
+  .neural-pulse-bg {
+    background-image: radial-gradient(hsl(var(--primary) / 0.1) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+    animation: background-pan 20s linear infinite;
+  }
+}
