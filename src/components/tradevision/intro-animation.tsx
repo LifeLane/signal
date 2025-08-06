@@ -6,12 +6,12 @@ import { cn } from '@/lib/utils';
 import { Bot } from 'lucide-react';
 
 const lines = [
-  'Connecting to neural-link network...',
-  'Analyzing terabytes of market data...',
-  'Cross-referencing global news feeds...',
-  'Calculating sentiment vectors...',
-  'Running predictive models...',
-  'AI Core synchronized.',
+  'Parsing real-time market data...',
+  'Detecting anomalous volume spikes...',
+  'Analyzing whale wallet movements...',
+  'Cross-referencing insider trade reports...',
+  'Calibrating sentiment shifts...',
+  'Signal lock acquired.',
 ];
 
 export function IntroAnimation() {
@@ -36,7 +36,7 @@ export function IntroAnimation() {
         <div className="flex-1 flex flex-col items-center justify-center">
             <Bot className="w-16 h-16 text-primary animate-pulse" />
             <h2 className="text-2xl font-bold mt-4">SHADOW AI</h2>
-            <p className="text-muted-foreground">Your Edge in Volatile Markets.</p>
+            <p className="text-muted-foreground">Your Unfair Advantage in Volatile Markets.</p>
         </div>
         <div className="font-mono text-left text-sm text-green-400 w-full max-w-xs space-y-1 h-48">
             {visibleLines.map((line, i) => (
