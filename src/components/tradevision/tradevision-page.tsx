@@ -13,7 +13,7 @@ import { PositionRatioCard } from './position-ratio-card';
 import { BottomBar } from './bottom-bar';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
-import { Loader, BarChart } from 'lucide-react';
+import { Loader, Bot } from 'lucide-react';
 import { StrategyCard } from './strategy-card';
 import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
@@ -99,9 +99,9 @@ export default function TradeVisionPage() {
           </div>
         ) : !marketData || !symbol ? (
           <div className="h-48 flex flex-col items-center justify-center text-center p-4 rounded-lg bg-card">
-            <BarChart className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold">Select an Asset</h3>
-            <p className="text-muted-foreground">Choose an asset above to view its real-time market data and analysis.</p>
+            <Bot className="w-12 h-12 text-primary mb-4" />
+            <h3 className="text-lg font-semibold">Unlock AI-Powered Trading Signals</h3>
+            <p className="text-muted-foreground">Select an asset to let SHADOW analyze market data, news, and technical indicators to generate your next trading strategy.</p>
           </div>
         ) : (
           <>
