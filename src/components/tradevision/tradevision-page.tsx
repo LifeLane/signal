@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition, useCallback, useEffect } from 'react';
+import { useState, useTransition, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getTradingSignalAction, getMarketDataAction } from '@/app/actions';
 
@@ -50,6 +50,7 @@ export default function TradeVisionPage() {
   const { toast } = useToast();
   const [theme, setTheme] = useState<Theme>('neural-pulse');
   const [activeView, setActiveView] = useState<NavItem>('Dashboard');
+  const strategyCardRef = useRef<HTMLDivElement>(null);
 
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
@@ -104,6 +105,12 @@ export default function TradeVisionPage() {
     });
   };
 
+  useEffect(() => {
+    if (signal && !isSignalPending && strategyCardRef.current) {
+        strategyCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start'});
+    }
+  }, [signal, isSignalPending]);
+
   const handleThemeToggle = () => {
     setTheme(prevTheme => {
       const currentIndex = themes.indexOf(prevTheme);
@@ -152,9 +159,11 @@ export default function TradeVisionPage() {
             <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} />
             <Separator />
 
-            {isSignalPending || signal ? (
-               <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
-            ) : null}
+            <div ref={strategyCardRef} className="scroll-mt-4">
+                {isSignalPending || signal ? (
+                <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
+                ) : null}
+            </div>
 
             <RiskAnalysisCard
               riskLevel={riskLevel}

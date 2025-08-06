@@ -54,6 +54,7 @@ export function AiNewsPage({ theme }: AiNewsPageProps) {
 
   const handleAnalyzeNews = () => {
     if (!selectedSymbol) return;
+    setNewsSummary(null); // Clear previous summary
     startTransition(async () => {
       try {
         const result = await getNewsSummaryAction({ topic: selectedSymbol });
@@ -159,12 +160,12 @@ export function AiNewsPage({ theme }: AiNewsPageProps) {
           }
         </Button>
       </div>
+
       <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-        {!selectedSymbol && !isPending && renderInitialState()}
+        {(!selectedSymbol && !isPending && !newsSummary) && renderInitialState()}
         {isPending && renderPendingState()}
         {!isPending && newsSummary && renderNewsSummary()}
       </div>
     </div>
   );
 }
-
