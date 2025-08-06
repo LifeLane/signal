@@ -196,19 +196,21 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
-            const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
+            // This call was the source of the 403 error and has been removed.
+            // const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
             
             const instructions = [];
-            if (!toTokenAccountInfo) {
-                instructions.push(
-                    createAssociatedTokenAccountInstruction(
-                        publicKey,
-                        toTokenAccountAddress,
-                        CREATOR_WALLET_ADDRESS,
-                        SHADOW_TOKEN_MINT
-                    )
-                );
-            }
+
+            // We now use an idempotent instruction. It will only create the account if it doesn't exist.
+            // The connected user (publicKey) will be the payer for this potential creation.
+            instructions.push(
+                createAssociatedTokenAccountInstruction(
+                    publicKey,
+                    toTokenAccountAddress,
+                    CREATOR_WALLET_ADDRESS,
+                    SHADOW_TOKEN_MINT
+                )
+            );
             
             instructions.push(
                 createTransferInstruction(
@@ -395,5 +397,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
+
+    
 
     
