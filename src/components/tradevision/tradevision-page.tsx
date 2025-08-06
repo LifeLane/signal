@@ -28,14 +28,14 @@ import { AiNewsPage } from './ai-news-page';
 import { ShadowPage } from './shadow-page';
 import { PremiumPage } from './premium-page';
 import { SignalLoadingHooks } from './signal-loading-hooks';
+import type { Theme } from '@/app/theme-provider';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
-export type Theme = 'holographic' | 'neural-pulse' | 'glitch' | 'neon-future' | 'forest-reserve' | 'solana-summer' | 'desert-mirage';
 
 interface TradeVisionPageProps {
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
   handleThemeToggle: () => void;
 }
 
@@ -138,7 +138,7 @@ export default function TradeVisionPage({ theme, handleThemeToggle }: TradeVisio
   const renderDashboard = () => (
     <main className={cn(
         "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all",
-        theme === 'neural-pulse' && 'bg-pulse-grid'
+        (theme === 'neural-pulse' || theme === 'neon-future') && 'bg-pulse-grid'
       )}>
         
         {!symbol && !isDataLoading && renderIntro()}
@@ -234,11 +234,7 @@ export default function TradeVisionPage({ theme, handleThemeToggle }: TradeVisio
             />
              <Button
                 size="lg"
-                className={cn(
-                  "w-full h-12 text-lg font-bold relative group transition-transform duration-200",
-                  theme === 'holographic' && 'hover:-translate-y-1',
-                  theme === 'glitch' && 'hover:animate-glitch'
-                )}
+                className="w-full h-12 text-lg font-bold relative group"
                 onClick={handleGetSignal}
                 disabled={isSignalPending || isDataLoading}
               >

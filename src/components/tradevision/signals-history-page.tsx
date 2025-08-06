@@ -3,14 +3,14 @@
 
 import type { TradingSignalWithTargets } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/card';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Bot, Info } from 'lucide-react';
 
 interface SignalsHistoryPageProps {
   signals: TradingSignalWithTargets[];
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 const getSignalClass = (signal?: 'BUY' | 'SELL' | 'HOLD') => {
@@ -61,9 +61,7 @@ export function SignalsHistoryPage({ signals, theme }: SignalsHistoryPageProps) 
                 key={signal.id}
                 className={cn(
                     'shadow-lg transition-all',
-                    theme === 'holographic' && signalClasses.border,
-                    theme === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`,
-                    theme === 'glitch' && 'animate-snap-in'
+                    theme === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`
                 )}
                 >
                 <CardHeader>

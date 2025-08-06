@@ -2,7 +2,8 @@
 'use client';
 import type { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import type { Interval, Theme } from './tradevision-page';
+import type { Interval } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Progress } from '../ui/progress';
@@ -11,7 +12,7 @@ interface PositionRatioCardProps {
   ratio: number;
   selectedInterval: Interval;
   onSelectInterval: Dispatch<SetStateAction<Interval>>;
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 const intervals: Interval[] = ['5m', '15m', '1h', '4h', '1d'];

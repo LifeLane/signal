@@ -19,12 +19,12 @@ import type { TradingSignalWithTargets } from '@/app/actions';
 import { Bot, Info, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 
 interface StrategyCardProps {
   strategy: TradingSignalWithTargets | null;
   isPending: boolean;
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 const getSignalClass = (signal?: 'BUY' | 'SELL' | 'HOLD') => {
@@ -83,9 +83,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
         return (
             <Card className={cn(
                 'transition-all',
-                theme === 'holographic' && 'border-primary/50 animate-pulse',
-                theme === 'neural-pulse' && 'animate-none border-primary/50',
-                theme === 'glitch' && 'animate-snap-in',
+                theme === 'neural-pulse' && 'animate-none border-primary/50'
             )}>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -94,10 +92,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
                             <span>{isPending ? 'AI Strategy' : cardTitle}</span>
                         </div>
                          <Badge
-                            className={cn(
-                                'text-base',
-                                theme === 'glitch' ? 'animate-glitch text-transparent' : 'text-primary/80 bg-primary/20'
-                            )}
+                            className='text-base text-primary/80 bg-primary/20'
                             variant="secondary"
                         >
                            ANALYZING...
@@ -116,9 +111,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
     <Card
       className={cn(
         'shadow-lg transition-all',
-        theme === 'holographic' && signalClasses.border,
-        theme === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`,
-        theme === 'glitch' && 'animate-snap-in'
+        theme === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`
       )}
     >
       <CardHeader>

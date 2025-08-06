@@ -10,7 +10,7 @@ import { createTransferInstruction, getAssociatedTokenAddress, createAssociatedT
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader, LogOut, Info } from 'lucide-react';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -61,7 +61,7 @@ const trialTier = {
 
 
 interface PremiumPageProps {
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 export function PremiumPage({ theme }: PremiumPageProps) {
@@ -154,7 +154,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
   return (
     <div className={cn(
         "flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar",
-        theme === 'neural-pulse' && 'bg-pulse-grid'
+        (theme === 'neural-pulse' || theme === 'neon-future') && 'bg-pulse-grid'
     )}>
         <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2"><Gem className='text-primary'/> Go Premium</h1>

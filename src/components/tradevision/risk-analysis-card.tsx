@@ -3,7 +3,8 @@
 
 import type { Dispatch, SetStateAction } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import type { RiskLevel, Theme } from './tradevision-page';
+import type { RiskLevel } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Shield, Zap, TrendingUp } from 'lucide-react';
@@ -13,7 +14,7 @@ interface RiskAnalysisCardProps {
   onSetRiskLevel: Dispatch<SetStateAction<RiskLevel>>;
   riskRating?: 'Low' | 'Medium' | 'High';
   gptConfidence?: string;
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 const riskLevels: RiskLevel[] = ['Low', 'Medium', 'High'];

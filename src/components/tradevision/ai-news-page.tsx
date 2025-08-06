@@ -4,7 +4,8 @@ import { useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getNewsSummaryAction } from '@/app/actions';
 import type { GenerateNewsSummaryOutput } from '@/ai/flows/generate-news-summary';
-import type { Symbol, Theme } from './tradevision-page';
+import type { Symbol } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,7 @@ const getSentimentClass = (sentiment?: 'Positive' | 'Negative' | 'Neutral') => {
 };
 
 interface AiNewsPageProps {
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 export function AiNewsPage({ theme }: AiNewsPageProps) {
@@ -102,9 +103,7 @@ export function AiNewsPage({ theme }: AiNewsPageProps) {
         <div className="space-y-4">
             <Card className={cn(
                 'shadow-lg transition-all',
-                theme === 'holographic' && sentimentClasses.border,
-                theme === 'neural-pulse' && `animate-pulse-glow ${sentimentClasses.glow}`,
-                theme === 'glitch' && 'animate-snap-in'
+                theme === 'neural-pulse' && `animate-pulse-glow ${sentimentClasses.glow}`
             )}>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -145,7 +144,7 @@ export function AiNewsPage({ theme }: AiNewsPageProps) {
   return (
     <div className={cn(
         "flex flex-col h-full",
-        theme === 'neural-pulse' && 'bg-pulse-grid'
+        (theme === 'neural-pulse' || theme === 'neon-future') && 'bg-pulse-grid'
       )}>
       <div className="p-4 space-y-4 bg-background">
         <SymbolSelector selectedSymbol={selectedSymbol} onSelectSymbol={setSelectedSymbol} />

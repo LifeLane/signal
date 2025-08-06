@@ -3,14 +3,14 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 
 interface IndicatorCardProps {
   title: string;
   value: string | number;
   interpretation: string;
   gaugeValue?: number;
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 export function IndicatorCard({

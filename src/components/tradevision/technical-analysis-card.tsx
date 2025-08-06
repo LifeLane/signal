@@ -2,7 +2,7 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, MoveDown, MoveUp, Waves, Gauge, Rss } from 'lucide-react';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 import { cn } from '@/lib/utils';
 
 interface IndicatorProps {
@@ -29,7 +29,7 @@ interface TechnicalAnalysisCardProps {
     bollingerBands: { upper: number; lower: number; };
     sar: number;
     adx: number;
-    theme: Theme;
+    theme: Theme | 'neural-pulse';
 }
 
 export function TechnicalAnalysisCard({ rsi, ema, vwap, bollingerBands, sar, adx, theme }: TechnicalAnalysisCardProps) {

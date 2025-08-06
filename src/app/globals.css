@@ -4,6 +4,7 @@
 @tailwind utilities;
 
 @layer base {
+  /* Default Theme: Neural Pulse */
   :root {
     --background: 210 20% 15%;
     --foreground: 210 40% 98%;
@@ -25,11 +26,11 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 210 70% 50%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 
   .dark {
@@ -136,36 +137,6 @@
 }
 
 @layer utilities {
-  /* Holographic Theme Animations */
-  .theme-holographic .animate-border-shine {
-    position: relative;
-    overflow: hidden;
-  }
-  .theme-holographic .animate-border-shine::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 200%;
-    height: 100%;
-    background: linear-gradient(
-      110deg,
-      transparent,
-      hsl(var(--primary) / 0.5),
-      transparent
-    );
-    animation: border-shine 2s linear infinite;
-  }
-
-  @keyframes border-shine {
-    '0%' {
-      transform: translateX(-100%);
-    }
-    '100%' {
-      transform: translateX(100%);
-    }
-  }
-
   /* Neural Pulse Theme Animations */
   @keyframes pulse-glow {
     0%, 100% {
@@ -199,7 +170,7 @@
   }
 
 
-  .theme-neural-pulse .bg-pulse-grid {
+  .theme-neural-pulse .bg-pulse-grid, .theme-neon-future .bg-pulse-grid {
     background-image:
       linear-gradient(hsl(var(--chart-1) / 0.1) 1px, transparent 1px),
       linear-gradient(to right, hsl(var(--chart-2) / 0.1) 1px, transparent 1px),
@@ -231,27 +202,6 @@
     100% {
       opacity: 1;
       transform: scale(1) translateY(0);
-    }
-  }
-  
-  @keyframes glitch {
-    0% {
-      text-shadow:
-        -2px -2px 0 hsl(var(--primary)),
-        2px 2px 0 hsl(var(--accent));
-      clip-path: inset(30% 0 30% 0);
-    }
-    25% {
-      clip-path: inset(10% 0 50% 0);
-    }
-    50% {
-      clip-path: inset(60% 0 10% 0);
-    }
-    75% {
-      clip-path: inset(40% 0 20% 0);
-    }
-    100% {
-      clip-path: inset(50% 0 35% 0);
     }
   }
 

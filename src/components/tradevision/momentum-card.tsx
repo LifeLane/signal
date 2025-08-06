@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Info, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 
 interface MomentumIndicatorProps {
   label: string;
@@ -24,7 +24,7 @@ const MomentumIndicator = ({ label, value, color }: MomentumIndicatorProps) => (
 );
 
 interface MomentumCardProps {
-    theme: Theme;
+    theme: Theme | 'neural-pulse';
 }
 
 export function MomentumCard({ theme }: MomentumCardProps) {

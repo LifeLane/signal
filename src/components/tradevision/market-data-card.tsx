@@ -2,13 +2,13 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, BarChart2 } from 'lucide-react';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 import { cn } from '@/lib/utils';
 
 interface MarketDataCardProps {
   volume: number;
   marketCap: number;
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 export function MarketDataCard({ volume, marketCap, theme }: MarketDataCardProps) {

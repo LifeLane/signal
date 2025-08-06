@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { cn } from '@/lib/utils';
-import type { Theme } from './tradevision-page';
+import type { Theme } from '@/app/theme-provider';
 
 
 const contractDetails = {
@@ -99,14 +99,14 @@ const DetailRow = ({ label, value, canCopy = false }: { label: string; value: st
 };
 
 interface ShadowPageProps {
-  theme: Theme;
+  theme: Theme | 'neural-pulse';
 }
 
 export function ShadowPage({ theme }: ShadowPageProps) {
     return (
         <div className={cn(
             "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar",
-            theme === 'neural-pulse' && 'bg-pulse-grid'
+            (theme === 'neural-pulse' || theme === 'neon-future') && 'bg-pulse-grid'
         )}>
             <h1 className="text-2xl font-bold text-foreground">SHADOW Token</h1>
 
