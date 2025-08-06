@@ -1,5 +1,5 @@
 /**
- * @fileoverview Service for interacting with CoinMarketCap to fetch market data.
+ * @fileoverview Service for interacting with CoinMarketCap and CoinGecko to fetch market data.
  */
 
 export interface MarketData {
@@ -31,11 +31,20 @@ interface CmcResponse {
   };
   data: {
     [symbol: string]: {
+      id: number;
+      name: string;
+      symbol: string;
       quote: {
         USD: CmcQuote;
       };
     };
   };
+}
+
+interface CoinGeckoSimplePriceResponse {
+    [id: string]: {
+        usd: number;
+    }
 }
 
 // This function fakes technical indicator data for now.
@@ -56,9 +65,20 @@ const generateMockIndicators = (price: number) => {
     }
 }
 
+const getCoinGeckoId = (symbol: string): string => {
+    const mapping: { [key: string]: string } = {
+        'BTC': 'bitcoin',
+        'ETH': 'ethereum',
+        'XRP': 'ripple',
+        'SOL': 'solana',
+        'DOGE': 'dogecoin',
+    };
+    return mapping[symbol.toUpperCase()] || symbol.toLowerCase();
+}
+
 
 /**
- * Fetches market data for a given symbol from CoinMarketCap.
+ * Fetches market data for a given symbol from CoinMarketCap and CoinGecko.
  * @param symbol The crypto symbol (e.g., "BTC", "ETH").
  * @returns A promise that resolves to the market data.
  */
@@ -83,47 +103,67 @@ export async function getMarketData(
     throw new Error('COINMARKETCAP_API_KEY is not set in the environment variables.');
   }
 
-  const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${symbol}`;
+  const cmcUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${symbol}`;
 
   try {
-    const response = await fetch(url, {
+    // Fetch from CoinMarketCap
+    const cmcResponse = await fetch(cmcUrl, {
       headers: {
         'X-CMC_PRO_API_KEY': apiKey,
         'Accept': 'application/json',
       },
     });
 
-    if (!response.ok) {
-        const errorBody = await response.text();
+    if (!cmcResponse.ok) {
+        const errorBody = await cmcResponse.text();
         console.error('CoinMarketCap API Error:', errorBody);
-        throw new Error(`CoinMarketCap API request failed with status ${response.status}: ${response.statusText}`);
+        throw new Error(`CoinMarketCap API request failed with status ${cmcResponse.status}: ${cmcResponse.statusText}`);
     }
 
-    const data: CmcResponse = await response.json();
+    const cmcData: CmcResponse = await cmcResponse.json();
     
-    if (data.status.error_code !== 0) {
-      throw new Error(`CoinMarketCap API Error: ${data.status.error_message}`);
+    if (cmcData.status.error_code !== 0) {
+      throw new Error(`CoinMarketCap API Error: ${cmcData.status.error_message}`);
     }
     
-    const quote = data.data[symbol]?.quote?.USD;
+    const quote = cmcData.data[symbol]?.quote?.USD;
     if (!quote) {
-        throw new Error(`No data found for symbol ${symbol}`);
+        throw new Error(`No data found for symbol ${symbol} in CoinMarketCap response`);
     }
 
-    const mockIndicators = generateMockIndicators(quote.price);
+    // Fetch from CoinGecko to get additional data or for cross-verification
+    const coinGeckoId = getCoinGeckoId(symbol);
+    const coinGeckoUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoId}&vs_currencies=usd`;
+
+    const coinGeckoResponse = await fetch(coinGeckoUrl);
+    if (!coinGeckoResponse.ok) {
+        console.warn(`CoinGecko API request failed with status ${coinGeckoResponse.status}. Using CoinMarketCap data only.`);
+    } else {
+        const coinGeckoData: CoinGeckoSimplePriceResponse = await coinGeckoResponse.json();
+        const coinGeckoPrice = coinGeckoData[coinGeckoId]?.usd;
+
+        if (coinGeckoPrice) {
+            // Optional: You could average the prices or use one as a fallback.
+            // For now, we'll just log it and use CMC's comprehensive quote.
+            console.log(`CoinGecko price for ${symbol}: ${coinGeckoPrice}`);
+        }
+    }
+
+
+    const indicators = generateMockIndicators(quote.price);
 
     return {
       price: quote.price,
       change: quote.percent_change_24h,
       volume24h: quote.volume_24h,
       marketCap: quote.market_cap,
-      ...mockIndicators
+      ...indicators
     };
   } catch (error) {
     console.error('Error fetching market data:', error);
     if (error instanceof Error) {
         throw error;
     }
-    throw new Error('Failed to fetch data from CoinMarketCap.');
+    throw new Error('Failed to fetch data from market APIs.');
   }
 }
