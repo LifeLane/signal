@@ -28,7 +28,6 @@ export type RiskLevel = 'Low' | 'Medium' | 'High';
 const REFRESH_INTERVAL = 10000; // 10 seconds
 
 export default function TradeVisionPage() {
-  const [isClient, setIsClient] = useState(false);
   const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(true);
   const [symbol, setSymbol] = useState<Symbol>('BTC');
@@ -40,10 +39,6 @@ export default function TradeVisionPage() {
   );
   const { toast } = useToast();
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const fetchMarketData = useCallback((currentSymbol: Symbol, isInitialLoad: boolean) => {
     if (isInitialLoad) {
       setDataLoading(true);
@@ -54,7 +49,6 @@ export default function TradeVisionPage() {
         setMarketData(data);
       })
       .catch((e) => {
-        // Only show toast on initial load failure
         if (isInitialLoad) {
           toast({
             variant: 'destructive',
@@ -73,15 +67,13 @@ export default function TradeVisionPage() {
   }, [toast]);
 
   useEffect(() => {
-    if (isClient) {
-      fetchMarketData(symbol, true); // Initial fetch
-      const intervalId = setInterval(() => {
-        fetchMarketData(symbol, false); // Subsequent refreshes
-      }, REFRESH_INTERVAL);
+    fetchMarketData(symbol, true);
+    const intervalId = setInterval(() => {
+      fetchMarketData(symbol, false);
+    }, REFRESH_INTERVAL);
 
-      return () => clearInterval(intervalId); // Cleanup on component unmount or symbol change
-    }
-  }, [symbol, fetchMarketData, isClient]);
+    return () => clearInterval(intervalId);
+  }, [symbol, fetchMarketData]);
 
 
   const handleSymbolChange = (newSymbol: Symbol) => {
@@ -111,14 +103,6 @@ export default function TradeVisionPage() {
       }
     });
   };
-
-  if (!isClient) {
-    return (
-        <div className="h-dvh flex items-center justify-center bg-background">
-            <Loader className="animate-spin" />
-        </div>
-    );
-  }
 
   return (
     <div className="bg-background text-foreground h-full flex flex-col">
