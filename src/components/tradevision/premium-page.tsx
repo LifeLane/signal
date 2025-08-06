@@ -145,9 +145,15 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             skipPreflight: true,
             maxRetries: 2
         });
-        await connection.confirmTransaction(txid, 'confirmed');
+        
+        const latestBlockHash = await connection.getLatestBlockhash();
+        await connection.confirmTransaction({
+          blockhash: latestBlockHash.blockhash,
+          lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+          signature: txid
+        }, 'confirmed');
 
-        toast({ title: "Swap Successful!", description: `Transaction ID: ${txid}`, action: (
+        toast({ title: "Swap Successful!", description: `Transaction ID: ${txid.substring(0,10)}...`, action: (
             <a href={`https://solscan.io/tx/${txid}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
         ) });
 
@@ -185,7 +191,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 CREATOR_WALLET_ADDRESS // Owner
             );
             
-            const { blockhash } = await connection.getLatestBlockhash();
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
 
             const instructions = [
                 createTransferInstruction(
@@ -206,7 +212,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
             const signature = await sendTransaction(transaction, connection);
 
-            await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight: (await connection.getLatestBlockhash()).lastValidBlockHeight }, 'confirmed');
+            await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
 
 
             toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
