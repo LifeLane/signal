@@ -131,23 +131,8 @@ export default function TradeVisionPage() {
     </div>
   );
 
-  const renderContent = () => {
-    if (activeView === 'SHADOW') {
-      return <ShadowPage />;
-    }
-
-    if (activeView === 'Signals') {
-      return <SignalsHistoryPage signals={signalHistory} theme={theme} />;
-    }
-
-    if (activeView === 'AI News') {
-        return <AiNewsPage theme={theme} />;
-    }
-
-    // Fallback or other views can be handled here.
-    // For now, if no other view is matched, maybe default to the intro/main analysis screen.
-    return (
-      <main className={cn(
+  const renderDashboard = () => (
+    <main className={cn(
         "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all",
         theme === 'neural-pulse' && 'bg-pulse-grid'
       )}>
@@ -256,7 +241,21 @@ export default function TradeVisionPage() {
 
         <div className="h-24"></div>
       </main>
-    )
+  );
+
+  const renderContent = () => {
+    switch (activeView) {
+      case 'SHADOW':
+        return <ShadowPage />;
+      case 'Dashboard':
+        return renderDashboard();
+      case 'Signals':
+        return <SignalsHistoryPage signals={signalHistory} theme={theme} />;
+      case 'AI News':
+        return <AiNewsPage theme={theme} />;
+      default:
+        return <ShadowPage />;
+    }
   }
 
   return (
