@@ -6,7 +6,6 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { VersionedTransaction, TransactionMessage, PublicKey, TransactionInstruction } from '@solana/web3.js';
 import { createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
-import bs58 from 'bs58';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -98,19 +97,16 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         
         const instructions = [];
         
-        // 3. Check if recipient's ATA exists and add creation instruction if not
-        // This is the robust way to handle it.
-        const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
-        if (!toTokenAccountInfo) {
-            instructions.push(
-                createAssociatedTokenAccountInstruction(
-                    publicKey, // Payer
-                    toTokenAccountAddress, // ATA address
-                    CREATOR_WALLET_ADDRESS, // Owner
-                    SHADOW_TOKEN_MINT // Mint
-                )
-            );
-        }
+        // 3. Robustly add instruction to create recipient's ATA if it doesn't exist.
+        // This is the standard, idempotent way to handle it.
+        instructions.push(
+            createAssociatedTokenAccountInstruction(
+                publicKey, // Payer
+                toTokenAccountAddress, // ATA address
+                CREATOR_WALLET_ADDRESS, // Owner
+                SHADOW_TOKEN_MINT // Mint
+            )
+        );
 
         // 4. Create the main transfer instruction
         instructions.push(
@@ -144,19 +140,11 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
     } catch (error: any) {
         console.error("Subscription failed:", error);
-        if (error.message?.includes('could not find account') || error.message?.includes('TokenAccountNotFoundError')) {
-             toast({
-                variant: 'destructive',
-                title: 'Subscription Failed',
-                description: 'You may not have enough SHADOW tokens, or an account error occurred. Please acquire some tokens first.',
-            });
-        } else {
-            toast({
-                variant: 'destructive',
-                title: 'Subscription Failed',
-                description: error?.message || 'An unknown error occurred during the transaction.',
-            });
-        }
+        toast({
+            variant: 'destructive',
+            title: 'Subscription Failed',
+            description: error?.message || 'An unknown error occurred during the transaction.',
+        });
     } finally {
         setIsSubscribing(null);
     }
@@ -212,14 +200,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 )}
             </CardContent>
         </Card>
-
-        {/* <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
-            <CardHeader>
-                <CardTitle>2. Get SHADOW Tokens (Optional)</CardTitle>
-                <CardDescription>Swap SOL for SHADOW to unlock premium access. Powered by Jupiter.</CardDescription>
-            </CardHeader>
-        </Card> */}
-
+        
         <Card className='bg-transparent border-none shadow-none'>
             <CardHeader className='text-center'>
                 <CardTitle>
