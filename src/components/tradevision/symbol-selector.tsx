@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -25,7 +26,6 @@ const allSymbols: { value: Symbol; label: string }[] = [
 export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelectorProps) {
   const [search, setSearch] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<{ value: Symbol; label: string }[]>([]);
-  const [isActivated, setIsActivated] = React.useState(false);
 
 
   React.useEffect(() => {
@@ -41,24 +41,19 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     setSearch('');
     setSearchResults([]);
     onSelectSymbol(symbol);
-    
-    // Trigger animation
-    setIsActivated(true);
-    setTimeout(() => setIsActivated(false), 2000);
   }
 
   return (
-    <div className={cn(
-        "space-y-4 p-4 rounded-xl border",
-        isActivated && 'animate-border-shine'
-      )}>
+    <div className="space-y-4">
       <div className="grid grid-cols-4 gap-2">
         {popularSymbols.map((symbol) => (
           <Button
             key={symbol}
             variant={selectedSymbol === symbol ? 'default' : 'outline'}
             onClick={() => handleSelect(symbol)}
-            className="h-12 text-base"
+            className={cn(
+                "h-12 text-base animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]"
+            )}
           >
             {symbol}
           </Button>
@@ -69,7 +64,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
         <Input
           type="text"
           placeholder="Search for other symbols..."
-          className="h-12 pl-10 text-base"
+          className="h-12 pl-10 text-base animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
