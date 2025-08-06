@@ -65,17 +65,17 @@ const generateTradingSignalPrompt = ai.definePrompt({
 1.  **Fetch Market Data:** Call the \`fetchMarketData\` tool with the user's selected \`symbol\`.
 2.  **Fetch News:** From the market data, get the full name of the cryptocurrency (e.g., "Bitcoin" for "BTC"). Call the \`fetchNews\` tool using this full name as the query.
 3.  **Analyze News Sentiment:** Based on the headlines from the \`fetchNews\` tool, determine an overall sentiment for the news.
-4.  **Analyze Technical Indicators:** Use the data from \`fetchMarketData\` to form an interpretation for each technical indicator.
-    *   **RSI:** Over 70 is overbought, under 30 is oversold.
-    *   **ADX:** Over 25 indicates a strong trend.
-    *   **EMA:** If price is above EMA, it's bullish. If below, bearish.
-    *   **VWAP:** If price is above VWAP, bullish intraday momentum. If below, bearish.
-    *   **Parabolic SAR:** If SAR is below price, uptrend. If above, downtrend.
-    *   **Bollinger Bands:** Note if price is near the upper or lower bands.
+4.  **Analyze Technical Indicators:** Use the data from \`fetchMarketData\` to form a concise, one-sentence interpretation for each technical indicator.
+    *   **RSI:** Over 70 is overbought, under 30 is oversold. State the value and its meaning.
+    *   **ADX:** Over 25 indicates a strong trend. State the value and its meaning.
+    *   **EMA:** If price is above EMA, it's bullish. If below, bearish. State the relationship.
+    *   **VWAP:** If price is above VWAP, bullish intraday momentum. If below, bearish. State the relationship.
+    *   **Parabolic SAR:** If SAR is below price, it signals an uptrend. If above, a downtrend. State the relationship.
+    *   **Bollinger Bands:** Note if the price is near the upper or lower bands, suggesting potential reversals or breakouts.
 5.  **Synthesize and Decide Signal:** Combine the news sentiment and all technical indicator analyses to decide on a final trading signal: 'BUY', 'SELL', or 'HOLD'.
 6.  **Assess Confidence & Risk:** Provide a 'confidence' percentage and a 'gptConfidenceScore' based on how strongly the data aligns. Provide an AI-assessed 'riskRating'.
 7.  **Disclaimer:** Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
-8.  **Populate Output:** Fill out the entire JSON output, *except for price targets*. The output 'symbol' must match the input 'symbol'. The 'id' should be a new unique identifier.
+8.  **Populate Output:** Fill out the entire JSON output, including all interpretations. The output 'symbol' must match the input 'symbol'. The 'id' should be a new unique identifier.
 
 **IMPORTANT: DO NOT calculate 'entryZone', 'stopLoss', or 'takeProfit'. These will be calculated by the system later. Your only job is to provide the signal and the analysis.**
 

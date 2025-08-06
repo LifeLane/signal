@@ -9,8 +9,14 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import type { TradingSignalWithTargets } from '@/app/actions';
-import { Bot, Info } from 'lucide-react';
+import { Bot, Info, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import type { Theme } from './tradevision-page';
@@ -154,6 +160,28 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
           <span className="text-muted-foreground">Confidence</span>
           <span className="font-semibold">{strategy.confidence}</span>
         </div>
+
+        <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+                <AccordionTrigger>
+                    <div className="flex items-center gap-2 text-xs">
+                        <Cpu className="w-4 h-4" />
+                        Analysis Breakdown
+                    </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                    <ul className="space-y-2 text-xs text-muted-foreground p-2">
+                        <li><span className='font-semibold text-foreground'>RSI:</span> {strategy.rsiInterpretation}</li>
+                        <li><span className='font-semibold text-foreground'>EMA:</span> {strategy.emaInterpretation}</li>
+                        <li><span className='font-semibold text-foreground'>ADX:</span> {strategy.adxInterpretation}</li>
+                        <li><span className='font-semibold text-foreground'>VWAP:</span> {strategy.vwapInterpretation}</li>
+                        <li><span className='font-semibold text-foreground'>Bollinger Bands:</span> {strategy.bollingerBandsInterpretation}</li>
+                        <li><span className='font-semibold text-foreground'>Parabolic SAR:</span> {strategy.sarInterpretation}</li>
+                    </ul>
+                </AccordionContent>
+            </AccordionItem>
+        </Accordion>
+
       </CardContent>
       <CardFooter className="text-xs text-muted-foreground flex gap-2 items-start">
         <Info className="w-4 h-4 mt-0.5 shrink-0" />
