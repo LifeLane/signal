@@ -16,6 +16,7 @@ import { fetchMarketData } from '../tools/market-data-tool';
 
 
 const GenerateTradingSignalInputSchema = z.object({
+  id: z.string().optional().describe('A unique identifier for this request to prevent caching.'),
   symbol: z.string().describe('The trading symbol (e.g., BTC, ETH).'),
   riskLevel: z
     .enum(['Low', 'Medium', 'High'])
@@ -80,7 +81,7 @@ const generateTradingSignalPrompt = ai.definePrompt({
     *   For 'BUY', Stop Loss must be below Entry, Take Profit above. For 'SELL', the reverse. For 'HOLD', set targets to "N/A".
 7.  **Assess Confidence & Risk:** Provide a 'confidence' percentage and a 'gptConfidenceScore' based on how strongly the data aligns. Provide an AI-assessed 'riskRating'.
 8.  **Disclaimer:** Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
-9.  **Populate Output:** Fill out the entire JSON output. The output 'symbol' must match the input 'symbol'.
+9.  **Populate Output:** Fill out the entire JSON output. The output 'symbol' must match the input 'symbol'. The 'id' should be a new unique identifier.
 
 **Final Output:** Adhere strictly to the JSON format. All generated values MUST be directly derived from the information returned by the tools.
 `,

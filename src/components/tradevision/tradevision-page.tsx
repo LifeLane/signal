@@ -88,11 +88,12 @@ export default function TradeVisionPage() {
     startSignalTransition(async () => {
       try {
         const input = {
+          id: Date.now().toString(), // Cache-busting ID
           symbol: symbol,
           riskLevel,
         };
         const result = await getTradingSignalAction(input);
-        const newSignal = { ...result, symbol, id: Date.now().toString() };
+        const newSignal = { ...result, symbol, id: result.id };
         setSignal(newSignal);
         setSignalHistory(prev => [newSignal, ...prev]);
       } catch (e: any) {
