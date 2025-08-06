@@ -90,6 +90,34 @@ export default {
             height: '0',
           },
         },
+        'border-shine': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { boxShadow: '0 0 2px var(--glow-color), 0 0 5px var(--glow-color), 0 0 10px var(--glow-color)' },
+          '50%': { boxShadow: '0 0 5px var(--glow-color), 0 0 15px var(--glow-color), 0 0 25px var(--glow-color)' },
+        },
+        'background-pan': {
+          from: { backgroundPosition: '0 0' },
+          to: { backgroundPosition: '-200% -200%' },
+        },
+        'snap-in': {
+          '0%': { opacity: '0', transform: 'scale(0.95) translateY(-10px)' },
+          '80%': { transform: 'scale(1.02) translateY(0)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        glitch: {
+          '0%': { textShadow: '-2px -2px 0 hsl(var(--primary)), 2px 2px 0 hsl(var(--accent))', clipPath: 'inset(30% 0 30% 0)' },
+          '25%': { clipPath: 'inset(10% 0 50% 0)' },
+          '50%': { clipPath: 'inset(60% 0 10% 0)' },
+          '75%': { clipPath: 'inset(40% 0 20% 0)' },
+          '100%': { clipPath: 'inset(50% 0 35% 0)' },
+        },
+        typing: {
+          from: { width: '0' },
+          to: { width: '100%' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -99,6 +127,7 @@ export default {
         'background-pan': 'background-pan 30s linear infinite',
         'snap-in': 'snap-in 0.5s ease-out',
         'glitch': 'glitch 0.25s linear infinite',
+        'typing': 'typing 1s steps(40, end)',
       },
     },
   },

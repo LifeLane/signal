@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -125,7 +126,11 @@
     background-size: 3rem 3rem;
     animation: background-pan 30s linear infinite;
   }
-
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+  
   @keyframes background-pan {
     from { background-position: 0 0; }
     to { background-position: -200% -200%; }
@@ -166,5 +171,19 @@
     100% {
       clip-path: inset(50% 0 35% 0);
     }
+  }
+
+  @keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+  }
+  
+  .animate-typing {
+    animation: typing 1s steps(40, end);
+    animation-fill-mode: forwards;
   }
 }

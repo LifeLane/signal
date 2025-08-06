@@ -20,7 +20,8 @@ import { MarketDataCard } from './market-data-card';
 import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
 import { IndicatorCard } from './indicator-card';
 import type { MarketData } from '@/services/market-data';
-import { IntroAnimation } from './intro-animation';
+import { IntroHooks } from './intro-hooks';
+import { IntroLogo } from './intro-logo';
 import { cn } from '@/lib/utils';
 import { TechnicalAnalysisCard } from './technical-analysis-card';
 import { SignalsHistoryPage } from './signals-history-page';
@@ -44,7 +45,7 @@ export default function TradeVisionPage() {
   );
   const [signalHistory, setSignalHistory] = useState<GenerateTradingSignalOutput[]>([]);
   const { toast } = useToast();
-  const [theme, setTheme] = useState<Theme>('holographic');
+  const [theme, setTheme] = useState<Theme>('neural-pulse');
   const [activeView, setActiveView] = useState<NavItem>('Prime');
 
 
@@ -107,6 +108,26 @@ export default function TradeVisionPage() {
       return themes[nextIndex];
     })
   }
+  
+  const renderIntro = () => (
+    <div className="flex flex-col items-center justify-center text-center p-4 h-full space-y-6">
+        <div className="border border-primary/20 rounded-xl p-4 w-full max-w-sm animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
+            <IntroLogo />
+        </div>
+        
+        <p className="text-lg font-semibold text-primary">Your Unfair Advantage in Volatile Markets.</p>
+        
+        <div className="w-full max-w-sm p-4 rounded-xl border border-primary/20 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
+             <IntroHooks />
+        </div>
+        
+        <p className="text-muted-foreground text-lg">Select a symbol to begin analysis.</p>
+
+        <div className="w-full max-w-sm">
+            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
+        </div>
+    </div>
+  );
 
   const renderContent = () => {
     if (activeView === 'Signals') {
@@ -120,13 +141,7 @@ export default function TradeVisionPage() {
         theme === 'neural-pulse' && 'bg-pulse-grid'
       )}>
         
-        {!symbol && !isDataLoading && (
-          <div className="h-full flex flex-col justify-center">
-            <IntroAnimation />
-          </div>
-        )}
-        
-        <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
+        {!symbol && !isDataLoading && renderIntro()}
         
         {isDataLoading && (
           <div className="h-full flex items-center justify-center">
@@ -136,6 +151,7 @@ export default function TradeVisionPage() {
 
         {marketData && symbol && !isDataLoading && (
           <>
+            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
             <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} />
             <Separator />
 
