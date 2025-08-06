@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 const hooks = [
   'Analyze Market Trends',
   'Predict Price Action',
-  'Leverage AI Insights',
 ];
 
 export function IntroHooks() {
@@ -41,7 +40,7 @@ export function IntroHooks() {
             <span className={visibleHooks[i] ? 'animate-typing' : 'opacity-0'}>
               {line}
             </span>
-            {i === hooks.length - 1 && visibleHooks[i] && (
+            {i === hooks.length - 1 && visibleHooks.length === hooks.length && (
               <span className="inline-block w-2 h-5 bg-green-400 animate-pulse ml-1"></span>
             )}
         </p>
