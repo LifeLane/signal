@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { VersionedTransaction, TransactionMessage, PublicKey } from '@solana/web3.js';
+import { VersionedTransaction, TransactionMessage, PublicKey, TransactionInstruction } from '@solana/web3.js';
 import { createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 import bs58 from 'bs58';
 
@@ -93,12 +93,13 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
         const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
         
-        // 2. Fetch the latest blockhash
+        // 2. Fetch the latest blockhash inside the function right before sending.
         const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
         
         const instructions = [];
         
         // 3. Check if recipient's ATA exists and add creation instruction if not
+        // This is the robust way to handle it.
         const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
         if (!toTokenAccountInfo) {
             instructions.push(
@@ -295,5 +296,3 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
-
-    
