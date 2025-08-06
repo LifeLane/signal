@@ -193,32 +193,30 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         setIsSubscribing(tierName);
         try {
-            // Get the sender's and receiver's associated token accounts
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
-            // This instruction is now idempotent. It will only create the account if it doesn't exist.
-            const createAccountInstruction = createAssociatedTokenAccountInstruction(
-                publicKey, // Payer of the transaction fee
-                toTokenAccountAddress, // Associated token account address to be created
-                CREATOR_WALLET_ADDRESS, // Owner of the new account
-                SHADOW_TOKEN_MINT // Mint for the new account
-            );
-            
-            const transferInstruction = createTransferInstruction(
-                fromTokenAccountAddress,
-                toTokenAccountAddress,
-                publicKey,
-                BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
-            );
+            const instructions = [
+                createAssociatedTokenAccountInstruction(
+                    publicKey,
+                    toTokenAccountAddress,
+                    CREATOR_WALLET_ADDRESS,
+                    SHADOW_TOKEN_MINT
+                ),
+                createTransferInstruction(
+                    fromTokenAccountAddress,
+                    toTokenAccountAddress,
+                    publicKey,
+                    BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
+                ),
+            ];
 
-            // Fetch the latest blockhash inside the function right before sending.
             const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             
             const messageV0 = new TransactionMessage({
                 payerKey: publicKey,
                 recentBlockhash: blockhash,
-                instructions: [createAccountInstruction, transferInstruction],
+                instructions: instructions,
             }).compileToV0Message();
 
             const transaction = new VersionedTransaction(messageV0);
@@ -390,4 +388,5 @@ export function PremiumPage({ theme }: PremiumPageProps) {
   );
 }
 
+    
     
