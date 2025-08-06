@@ -137,7 +137,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
             {strategy.signal}
           </Badge>
         </CardTitle>
-        <CardDescription>{strategy.sentiment}</CardDescription>
+        <CardDescription>{strategy.justification}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <div className="flex justify-between items-center">

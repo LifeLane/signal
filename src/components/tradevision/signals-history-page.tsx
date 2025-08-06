@@ -82,7 +82,7 @@ export function SignalsHistoryPage({ signals, theme }: SignalsHistoryPageProps) 
                         {signal.signal}
                     </Badge>
                     </CardTitle>
-                    <CardDescription>{signal.sentiment}</CardDescription>
+                    <CardDescription>{signal.justification}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                     <div className="flex justify-between items-center">
