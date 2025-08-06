@@ -51,7 +51,10 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
             key={symbol}
             variant={selectedSymbol === symbol ? 'default' : 'outline'}
             onClick={() => handleSelect(symbol)}
-            className="h-12 text-base"
+            className={cn(
+                "h-12 text-base transition-all",
+                selectedSymbol === symbol && "shadow-[0_0_15px_hsl(var(--primary))]"
+            )}
           >
             {symbol}
           </Button>
