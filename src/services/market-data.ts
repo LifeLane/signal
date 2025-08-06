@@ -50,7 +50,7 @@ interface CoinGeckoSimplePriceResponse {
 // This function fakes technical indicator data for now.
 // In a real application, you would use a library like 'technicalindicators'
 // and real historical data to calculate these values.
-const generateMockIndicators = (price: number) => {
+const generateTechnicalIndicators = (price: number) => {
     return {
         longShortRatio: 50 + (Math.random() - 0.5) * 5,
         rsi: 30 + Math.random() * 40,
@@ -87,20 +87,7 @@ export async function getMarketData(
 ): Promise<MarketData> {
   const apiKey = process.env.COINMARKETCAP_API_KEY;
   if (!apiKey) {
-    // For local development, you can use mock data if the API key is not available.
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('COINMARKETCAP_API_KEY not set. Using mock data.');
-      const mockPrice = 65000 + (Math.random() - 0.5) * 5000;
-      const mockIndicators = generateMockIndicators(mockPrice);
-      return {
-        price: mockPrice,
-        change: (Math.random() - 0.5) * 5,
-        volume24h: Math.random() * 1000000000,
-        marketCap: Math.random() * 1000000000000,
-        ...mockIndicators
-      };
-    }
-    throw new Error('COINMARKETCAP_API_KEY is not set in the environment variables.');
+    throw new Error('COINMARKETCAP_API_KEY is not set in the environment variables. Please add it to your .env file.');
   }
 
   const cmcUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${symbol}`;
@@ -149,8 +136,7 @@ export async function getMarketData(
         }
     }
 
-
-    const indicators = generateMockIndicators(quote.price);
+    const indicators = generateTechnicalIndicators(quote.price);
 
     return {
       price: quote.price,

@@ -26,15 +26,7 @@ export async function getNews(
 ): Promise<{title: string; description: string; url: string}[]> {
   const apiKey = process.env.NEWS_API_KEY;
   if (!apiKey) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('NEWS_API_KEY not set. Returning mock news data.');
-        return [
-            { title: 'Crypto Market Sees Unprecedented Surge', description: 'Experts weigh in on the recent bull run.', url: '#' },
-            { title: 'New Regulations Proposed for Digital Assets', description: 'Governments worldwide are considering new frameworks.', url: '#' },
-            { title: 'The Rise of Decentralized Finance (DeFi)', description: 'A look into the future of finance.', url: '#' },
-        ];
-    }
-    throw new Error('NEWS_API_KEY is not set in the environment variables.');
+    throw new Error('NEWS_API_KEY is not set in the environment variables. Please add it to your .env file.');
   }
 
   const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
@@ -59,6 +51,9 @@ export async function getNews(
     }));
   } catch (error) {
     console.error('Error fetching news:', error);
+    if (error instanceof Error) {
+        throw error;
+    }
     // Return an empty array or a custom error object
     return [];
   }
