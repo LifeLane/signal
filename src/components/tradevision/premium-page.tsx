@@ -197,36 +197,30 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
-            const instructions = [];
-
             // This instruction is now idempotent. It will only create the account if it doesn't exist.
             // The connected user (publicKey) will be the payer for this potential creation.
-             instructions.push(
-                createAssociatedTokenAccountInstruction(
-                    publicKey, // Payer of the transaction fee
-                    toTokenAccountAddress, // Associated token account address to be created
-                    CREATOR_WALLET_ADDRESS, // Owner of the new account
-                    SHADOW_TOKEN_MINT // Mint for the new account
-                )
+            const createAccountInstruction = createAssociatedTokenAccountInstruction(
+                publicKey, // Payer of the transaction fee
+                toTokenAccountAddress, // Associated token account address to be created
+                CREATOR_WALLET_ADDRESS, // Owner of the new account
+                SHADOW_TOKEN_MINT // Mint for the new account
             );
             
             // The main transfer instruction
-            instructions.push(
-                createTransferInstruction(
-                    fromTokenAccountAddress, // From (user's token account)
-                    toTokenAccountAddress, // To (creator's token account)
-                    publicKey, // Owner of the from account
-                    BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS)) // Amount
-                )
+            const transferInstruction = createTransferInstruction(
+                fromTokenAccountAddress, // From (user's token account)
+                toTokenAccountAddress, // To (creator's token account)
+                publicKey, // Owner of the from account
+                BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS)) // Amount
             );
 
             // Fetch the latest blockhash inside the function right before sending.
-            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+            const latestBlockhash = await connection.getLatestBlockhash('confirmed');
             
             const messageV0 = new TransactionMessage({
                 payerKey: publicKey,
-                recentBlockhash: blockhash,
-                instructions,
+                recentBlockhash: latestBlockhash.blockhash,
+                instructions: [createAccountInstruction, transferInstruction],
             }).compileToV0Message();
 
             const transaction = new VersionedTransaction(messageV0);
@@ -235,7 +229,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             const signature = await sendTransaction(transaction, connection);
             
             // Wait for confirmation.
-            await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
+            await connection.confirmTransaction({ ...latestBlockhash, signature }, 'confirmed');
 
             toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
                 <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
