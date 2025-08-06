@@ -4,8 +4,9 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { VersionedTransaction, TransactionMessage, PublicKey, Transaction } from '@solana/web3.js';
+import { VersionedTransaction, TransactionMessage, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
 import { getOrCreateAssociatedTokenAccount, createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
+import bs58 from 'bs58';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -127,7 +128,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
 
   const handleSwap = async () => {
-    if (!publicKey || !quote || !sendTransaction) {
+    if (!publicKey || !quote || !signTransaction) {
       toast({ variant: 'destructive', title: "Swap Error", description: "Wallet not connected or quote not available." });
       return;
     }
@@ -146,9 +147,17 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         })).json();
 
         const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
-        const transaction = VersionedTransaction.deserialize(swapTransactionBuf);
-        
-        const txid = await sendTransaction(transaction, connection);
+        var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
+
+        // sign the transaction
+        const signedTransaction = await signTransaction(transaction);
+
+        const rawTransaction = signedTransaction.serialize()
+
+        const txid = await connection.sendRawTransaction(rawTransaction, {
+            skipPreflight: true,
+            maxRetries: 2
+        });
 
         const latestBlockHash = await connection.getLatestBlockhash();
         await connection.confirmTransaction({
@@ -162,6 +171,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         ) });
 
     } catch (e: any) {
+        console.error("Swap failed", e);
         toast({ variant: 'destructive', title: "Swap Failed", description: e.message || "An unknown error occurred." });
     } finally {
         setIsSwapping(false);
@@ -184,15 +194,19 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         setIsSubscribing(tierName);
         try {
+            // Get the sender's token account address.
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
-            const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
-            const transaction = new Transaction();
+            // Get the creator's token account address.
+            const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
 
+            // Check if the creator has a token account, if not, create one.
             const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
+            
+            const instructions = [];
 
             if (!toTokenAccountInfo) {
-               transaction.add(
+               instructions.push(
                     createAssociatedTokenAccountInstruction(
                         publicKey, 
                         toTokenAccountAddress, 
@@ -202,7 +216,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 );
             }
             
-            transaction.add(
+            instructions.push(
                 createTransferInstruction(
                     fromTokenAccountAddress,
                     toTokenAccountAddress,
@@ -211,11 +225,18 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 )
             );
 
-            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
-            transaction.recentBlockhash = blockhash;
-            transaction.feePayer = publicKey;
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+            
+            const messageV0 = new TransactionMessage({
+                payerKey: publicKey,
+                recentBlockhash: blockhash,
+                instructions,
+            }).compileToV0Message();
 
-            const signature = await sendTransaction(transaction, connection);
+            const transaction = new VersionedTransaction(messageV0);
+
+            const signature = await sendTransaction(transaction, connection, { skipPreflight: true });
+
             await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
 
 
