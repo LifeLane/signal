@@ -41,23 +41,23 @@ const getSignalClass = (signal: 'BUY' | 'SELL' | 'HOLD') => {
   }
 };
 
-const GlitchingContent = () => (
+const PendingContent = () => (
     <div className='space-y-3 text-sm'>
         <div className="flex justify-between items-center">
-            <span className="text-muted-foreground glitch-text" data-text="Entry Zone">Entry Zone</span>
-            <span className="font-semibold glitch-text" data-text="Calculating...">Calculating...</span>
+            <span className="text-muted-foreground">Entry Zone</span>
+            <span className="font-semibold text-muted-foreground/50">Calculating...</span>
         </div>
         <div className="flex justify-between items-center">
-            <span className="text-muted-foreground glitch-text" data-text="Stop Loss">Stop Loss</span>
-            <span className="font-semibold text-red-400/50 glitch-text" data-text="Calculating...">Calculating...</span>
+            <span className="text-muted-foreground">Stop Loss</span>
+            <span className="font-semibold text-muted-foreground/50">Calculating...</span>
         </div>
         <div className="flex justify-between items-center">
-            <span className="text-muted-foreground glitch-text" data-text="Take Profit">Take Profit</span>
-            <span className="font-semibold text-green-400/50 glitch-text" data-text="Calculating...">Calculating...</span>
+            <span className="text-muted-foreground">Take Profit</span>
+            <span className="font-semibold text-muted-foreground/50">Calculating...</span>
         </div>
         <div className="flex justify-between items-center">
-            <span className="text-muted-foreground glitch-text" data-text="Confidence">Confidence</span>
-            <span className="font-semibold glitch-text" data-text="...% ...%">...%</span>
+            <span className="text-muted-foreground">Confidence</span>
+            <span className="font-semibold text-muted-foreground/50">...%</span>
         </div>
     </div>
 );
@@ -68,29 +68,28 @@ export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
 
     if (isPending) {
         return (
-            <Card className='border-primary/80 animate-pulse'>
+            <Card className='border-primary/50 animate-pulse'>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Bot className="text-primary" /> 
-                            <span className='glitch-text' data-text="AI Strategy">AI Strategy</span>
+                            <span>AI Strategy</span>
                         </div>
                         <Badge
-                            className={cn('text-base text-primary/80 bg-primary/20 glitch-text')}
-                            data-text="...АНАЛИЗ..."
+                            className={cn('text-base text-primary/80 bg-primary/20')}
                             variant="secondary"
                         >
-                           ...ANALYZING...
+                           ANALYZING...
                         </Badge>
                     </CardTitle>
-                    <CardDescription className='glitch-text' data-text="Processing signal...">Processing signal...</CardDescription>
+                    <CardDescription>Processing signal...</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <GlitchingContent/>
+                    <PendingContent/>
                 </CardContent>
                 <CardFooter className="text-xs text-muted-foreground flex gap-2 items-start">
                     <Info className="w-4 h-4 mt-0.5 shrink-0" />
-                    <span className='glitch-text' data-text="Please wait. Signal is being computed.">Please wait. Signal is being computed.</span>
+                    <span>Please wait. Signal is being computed.</span>
                 </CardFooter>
             </Card>
         )
@@ -99,7 +98,7 @@ export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
     return (
     <Card
       className={cn(
-        'shadow-lg animate-snap-in',
+        'shadow-lg',
         signalClasses.border
       )}
     >

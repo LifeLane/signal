@@ -28,8 +28,8 @@ export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
-  const [isDataLoading, setDataLoading] = useState(false);
-  const [symbol, setSymbol] = useState<Symbol | null>(null);
+  const [isDataLoading, setDataLoading] = useState(true);
+  const [symbol, setSymbol] = useState<Symbol | null>('BTC');
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
   const [marketData, setMarketData] = useState<MarketData | null>(null);
@@ -57,6 +57,12 @@ export default function TradeVisionPage() {
         setDataLoading(false);
       });
   }, [toast]);
+
+  useEffect(() => {
+    if (symbol) {
+        fetchMarketData(symbol)
+    }
+  }, []);
 
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
@@ -170,12 +176,12 @@ export default function TradeVisionPage() {
             />
              <Button
                 size="lg"
-                className="w-full h-12 text-lg font-bold relative group"
+                className="w-full h-12 text-lg font-bold relative group transition-transform duration-200 hover:-translate-y-1"
                 onClick={handleGetSignal}
                 disabled={isSignalPending || isDataLoading || !marketData}
               >
                 {isSignalPending ? <Loader className="animate-spin" /> : 
-                <span className="transition-all duration-200 group-hover:glitch-text" data-text="Get AI Signal">
+                <span>
                     Get AI Signal
                 </span>
                 }

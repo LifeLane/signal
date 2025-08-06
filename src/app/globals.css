@@ -78,28 +78,23 @@
 }
 
 @layer utilities {
-  .glitch-text::before,
-  .glitch-text::after {
-    content: attr(data-text);
+  .animate-border-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .animate-border-shine::before {
+    content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
+    left: -100%;
+    width: 200%;
     height: 100%;
-    background: hsl(var(--background));
-  }
-
-  .glitch-text::before {
-    left: 2px;
-    text-shadow: -1px 0 hsl(var(--primary));
-    clip: rect(44px, 450px, 56px, 0);
-    animation: glitch-anim 5s infinite linear alternate-reverse;
-  }
-
-  .glitch-text::after {
-    left: -2px;
-    text-shadow: -1px 0 hsl(var(--accent));
-    clip: rect(85px, 450px, 90px, 0);
-    animation: glitch-anim-2 5s infinite linear alternate-reverse;
+    background: linear-gradient(
+      110deg,
+      transparent,
+      hsl(var(--primary) / 0.5),
+      transparent
+    );
+    animation: border-shine 2s linear infinite;
   }
 }
