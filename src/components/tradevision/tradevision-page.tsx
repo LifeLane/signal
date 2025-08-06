@@ -34,9 +34,13 @@ export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 export type Theme = 'holographic' | 'neural-pulse' | 'glitch' | 'neon-future' | 'forest-reserve' | 'solana-summer' | 'desert-mirage';
 
-const themes: Theme[] = ['holographic', 'neural-pulse', 'glitch', 'neon-future', 'forest-reserve', 'solana-summer', 'desert-mirage'];
+interface TradeVisionPageProps {
+  theme: Theme;
+  handleThemeToggle: () => void;
+}
 
-export default function TradeVisionPage() {
+
+export default function TradeVisionPage({ theme, handleThemeToggle }: TradeVisionPageProps) {
   const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(false);
   const [symbol, setSymbol] = useState<Symbol | null>(null);
@@ -48,7 +52,6 @@ export default function TradeVisionPage() {
   );
   const [signalHistory, setSignalHistory] = useState<TradingSignalWithTargets[]>([]);
   const { toast } = useToast();
-  const [theme, setTheme] = useState<Theme>('neural-pulse');
   const [activeView, setActiveView] = useState<NavItem>('Dashboard');
   const strategyCardRef = useRef<HTMLDivElement>(null);
 
@@ -111,14 +114,6 @@ export default function TradeVisionPage() {
         strategyCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start'});
     }
   }, [signal, isSignalPending]);
-
-  const handleThemeToggle = () => {
-    setTheme(prevTheme => {
-      const currentIndex = themes.indexOf(prevTheme);
-      const nextIndex = (currentIndex + 1) % themes.length;
-      return themes[nextIndex];
-    })
-  }
   
   const renderIntro = () => (
     <div className="flex flex-col items-center justify-center text-center p-4 h-full space-y-6">
@@ -285,7 +280,7 @@ export default function TradeVisionPage() {
   }
 
   return (
-    <div className={cn("bg-background text-foreground h-full flex flex-col", `theme-${theme}`)}>
+    <div className={"bg-background text-foreground h-full flex flex-col"}>
       <AppHeader onThemeToggle={handleThemeToggle} />
       {renderContent()}
       <Separator className="bg-border/20" />
