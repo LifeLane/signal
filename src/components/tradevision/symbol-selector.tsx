@@ -65,7 +65,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
         <Input
           type="text"
           placeholder="Search for other symbols..."
-          className="h-12 pl-10 text-base"
+          className="h-12 pl-10 text-base focus-visible:animate-pulse-glow [--glow-color:theme(colors.primary/0.7)]"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
