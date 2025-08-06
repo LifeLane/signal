@@ -239,7 +239,7 @@ export default function TradeVisionPage() {
               >
                 {isSignalPending ? <Loader className="animate-spin" /> : 
                 <span className="flex items-center gap-2">
-                    <Bot /> Get SHADOW Signal
+                    <Bot /> Get {symbol ? `${symbol} Signal` : 'SHADOW Signal'}
                 </span>
                 }
               </Button>

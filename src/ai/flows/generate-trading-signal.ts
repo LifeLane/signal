@@ -59,7 +59,7 @@ const generateTradingSignalPrompt = ai.definePrompt({
     input: { schema: GenerateTradingSignalInputSchema },
     output: { schema: GenerateTradingSignalOutputSchema },
     tools: [fetchMarketData, fetchNews],
-    prompt: `You are an expert AI trading strategy assistant. Your entire analysis and the final trading signal MUST be based *exclusively* on the data returned by the tools for the specified symbol. Do not use any other data, examples, or prior knowledge.
+    prompt: `You are an expert AI trading strategy assistant. Your entire analysis and the final trading signal MUST be based *exclusively* on the data returned by the tools for the specified symbol. Do not use any other data, examples, or prior knowledge. The output 'symbol' MUST match the input 'symbol'.
 
 **Instructions:**
 1.  **Fetch Market Data:** Call the \`fetchMarketData\` tool with the user's selected \`symbol\`.

@@ -71,6 +71,7 @@ const PendingContent = () => (
 
 export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) {
     const signalClasses = getSignalClass(strategy?.signal);
+    const cardTitle = strategy?.symbol ? `AI Strategy for ${strategy.symbol}` : 'AI Strategy';
 
     if (isPending || !strategy) {
         return (
@@ -84,7 +85,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Bot className="text-primary" /> 
-                            <span>AI Strategy</span>
+                            <span>{isPending ? 'AI Strategy' : cardTitle}</span>
                         </div>
                          <Badge
                             className={cn(
@@ -117,7 +118,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Bot className="text-primary" /> AI Strategy
+            <Bot className="text-primary" /> {cardTitle}
           </div>
           <Badge
             className={cn(
