@@ -4,9 +4,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { VersionedTransaction, Transaction, TransactionMessage, PublicKey, SystemProgram } from '@solana/web3.js';
-import { getOrCreateAssociatedTokenAccount, createTransferInstruction, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import bs58 from 'bs58';
+import { VersionedTransaction, TransactionMessage, PublicKey } from '@solana/web3.js';
+import { getOrCreateAssociatedTokenAccount, createTransferInstruction } from '@solana/spl-token';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -170,39 +169,52 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         setIsSubscribing(tierName);
         try {
-            // Get the sender's token account for SHADOW
+            // Get or create the sender's token account
             const fromTokenAccount = await getOrCreateAssociatedTokenAccount(
                 connection,
                 publicKey, // Payer
                 SHADOW_TOKEN_MINT,
-                publicKey // Owner
+                publicKey  // Owner
             );
 
-            // Get the recipient's token account for SHADOW
+            // Get or create the recipient's token account
             const toTokenAccount = await getOrCreateAssociatedTokenAccount(
                 connection,
                 publicKey, // Payer
                 SHADOW_TOKEN_MINT,
                 CREATOR_WALLET_ADDRESS // Owner
             );
+            
+            const { blockhash } = await connection.getLatestBlockhash();
 
-            const transaction = new Transaction().add(
+            const instructions = [
                 createTransferInstruction(
                     fromTokenAccount.address,
                     toTokenAccount.address,
                     publicKey,
-                    amount * (10 ** SHADOW_TOKEN_DECIMALS) // Amount in smallest unit
+                    BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
                 )
-            );
+            ];
+
+            const messageV0 = new TransactionMessage({
+                payerKey: publicKey,
+                recentBlockhash: blockhash,
+                instructions,
+            }).compileToV0Message();
+
+            const transaction = new VersionedTransaction(messageV0);
 
             const signature = await sendTransaction(transaction, connection);
-            await connection.confirmTransaction(signature, 'confirmed');
 
-            toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature}`, action: (
+            await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight: (await connection.getLatestBlockhash()).lastValidBlockHeight }, 'confirmed');
+
+
+            toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
                 <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
             )});
 
         } catch (error: any) {
+            console.error("Subscription failed:", error);
             toast({
                 variant: 'destructive',
                 title: 'Subscription Failed',
