@@ -23,6 +23,8 @@ const GenerateTradingSignalInputSchema = z.object({
 export type GenerateTradingSignalInput = z.infer<typeof GenerateTradingSignalInputSchema>;
 
 const GenerateTradingSignalOutputSchema = z.object({
+  id: z.string().describe('A unique identifier for this signal.'),
+  symbol: z.string().describe('The trading symbol (e.g., BTC, ETH).'),
   signal: z.enum(['BUY', 'SELL', 'HOLD']).describe('The trading signal (BUY, SELL, or HOLD).'),
   entryZone: z.string().describe('The recommended entry zone for the trade.'),
   stopLoss: z.string().describe('The recommended stop loss level.'),

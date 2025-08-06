@@ -10,7 +10,7 @@ import { SymbolSelector } from './symbol-selector';
 import { PriceDisplay } from './price-display';
 import { MomentumCard } from './momentum-card';
 import { PositionRatioCard } from './position-ratio-card';
-import { BottomBar } from './bottom-bar';
+import { BottomBar, type NavItem } from './bottom-bar';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import { Bot, Loader } from 'lucide-react';
@@ -23,6 +23,7 @@ import type { MarketData } from '@/services/market-data';
 import { IntroAnimation } from './intro-animation';
 import { cn } from '@/lib/utils';
 import { TechnicalAnalysisCard } from './technical-analysis-card';
+import { SignalsHistoryPage } from './signals-history-page';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -41,8 +42,11 @@ export default function TradeVisionPage() {
   const [signal, setSignal] = useState<GenerateTradingSignalOutput | null>(
     null
   );
+  const [signalHistory, setSignalHistory] = useState<GenerateTradingSignalOutput[]>([]);
   const { toast } = useToast();
   const [theme, setTheme] = useState<Theme>('holographic');
+  const [activeView, setActiveView] = useState<NavItem>('Prime');
+
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
     setDataLoading(true);
@@ -83,7 +87,9 @@ export default function TradeVisionPage() {
           riskLevel,
         };
         const result = await getTradingSignalAction(input);
-        setSignal(result);
+        const newSignal = { ...result, symbol, id: Date.now().toString() };
+        setSignal(newSignal);
+        setSignalHistory(prev => [newSignal, ...prev]);
       } catch (e: any) {
         toast({
           variant: 'destructive',
@@ -102,9 +108,13 @@ export default function TradeVisionPage() {
     })
   }
 
-  return (
-    <div className={cn("bg-background text-foreground h-full flex flex-col", `theme-${theme}`)}>
-      <AppHeader onThemeToggle={handleThemeToggle} />
+  const renderContent = () => {
+    if (activeView === 'Signals') {
+      return <SignalsHistoryPage signals={signalHistory} theme={theme} />;
+    }
+
+    // Prime View
+    return (
       <main className={cn(
         "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all",
         theme === 'neural-pulse' && 'bg-pulse-grid'
@@ -219,8 +229,15 @@ export default function TradeVisionPage() {
 
         <div className="h-24"></div>
       </main>
+    )
+  }
+
+  return (
+    <div className={cn("bg-background text-foreground h-full flex flex-col", `theme-${theme}`)}>
+      <AppHeader onThemeToggle={handleThemeToggle} />
+      {renderContent()}
       <Separator className="bg-border/20" />
-      <BottomBar />
+      <BottomBar activeView={activeView} setActiveView={setActiveView} />
     </div>
   );
 }

@@ -16,7 +16,7 @@ import { Badge } from '../ui/badge';
 import type { Theme } from './tradevision-page';
 
 interface StrategyCardProps {
-  strategy: GenerateTradingSignalOutput | null;
+  strategy: (GenerateTradingSignalOutput & { symbol?: string; id?: string }) | null;
   isPending: boolean;
   theme: Theme;
 }
