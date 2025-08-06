@@ -7,7 +7,7 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ArrowRight } from 'lucide-react';
+import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
 import type { Theme } from './tradevision-page';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
@@ -15,30 +15,27 @@ import { Label } from '../ui/label';
 
 const subscriptionTiers = [
     {
-        name: "Trial",
-        price: "10K SHADOW",
-        features: ["3 Day Trial"],
-        cta: "Start Trial"
-    },
-    {
-        name: "Monthly",
+        name: "Monthly Pro",
         price: "100K SHADOW",
-        features: ["1 Month Unlimited Access"],
+        features: ["Unlimited AI Signals", "Priority Analysis", "All Premium Features"],
         cta: "Go Monthly",
-        popular: true
+        popular: true,
+        hook: "Best for active traders."
     },
     {
-        name: "Yearly",
+        name: "Yearly Elite",
         price: "1 Million SHADOW",
-        features: ["1 Year Unlimited Access"],
-        cta: "Go Yearly"
+        features: ["12 Months for the Price of 10", "Everything in Monthly Pro", "Exclusive Future Updates"],
+        cta: "Go Yearly",
+        hook: "Best value & long-term growth."
     },
     {
-        name: "Lifetime",
+        name: "Lifetime Access",
         price: "10 Million SHADOW",
-        features: ["Lifetime Access"],
-        cta: "Go Lifetime"
-    }
+        features: ["One-Time Payment, Forever", "Everything in Yearly Elite", "Become a SHADOW OG"],
+        cta: "Go Lifetime",
+        hook: "For the ultimate conviction."
+    },
 ]
 
 interface PremiumPageProps {
@@ -63,45 +60,14 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         theme === 'neural-pulse' && 'bg-pulse-grid'
     )}>
         <div className="text-center">
-            <h1 className="text-3xl font-bold text-foreground">Unlock Your Potential</h1>
-            <p className="text-muted-foreground mt-2">Choose a plan that fits your trading style and goals.</p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6">
-            {subscriptionTiers.map(tier => (
-                <Card key={tier.name} className={cn(
-                    'flex flex-col',
-                    tier.popular && 'border-primary ring-2 ring-primary',
-                    theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
-                )}>
-                    <CardHeader>
-                        <CardTitle className="flex justify-between items-center">
-                            <span>{tier.name}</span>
-                            {tier.popular && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
-                        </CardTitle>
-                        <CardDescription className="text-2xl font-bold">{tier.price}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-3">
-                        {tier.features.map(feature => (
-                            <div key={feature} className="flex items-center gap-2">
-                                <Check className="w-4 h-4 text-green-500" />
-                                <span className="text-sm">{feature}</span>
-                            </div>
-                        ))}
-                    </CardContent>
-                    <CardFooter>
-                        <Button className="w-full" disabled={!connected}>
-                           <Gem className="mr-2 h-4 w-4" /> {tier.cta}
-                        </Button>
-                    </CardFooter>
-                </Card>
-            ))}
+            <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2"><Gem className='text-primary'/> Go Premium</h1>
+            <p className="text-muted-foreground mt-2">Unlock the full power of SHADOW and gain your unfair advantage.</p>
         </div>
         
         <Card className={cn(theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
             <CardHeader>
-                <CardTitle>Solana Wallet</CardTitle>
-                <CardDescription>Connect your wallet to subscribe and swap tokens.</CardDescription>
+                <CardTitle>1. Connect Your Wallet</CardTitle>
+                <CardDescription>Connect your Solana wallet to get started.</CardDescription>
             </CardHeader>
             <CardContent>
                 <WalletMultiButton style={{width: '100%',
@@ -116,8 +82,8 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         <Card className={cn(theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
             <CardHeader>
-                <CardTitle>Swap Tokens</CardTitle>
-                <CardDescription>Powered by Jupiter</CardDescription>
+                <CardTitle>2. Get SHADOW Tokens</CardTitle>
+                <CardDescription>Swap SOL for SHADOW to unlock premium access. Powered by Jupiter.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -146,9 +112,51 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                         <Button variant="outline" className="min-w-[100px]">{toToken}</Button>
                     </div>
                 </div>
-                <Button className="w-full" size="lg" onClick={handleSwap} disabled={!connected}>Swap</Button>
+                <Button className="w-full" size="lg" onClick={handleSwap} disabled={!connected}>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Swap Tokens
+                </Button>
             </CardContent>
         </Card>
+
+        <Card className='bg-transparent border-none shadow-none'>
+            <CardHeader className='text-center'>
+                <CardTitle>3. Choose Your Plan</CardTitle>
+                <CardDescription>Select the plan that best fits your trading style.</CardDescription>
+            </CardHeader>
+        </Card>
+
+        <div className="grid grid-cols-1 gap-6">
+            {subscriptionTiers.map(tier => (
+                <Card key={tier.name} className={cn(
+                    'flex flex-col',
+                    tier.popular && 'border-primary ring-2 ring-primary',
+                    theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
+                )}>
+                    <CardHeader>
+                        <CardTitle className="flex justify-between items-center">
+                            <span>{tier.name}</span>
+                            {tier.popular && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
+                        </CardTitle>
+                        <CardDescription className="text-2xl font-bold">{tier.price}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-1 space-y-3">
+                        <p className='text-sm text-amber-400 font-semibold'>{tier.hook}</p>
+                        {tier.features.map(feature => (
+                            <div key={feature} className="flex items-center gap-2">
+                                <ShieldCheck className="w-4 h-4 text-green-500" />
+                                <span className="text-sm">{feature}</span>
+                            </div>
+                        ))}
+                    </CardContent>
+                    <CardFooter>
+                        <Button className="w-full" disabled={!connected}>
+                           <Gem className="mr-2 h-4 w-4" /> {tier.cta}
+                        </Button>
+                    </CardFooter>
+                </Card>
+            ))}
+        </div>
 
         <div className="h-12"></div>
     </div>
