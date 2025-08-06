@@ -88,25 +88,26 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     }
     
     try {
+        const instructions = [];
+
         // 1. Get Associated Token Accounts
         const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
         const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
         
-        // 2. Fetch the latest blockhash inside the function right before sending.
-        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-        
-        const instructions = [];
-        
-        // 3. Robustly add instruction to create recipient's ATA if it doesn't exist.
-        // This is the standard, idempotent way to handle it.
-        instructions.push(
-            createAssociatedTokenAccountInstruction(
-                publicKey, // Payer
-                toTokenAccountAddress, // ATA address
-                CREATOR_WALLET_ADDRESS, // Owner
-                SHADOW_TOKEN_MINT // Mint
-            )
-        );
+        // 2. Check if the recipient's ATA exists
+        const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
+
+        // 3. Add instruction to create recipient's ATA if it doesn't exist
+        if (!toTokenAccountInfo) {
+            instructions.push(
+                createAssociatedTokenAccountInstruction(
+                    publicKey, // Payer
+                    toTokenAccountAddress, // ATA address
+                    CREATOR_WALLET_ADDRESS, // Owner
+                    SHADOW_TOKEN_MINT // Mint
+                )
+            );
+        }
 
         // 4. Create the main transfer instruction
         instructions.push(
@@ -117,8 +118,11 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
             )
         );
+
+        // 5. Fetch the latest blockhash right before sending.
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
         
-        // 5. Build the transaction
+        // 6. Build the transaction
         const messageV0 = new TransactionMessage({
             payerKey: publicKey,
             recentBlockhash: blockhash,
@@ -127,10 +131,10 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         const transaction = new VersionedTransaction(messageV0);
         
-        // 6. Send the transaction using the wallet adapter
+        // 7. Send the transaction using the wallet adapter
         const signature = await sendTransaction(transaction, connection);
         
-        // 7. Confirm the transaction
+        // 8. Confirm the transaction
         await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
 
         toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
