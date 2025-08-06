@@ -1,10 +1,8 @@
 
 'use client';
-import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Loader } from 'lucide-react';
-import type { Theme } from '@/components/tradevision/tradevision-page';
-import { cn } from '@/lib/utils';
+import { useTheme } from './theme-provider';
 
 const TradeVisionPageWithNoSSR = dynamic(
   () => import('@/components/tradevision/tradevision-page'),
@@ -18,23 +16,8 @@ const TradeVisionPageWithNoSSR = dynamic(
   }
 );
 
-const themes: Theme[] = ['holographic', 'neural-pulse', 'glitch', 'neon-future', 'forest-reserve', 'solana-summer', 'desert-mirage'];
-
 export default function Home() {
-  const [theme, setTheme] = useState<Theme>('neural-pulse');
+  const { theme, toggleTheme } = useTheme();
 
-  const handleThemeToggle = () => {
-    setTheme(prevTheme => {
-      const currentIndex = themes.indexOf(prevTheme);
-      const nextIndex = (currentIndex + 1) % themes.length;
-      return themes[nextIndex];
-    })
-  }
-  
-  useEffect(() => {
-    // On the client side, set the theme class on the html element
-    document.documentElement.className = cn("dark", `theme-${theme}`);
-  }, [theme]);
-
-  return <TradeVisionPageWithNoSSR theme={theme} handleThemeToggle={handleThemeToggle} />;
+  return <TradeVisionPageWithNoSSR theme={theme} handleThemeToggle={toggleTheme} />;
 }
