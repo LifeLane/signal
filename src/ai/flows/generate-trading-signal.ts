@@ -55,20 +55,17 @@ export async function generateTradingSignal(
 
 const generateTradingSignalPrompt = ai.definePrompt({
   name: 'generateTradingSignalPrompt',
-  input: {schema: GenerateTradingSignalInputSchema},
+  input: {schema: z.object({
+    ...GenerateTradingSignalInputSchema.shape,
+    newsQuery: z.string(),
+  })},
   output: {schema: GenerateTradingSignalOutputSchema},
   tools: [fetchNews, fetchMarketData],
   prompt: `You are an expert AI trading strategy assistant. Your task is to analyze market data, technical indicators, and news to generate a coherent and actionable trading signal for the given cryptocurrency symbol.
 
 **Instructions:**
 1.  **Fetch Market Data:** First, call the \`fetchMarketData\` tool using the provided \`symbol\`. This is your primary source of quantitative data.
-2.  **Fetch News:** Then, call the \`fetchNews\` tool. To get the query for the news tool, you MUST map the provided symbol to its full name. Use the following mapping:
-    - BTC -> Bitcoin
-    - ETH -> Ethereum
-    - SOL -> Solana
-    - XRP -> Ripple
-    - DOGE -> Dogecoin
-    For example, if the input symbol is 'BTC', the news query must be 'Bitcoin'. This is your primary source for market sentiment.
+2.  **Fetch News:** Then, call the \`fetchNews\` tool using the provided \`newsQuery\` to get relevant news. This is your primary source for market sentiment.
 3.  **Analyze and Strategize:** Your entire analysis and the final trading signal must be based *exclusively* on the data returned by these tools for the specified symbol. Do not use any other data, examples, or prior knowledge. Your analysis must directly correlate to the provided data.
 4.  **User Risk Level:** The user's selected risk level is: {{riskLevel}}. Adjust your Entry, Stop, and Profit targets accordingly. Higher risk means wider targets, lower risk means tighter targets.
 
@@ -102,7 +99,17 @@ const generateTradingSignalFlow = ai.defineFlow(
     outputSchema: GenerateTradingSignalOutputSchema,
   },
   async input => {
-    const {output} = await generateTradingSignalPrompt(input);
+    const symbolToNameMapping: Record<string, string> = {
+        'BTC': 'Bitcoin',
+        'ETH': 'Ethereum',
+        'SOL': 'Solana',
+        'XRP': 'Ripple',
+        'DOGE': 'Dogecoin',
+    };
+    
+    const newsQuery = symbolToNameMapping[input.symbol] || input.symbol;
+
+    const {output} = await generateTradingSignalPrompt({ ...input, newsQuery });
     return output!;
   }
 );
