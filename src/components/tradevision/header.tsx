@@ -2,12 +2,11 @@
 import { Wand2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { useTheme } from '@/app/theme-provider';
 
-interface AppHeaderProps {
-  onThemeToggle: () => void;
-}
+export function AppHeader() {
+  const { toggleTheme } = useTheme();
 
-export function AppHeader({ onThemeToggle }: AppHeaderProps) {
   return (
     <header className="p-4 bg-background">
       <div className="flex items-center justify-between">
@@ -15,7 +14,7 @@ export function AppHeader({ onThemeToggle }: AppHeaderProps) {
           SHADOW
         </h1>
         <div className="flex items-center gap-2">
-           <Button variant="ghost" size="icon" onClick={onThemeToggle} className="h-8 w-8">
+           <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
             <Wand2 className="h-5 w-5 text-primary" />
           </Button>
           <div className="flex items-center gap-2 text-sm">

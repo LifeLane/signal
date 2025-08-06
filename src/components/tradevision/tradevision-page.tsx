@@ -37,11 +37,10 @@ export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 interface TradeVisionPageProps {
   theme: Theme | 'neural-pulse';
-  handleThemeToggle: () => void;
 }
 
 
-export default function TradeVisionPage({ theme, handleThemeToggle }: TradeVisionPageProps) {
+export default function TradeVisionPage({ theme }: TradeVisionPageProps) {
   const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(false);
   const [symbol, setSymbol] = useState<Symbol | null>(null);
@@ -278,7 +277,7 @@ export default function TradeVisionPage({ theme, handleThemeToggle }: TradeVisio
 
   return (
     <div className={"bg-background text-foreground h-full flex flex-col"}>
-      <AppHeader onThemeToggle={handleThemeToggle} />
+      <AppHeader />
       {renderContent()}
       <Separator className="bg-border/20" />
       <BottomBar activeView={activeView} setActiveView={setActiveView} />

@@ -17,7 +17,7 @@ const TradeVisionPageWithNoSSR = dynamic(
 );
 
 export default function Home() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
 
-  return <TradeVisionPageWithNoSSR theme={theme} handleThemeToggle={toggleTheme} />;
+  return <TradeVisionPageWithNoSSR theme={theme} />;
 }
