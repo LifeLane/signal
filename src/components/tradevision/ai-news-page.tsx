@@ -44,7 +44,7 @@ const getSentimentClass = (sentiment?: 'Positive' | 'Negative' | 'Neutral') => {
 };
 
 interface AiNewsPageProps {
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 export function AiNewsPage({ theme }: AiNewsPageProps) {
@@ -103,7 +103,7 @@ export function AiNewsPage({ theme }: AiNewsPageProps) {
         <div className="space-y-4">
             <Card className={cn(
                 'shadow-lg transition-all',
-                theme === 'neural-pulse' && `animate-pulse-glow ${sentimentClasses.glow}`
+                theme.name === 'neural-pulse' && `animate-pulse-glow ${sentimentClasses.glow}`
             )}>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -144,7 +144,7 @@ export function AiNewsPage({ theme }: AiNewsPageProps) {
   return (
     <div className={cn(
         "flex flex-col h-full",
-        (theme === 'neural-pulse' || theme === 'neon-future') && 'bg-pulse-grid'
+        (theme.name === 'neural-pulse' || theme.name === 'neon-future') && 'bg-pulse-grid'
       )}>
       <div className="p-4 space-y-4 bg-background">
         <SymbolSelector selectedSymbol={selectedSymbol} onSelectSymbol={setSelectedSymbol} />

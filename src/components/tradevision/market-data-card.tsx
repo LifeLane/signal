@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 interface MarketDataCardProps {
   volume: number;
   marketCap: number;
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 export function MarketDataCard({ volume, marketCap, theme }: MarketDataCardProps) {
@@ -28,7 +28,7 @@ export function MarketDataCard({ volume, marketCap, theme }: MarketDataCardProps
   return (
     <Card className={cn(
       'bg-card',
-      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.accent/0.7)]'
+      theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.accent/0.7)]'
     )}>
       <CardHeader>
         <CardTitle>Market Data</CardTitle>

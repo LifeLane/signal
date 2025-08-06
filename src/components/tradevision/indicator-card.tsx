@@ -10,7 +10,7 @@ interface IndicatorCardProps {
   value: string | number;
   interpretation: string;
   gaugeValue?: number;
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 export function IndicatorCard({
@@ -23,7 +23,7 @@ export function IndicatorCard({
   return (
     <Card className={cn(
       "bg-card/50",
-      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]'
+      theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]'
     )}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start gap-4">

@@ -24,14 +24,14 @@ const MomentumIndicator = ({ label, value, color }: MomentumIndicatorProps) => (
 );
 
 interface MomentumCardProps {
-    theme: Theme | 'neural-pulse';
+    theme: Theme;
 }
 
 export function MomentumCard({ theme }: MomentumCardProps) {
   return (
     <Card className={cn(
         'bg-card',
-        theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]'
+        theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]'
     )}>
       <CardHeader className="flex-row items-center justify-between pb-2">
         <CardTitle className='text-base font-semibold text-primary'>Current Trend</CardTitle>

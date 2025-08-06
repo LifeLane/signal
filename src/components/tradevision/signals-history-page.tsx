@@ -10,7 +10,7 @@ import { Bot, Info } from 'lucide-react';
 
 interface SignalsHistoryPageProps {
   signals: TradingSignalWithTargets[];
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 const getSignalClass = (signal?: 'BUY' | 'SELL' | 'HOLD') => {
@@ -61,7 +61,7 @@ export function SignalsHistoryPage({ signals, theme }: SignalsHistoryPageProps) 
                 key={signal.id}
                 className={cn(
                     'shadow-lg transition-all',
-                    theme === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`
+                    theme.name === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`
                 )}
                 >
                 <CardHeader>

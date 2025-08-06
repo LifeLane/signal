@@ -12,7 +12,7 @@ interface PositionRatioCardProps {
   ratio: number;
   selectedInterval: Interval;
   onSelectInterval: Dispatch<SetStateAction<Interval>>;
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 const intervals: Interval[] = ['5m', '15m', '1h', '4h', '1d'];
@@ -24,7 +24,7 @@ export function PositionRatioCard({ ratio, selectedInterval, onSelectInterval, t
   return (
     <Card className={cn(
       'bg-card',
-      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.400/0.5)]'
+      theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.400/0.5)]'
     )}>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">

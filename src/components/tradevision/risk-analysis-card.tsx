@@ -14,7 +14,7 @@ interface RiskAnalysisCardProps {
   onSetRiskLevel: Dispatch<SetStateAction<RiskLevel>>;
   riskRating?: 'Low' | 'Medium' | 'High';
   gptConfidence?: string;
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 const riskLevels: RiskLevel[] = ['Low', 'Medium', 'High'];
@@ -29,7 +29,7 @@ export function RiskAnalysisCard({
   return (
     <Card className={cn(
       'bg-card',
-      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.400/0.5)]'
+      theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.400/0.5)]'
     )}>
       <CardHeader>
         <CardTitle>Risk Analysis</CardTitle>

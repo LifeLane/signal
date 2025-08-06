@@ -61,7 +61,7 @@ const trialTier = {
 
 
 interface PremiumPageProps {
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 export function PremiumPage({ theme }: PremiumPageProps) {
@@ -154,7 +154,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
   return (
     <div className={cn(
         "flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar",
-        (theme === 'neural-pulse' || theme === 'neon-future') && 'bg-pulse-grid'
+        (theme.name === 'neural-pulse' || theme.name === 'neon-future') && 'bg-pulse-grid'
     )}>
         <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2"><Gem className='text-primary'/> Go Premium</h1>
@@ -171,7 +171,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             </Alert>
         )}
 
-        <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
+        <Card className={cn('bg-card', theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
             <CardHeader>
                 <CardTitle>1. Connect Your Wallet</CardTitle>
                 <CardDescription>
@@ -245,7 +245,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                     'bg-card flex flex-col',
                     tier.popular && !activeSubscription && 'border-primary ring-2 ring-primary',
                     activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500',
-                    theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
+                    theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
                 )}>
                     <CardHeader>
                         <CardTitle className="flex justify-between items-center">

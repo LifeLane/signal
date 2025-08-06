@@ -24,7 +24,7 @@ import type { Theme } from '@/app/theme-provider';
 interface StrategyCardProps {
   strategy: TradingSignalWithTargets | null;
   isPending: boolean;
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 const getSignalClass = (signal?: 'BUY' | 'SELL' | 'HOLD') => {
@@ -83,7 +83,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
         return (
             <Card className={cn(
                 'transition-all',
-                theme === 'neural-pulse' && 'animate-none border-primary/50'
+                theme.name === 'neural-pulse' && 'animate-none border-primary/50'
             )}>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
@@ -111,7 +111,7 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
     <Card
       className={cn(
         'shadow-lg transition-all',
-        theme === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`
+        theme.name === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`
       )}
     >
       <CardHeader>

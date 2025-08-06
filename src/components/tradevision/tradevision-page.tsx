@@ -36,7 +36,7 @@ export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
 interface TradeVisionPageProps {
-  theme: Theme | 'neural-pulse';
+  theme: Theme;
 }
 
 
@@ -140,7 +140,7 @@ export default function TradeVisionPage({ theme }: TradeVisionPageProps) {
   const renderDashboard = () => (
     <main className={cn(
         "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all",
-        (theme === 'neural-pulse' || theme === 'neon-future') && 'bg-pulse-grid'
+        (theme.name === 'neural-pulse' || theme.name === 'neon-future') && 'bg-pulse-grid'
       )}>
         
         {!symbol && !isDataLoading && renderIntro()}

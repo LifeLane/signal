@@ -1,11 +1,11 @@
 'use client';
-import { Wand2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { useTheme } from '@/app/theme-provider';
 
 export function AppHeader() {
-  const { toggleTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
+  const Icon = theme.icon;
 
   return (
     <header className="p-4 bg-background">
@@ -15,7 +15,7 @@ export function AppHeader() {
         </h1>
         <div className="flex items-center gap-2">
            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
-            <Wand2 className="h-5 w-5 text-primary" />
+            <Icon className="h-5 w-5 text-primary" />
           </Button>
           <div className="flex items-center gap-2 text-sm">
             <span>Analyzing</span>

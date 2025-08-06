@@ -29,14 +29,14 @@ interface TechnicalAnalysisCardProps {
     bollingerBands: { upper: number; lower: number; };
     sar: number;
     adx: number;
-    theme: Theme | 'neural-pulse';
+    theme: Theme;
 }
 
 export function TechnicalAnalysisCard({ rsi, ema, vwap, bollingerBands, sar, adx, theme }: TechnicalAnalysisCardProps) {
   return (
     <Card className={cn(
       'bg-card',
-      theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.cyan.400/0.5)]'
+      theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.cyan.400/0.5)]'
     )}>
       <CardHeader>
         <CardTitle>Technical Analysis</CardTitle>
