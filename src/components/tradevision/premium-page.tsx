@@ -4,8 +4,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { VersionedTransaction, TransactionMessage, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-import { getOrCreateAssociatedTokenAccount, createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
+import { VersionedTransaction, TransactionMessage, PublicKey } from '@solana/web3.js';
+import { createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 import bs58 from 'bs58';
 
 import { Button } from '@/components/ui/button';
@@ -149,7 +149,6 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
         var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
-        // sign the transaction
         const signedTransaction = await signTransaction(transaction);
 
         const rawTransaction = signedTransaction.serialize()
@@ -194,24 +193,19 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         setIsSubscribing(tierName);
         try {
-            // Get the sender's token account address.
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
-            
-            // Get the creator's token account address.
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
-
-            // Check if the creator has a token account, if not, create one.
+            
             const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
             
             const instructions = [];
-
             if (!toTokenAccountInfo) {
-               instructions.push(
+                instructions.push(
                     createAssociatedTokenAccountInstruction(
-                        publicKey, 
-                        toTokenAccountAddress, 
-                        CREATOR_WALLET_ADDRESS, 
-                        SHADOW_TOKEN_MINT 
+                        publicKey,
+                        toTokenAccountAddress,
+                        CREATOR_WALLET_ADDRESS,
+                        SHADOW_TOKEN_MINT
                     )
                 );
             }
@@ -236,9 +230,8 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             const transaction = new VersionedTransaction(messageV0);
 
             const signature = await sendTransaction(transaction, connection, { skipPreflight: true });
-
+            
             await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
-
 
             toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
                 <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
