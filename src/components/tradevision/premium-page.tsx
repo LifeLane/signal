@@ -198,7 +198,6 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
             // This instruction is now idempotent. It will only create the account if it doesn't exist.
-            // The connected user (publicKey) will be the payer for this potential creation.
             const createAccountInstruction = createAssociatedTokenAccountInstruction(
                 publicKey, // Payer of the transaction fee
                 toTokenAccountAddress, // Associated token account address to be created
@@ -206,30 +205,27 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 SHADOW_TOKEN_MINT // Mint for the new account
             );
             
-            // The main transfer instruction
             const transferInstruction = createTransferInstruction(
-                fromTokenAccountAddress, // From (user's token account)
-                toTokenAccountAddress, // To (creator's token account)
-                publicKey, // Owner of the from account
-                BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS)) // Amount
+                fromTokenAccountAddress,
+                toTokenAccountAddress,
+                publicKey,
+                BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
             );
 
             // Fetch the latest blockhash inside the function right before sending.
-            const latestBlockhash = await connection.getLatestBlockhash('confirmed');
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             
             const messageV0 = new TransactionMessage({
                 payerKey: publicKey,
-                recentBlockhash: latestBlockhash.blockhash,
+                recentBlockhash: blockhash,
                 instructions: [createAccountInstruction, transferInstruction],
             }).compileToV0Message();
 
             const transaction = new VersionedTransaction(messageV0);
 
-            // Use the wallet adapter's sendTransaction to sign and send.
             const signature = await sendTransaction(transaction, connection);
             
-            // Wait for confirmation.
-            await connection.confirmTransaction({ ...latestBlockhash, signature }, 'confirmed');
+            await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
 
             toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
                 <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
@@ -393,3 +389,5 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
+
+    
