@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { getTradingSignalAction, getMarketDataAction } from '@/app/actions';
 
 import { AppHeader } from './header';
@@ -38,6 +38,7 @@ export default function TradeVisionPage() {
   const [signal, setSignal] = useState<GenerateTradingSignalOutput | null>(
     null
   );
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
@@ -69,7 +70,7 @@ export default function TradeVisionPage() {
           setDataLoading(false);
         }
       });
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (isClient) {
