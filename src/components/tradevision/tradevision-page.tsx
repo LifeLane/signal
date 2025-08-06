@@ -25,6 +25,8 @@ export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
+const REFRESH_INTERVAL = 10000; // 10 seconds
+
 export default function TradeVisionPage() {
   const [isClient, setIsClient] = useState(false);
   const [isSignalPending, startSignalTransition] = useTransition();
@@ -41,29 +43,42 @@ export default function TradeVisionPage() {
     setIsClient(true);
   }, []);
 
-  const fetchMarketData = useCallback((currentSymbol: Symbol) => {
-    setDataLoading(true);
-    setSignal(null);
+  const fetchMarketData = useCallback((currentSymbol: Symbol, isInitialLoad: boolean) => {
+    if (isInitialLoad) {
+      setDataLoading(true);
+      setSignal(null);
+    }
     getMarketDataAction(currentSymbol)
       .then((data) => {
         setMarketData(data);
       })
       .catch((e) => {
-        toast({
-          variant: 'destructive',
-          title: 'Error fetching market data',
-          description: e.message,
-        });
-        setMarketData(null);
+        // Only show toast on initial load failure
+        if (isInitialLoad) {
+          toast({
+            variant: 'destructive',
+            title: 'Error fetching market data',
+            description: e.message,
+          });
+          setMarketData(null);
+        }
+        console.error("Silent refresh failed:", e.message)
       })
       .finally(() => {
-        setDataLoading(false);
+        if (isInitialLoad) {
+          setDataLoading(false);
+        }
       });
   }, []);
 
   useEffect(() => {
     if (isClient) {
-      fetchMarketData(symbol);
+      fetchMarketData(symbol, true); // Initial fetch
+      const intervalId = setInterval(() => {
+        fetchMarketData(symbol, false); // Subsequent refreshes
+      }, REFRESH_INTERVAL);
+
+      return () => clearInterval(intervalId); // Cleanup on component unmount or symbol change
     }
   }, [symbol, fetchMarketData, isClient]);
 
@@ -111,7 +126,7 @@ export default function TradeVisionPage() {
             ) : !marketData ? (
               <div className="h-48 flex flex-col items-center justify-center text-center p-4">
                 <p className="text-destructive mb-4">Failed to load market data.</p>
-                <Button onClick={() => fetchMarketData(symbol)}>Retry</Button>
+                <Button onClick={() => fetchMarketData(symbol, true)}>Retry</Button>
               </div>
             ) : (
               <>
@@ -188,7 +203,7 @@ export default function TradeVisionPage() {
               onClick={handleGetSignal}
               disabled={isSignalPending || isDataLoading}
             >
-              {isSignalPending || isDataLoading ? <Loader className="animate-spin" /> : 'Get Signal'}
+              {isSignalPending ? <Loader className="animate-spin" /> : 'Get Signal'}
             </Button>
             <div className="h-24"></div>
           </>
