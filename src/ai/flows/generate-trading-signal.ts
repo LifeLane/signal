@@ -77,12 +77,12 @@ const generateTradingSignalPrompt = ai.definePrompt({
 
 **Indicator Interpretation:**
 For each technical indicator provided by the \`fetchMarketData\` tool, you MUST provide a detailed, one-sentence interpretation of its specific value in the context of the current market.
--   **rsiInterpretation**: Based on the RSI value of [RSI_VALUE], interpret whether the asset is overbought, oversold, or neutral.
--   **emaInterpretation**: Based on the price relative to the EMA of [EMA_VALUE], interpret the current trend direction.
--   **vwapInterpretation**: Based on the price relative to the VWAP of [VWAP_VALUE], interpret the current intraday momentum.
--   **bollingerBandsInterpretation**: Based on the price's position relative to the Bollinger Bands ([BB_LOWER] - [BB_UPPER]), interpret the current volatility and potential for mean reversion or breakout.
--   **sarInterpretation**: Based on the Parabolic SAR value of [SAR_VALUE] relative to the price, interpret the potential trend direction and reversal points.
--   **adxInterpretation**: Based on the ADX value of [ADX_VALUE], interpret the strength of the current trend (strong or weak).
+-   **rsiInterpretation**: Based on the RSI value, interpret whether the asset is overbought, oversold, or neutral.
+-   **emaInterpretation**: Based on the price relative to the EMA, interpret the current trend direction.
+-   **vwapInterpretation**: Based on the price relative to the VWAP, interpret the current intraday momentum.
+-   **bollingerBandsInterpretation**: Based on the price's position relative to the Bollinger Bands, interpret the current volatility and potential for mean reversion or breakout.
+-   **sarInterpretation**: Based on the Parabolic SAR value relative to the price, interpret the potential trend direction and reversal points.
+-   **adxInterpretation**: Based on the ADX value, interpret the strength of the current trend (strong or weak).
 
 **Disclaimer:**
 Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."

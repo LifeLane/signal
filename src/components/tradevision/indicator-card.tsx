@@ -19,9 +19,9 @@ export function IndicatorCard({
   return (
     <Card className="bg-card/50">
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-start gap-4">
           <CardTitle className="text-sm font-medium">{title}</CardTitle>
-          <span className="text-sm font-semibold">{value}</span>
+          <span className="text-sm font-semibold text-right">{value}</span>
         </div>
         {gaugeValue !== undefined && (
             <Progress value={gaugeValue} className="h-1 mt-1" />

@@ -159,55 +159,59 @@ export default function TradeVisionPage() {
             <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} />
             <Separator />
 
-            <div ref={strategyCardRef} className="scroll-mt-4">
-                {isSignalPending || signal ? (
-                <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
-                ) : null}
-            </div>
-
-            
-            {signal ? (
-               <div className="grid grid-cols-1 gap-4">
-                  <IndicatorCard
-                    title="RSI"
-                    value={marketData.rsi.toFixed(2)}
-                    interpretation={signal.rsiInterpretation}
-                    gaugeValue={marketData.rsi}
-                  />
-                  <IndicatorCard
-                    title="ADX"
-                    value={marketData.adx.toFixed(2)}
-                    interpretation={signal.adxInterpretation}
-                    gaugeValue={marketData.adx}
-                  />
-                  <IndicatorCard
-                    title="EMA"
-                    value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    interpretation={signal.emaInterpretation}
-                  />
-                  <IndicatorCard
-                    title="VWAP"
-                    value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    interpretation={signal.vwapInterpretation}
-                  />
-                  <IndicatorCard
-                    title="Parabolic SAR"
-                    value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    interpretation={signal.sarInterpretation}
-                  />
-                  <IndicatorCard
-                    title="Bollinger Bands"
-                    value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-                    interpretation={signal.bollingerBandsInterpretation}
-                  />
-              </div>
-            ) : (
-              <>
-                <MomentumCard />
-                <TechnicalAnalysisCard {...marketData} />
-              </>
+            {/* Pre-signal general analysis */}
+            {!signal && !isSignalPending && (
+                <>
+                    <MomentumCard />
+                    <TechnicalAnalysisCard {...marketData} />
+                </>
             )}
 
+            <div ref={strategyCardRef} className="scroll-mt-4 space-y-4">
+              {/* Show loading state or final strategy card */}
+              {isSignalPending || signal ? (
+                <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
+              ) : null}
+              
+              {/* Show detailed breakdown only AFTER signal is generated */}
+              {signal && !isSignalPending && (
+                <div className="grid grid-cols-1 gap-4">
+                    <IndicatorCard
+                      title="RSI (Relative Strength Index)"
+                      value={marketData.rsi.toFixed(2)}
+                      interpretation={signal.rsiInterpretation}
+                      gaugeValue={marketData.rsi}
+                    />
+                    <IndicatorCard
+                      title="ADX (Average Directional Index)"
+                      value={marketData.adx.toFixed(2)}
+                      interpretation={signal.adxInterpretation}
+                      gaugeValue={marketData.adx}
+                    />
+                    <IndicatorCard
+                      title="EMA (Exponential Moving Average)"
+                      value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      interpretation={signal.emaInterpretation}
+                    />
+                    <IndicatorCard
+                      title="VWAP (Volume-Weighted Average Price)"
+                      value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      interpretation={signal.vwapInterpretation}
+                    />
+                    <IndicatorCard
+                      title="Parabolic SAR"
+                      value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      interpretation={signal.sarInterpretation}
+                    />
+                    <IndicatorCard
+                      title="Bollinger Bands"
+                      value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                      interpretation={signal.bollingerBandsInterpretation}
+                    />
+                </div>
+              )}
+            </div>
+            
             <MarketDataCard
               volume={marketData.volume24h}
               marketCap={marketData.marketCap}
