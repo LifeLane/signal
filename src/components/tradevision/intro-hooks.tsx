@@ -7,7 +7,6 @@ const hooks = [
   'Analyze Market Trends',
   'Predict Price Action',
   'Leverage AI Insights',
-  'Trade With Confidence',
 ];
 
 export function IntroHooks() {
@@ -42,6 +41,9 @@ export function IntroHooks() {
             <span className={visibleHooks[i] ? 'animate-typing' : 'opacity-0'}>
               {line}
             </span>
+            {i === hooks.length - 1 && visibleHooks[i] && (
+              <span className="inline-block w-2 h-5 bg-green-400 animate-pulse ml-1"></span>
+            )}
         </p>
       ))}
     </div>
