@@ -149,10 +149,10 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         const swapTransactionBuf = Buffer.from(swapTransaction, 'base64');
         var transaction = VersionedTransaction.deserialize(swapTransactionBuf);
 
+        // sign the transaction
         const signedTransaction = await signTransaction(transaction);
-
+        // Execute the transaction
         const rawTransaction = signedTransaction.serialize()
-
         const txid = await connection.sendRawTransaction(rawTransaction, {
             skipPreflight: true,
             maxRetries: 2
@@ -193,34 +193,34 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         setIsSubscribing(tierName);
         try {
+            // Get the sender's and receiver's associated token accounts
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
             
-            // This call was the source of the 403 error and has been removed.
-            // const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
-            
             const instructions = [];
-
-            // We now use an idempotent instruction. It will only create the account if it doesn't exist.
+            
+            // This instruction is now idempotent. It will only create the account if it doesn't exist.
             // The connected user (publicKey) will be the payer for this potential creation.
-            instructions.push(
+             instructions.push(
                 createAssociatedTokenAccountInstruction(
-                    publicKey,
-                    toTokenAccountAddress,
-                    CREATOR_WALLET_ADDRESS,
-                    SHADOW_TOKEN_MINT
+                    publicKey, // Payer
+                    toTokenAccountAddress, // Associated token account address
+                    CREATOR_WALLET_ADDRESS, // Owner of the account
+                    SHADOW_TOKEN_MINT // Mint for the account
                 )
             );
             
+            // The main transfer instruction
             instructions.push(
                 createTransferInstruction(
-                    fromTokenAccountAddress,
-                    toTokenAccountAddress,
-                    publicKey,
-                    BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
+                    fromTokenAccountAddress, // From (user's token account)
+                    toTokenAccountAddress, // To (creator's token account)
+                    publicKey, // Owner of the from account
+                    BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS)) // Amount
                 )
             );
 
+            // Fetch the latest blockhash inside the function right before sending.
             const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             
             const messageV0 = new TransactionMessage({
@@ -231,8 +231,10 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
             const transaction = new VersionedTransaction(messageV0);
 
+            // Use the wallet adapter's sendTransaction to sign and send.
             const signature = await sendTransaction(transaction, connection, { skipPreflight: true });
             
+            // Wait for confirmation.
             await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
 
             toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
@@ -397,7 +399,3 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
-
-    
-
-    
