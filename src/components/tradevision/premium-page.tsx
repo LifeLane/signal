@@ -236,7 +236,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             <p className="text-muted-foreground mt-2">Unlock the full power of SHADOW and gain your unfair advantage.</p>
         </div>
         
-        <Card className={cn(theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
+        <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
             <CardHeader>
                 <CardTitle>1. Connect Your Wallet</CardTitle>
                 <CardDescription>
@@ -262,7 +262,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         </Card>
 
         {connected && (
-            <Card className={cn(theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
+            <Card className={cn('bg-card', theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
                 <CardHeader>
                     <CardTitle>2. Get SHADOW Tokens</CardTitle>
                     <CardDescription>Swap SOL for SHADOW to unlock premium access. Powered by Jupiter.</CardDescription>
@@ -308,7 +308,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         <div className="grid grid-cols-1 gap-6">
             {subscriptionTiers.map(tier => (
                 <Card key={tier.name} className={cn(
-                    'flex flex-col',
+                    'bg-card flex flex-col',
                     tier.popular && 'border-primary ring-2 ring-primary',
                     theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
                 )}>
