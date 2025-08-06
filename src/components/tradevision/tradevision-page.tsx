@@ -66,6 +66,7 @@ export default function TradeVisionPage() {
       });
   }, [toast]);
 
+
   useEffect(() => {
     fetchMarketData(symbol, true);
     const intervalId = setInterval(() => {
