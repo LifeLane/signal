@@ -2,6 +2,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Gem, Wallet, ArrowRight } from 'lucide-react';
@@ -43,6 +46,7 @@ interface PremiumPageProps {
 }
 
 export function PremiumPage({ theme }: PremiumPageProps) {
+  const { publicKey, connected } = useWallet();
   const [fromToken, setFromToken] = useState('SOL');
   const [toToken, setToToken] = useState('SHADOW');
   const [fromAmount, setFromAmount] = useState('');
@@ -82,7 +86,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                         ))}
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full">
+                        <Button className="w-full" disabled={!connected}>
                            <Gem className="mr-2 h-4 w-4" /> {tier.cta}
                         </Button>
                     </CardFooter>
@@ -96,9 +100,13 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                 <CardDescription>Connect your wallet to subscribe and swap tokens.</CardDescription>
             </CardHeader>
             <CardContent>
-                 <Button className="w-full" size="lg">
-                    <Wallet className="mr-2 h-5 w-5" /> Connect Wallet
-                </Button>
+                <WalletMultiButton style={{width: '100%',
+                    backgroundColor: 'hsl(var(--primary))',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    height: '44px',
+                    fontSize: '1rem',
+                }}/>
             </CardContent>
         </Card>
 
@@ -134,7 +142,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
                         <Button variant="outline" className="min-w-[100px]">{toToken}</Button>
                     </div>
                 </div>
-                <Button className="w-full" size="lg" onClick={handleSwap}>Swap</Button>
+                <Button className="w-full" size="lg" onClick={handleSwap} disabled={!connected}>Swap</Button>
             </CardContent>
         </Card>
 
