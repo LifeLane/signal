@@ -3,7 +3,7 @@
 
 import { useState, useTransition, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { getTradingSignalAction, getMarketDataAction } from '@/app/actions';
+import { getTradingSignalAction, getMarketDataAction, type TradingSignalWithTargets } from '@/app/actions';
 
 import { AppHeader } from './header';
 import { SymbolSelector } from './symbol-selector';
@@ -17,7 +17,6 @@ import { Bot, Loader } from 'lucide-react';
 import { StrategyCard } from './strategy-card';
 import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
-import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
 import { IndicatorCard } from './indicator-card';
 import type { MarketData } from '@/services/market-data';
 import { IntroHooks } from './intro-hooks';
@@ -43,10 +42,10 @@ export default function TradeVisionPage() {
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
   const [marketData, setMarketData] = useState<MarketData | null>(null);
-  const [signal, setSignal] = useState<GenerateTradingSignalOutput | null>(
+  const [signal, setSignal] = useState<TradingSignalWithTargets | null>(
     null
   );
-  const [signalHistory, setSignalHistory] = useState<GenerateTradingSignalOutput[]>([]);
+  const [signalHistory, setSignalHistory] = useState<TradingSignalWithTargets[]>([]);
   const { toast } = useToast();
   const [theme, setTheme] = useState<Theme>('neural-pulse');
   const [activeView, setActiveView] = useState<NavItem>('Dashboard');

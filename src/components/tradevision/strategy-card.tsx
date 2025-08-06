@@ -9,14 +9,14 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
+import type { TradingSignalWithTargets } from '@/app/actions';
 import { Bot, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import type { Theme } from './tradevision-page';
 
 interface StrategyCardProps {
-  strategy: (GenerateTradingSignalOutput & { symbol?: string; id?: string }) | null;
+  strategy: TradingSignalWithTargets | null;
   isPending: boolean;
   theme: Theme;
 }

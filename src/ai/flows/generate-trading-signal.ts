@@ -24,13 +24,12 @@ const GenerateTradingSignalInputSchema = z.object({
 });
 export type GenerateTradingSignalInput = z.infer<typeof GenerateTradingSignalInputSchema>;
 
+// IMPORTANT: The AI is no longer responsible for price targets.
+// It only provides the signal and the reasoning.
 const GenerateTradingSignalOutputSchema = z.object({
   id: z.string().describe('A unique identifier for this signal.'),
   symbol: z.string().describe('The trading symbol (e.g., BTC, ETH).'),
   signal: z.enum(['BUY', 'SELL', 'HOLD']).describe('The trading signal (BUY, SELL, or HOLD).'),
-  entryZone: z.string().describe('The recommended entry zone for the trade.'),
-  stopLoss: z.string().describe('The recommended stop loss level.'),
-  takeProfit: z.string().describe('The recommended take profit level.'),
   confidence: z
     .string()
     .describe('The confidence level of the signal (as a percentage).'),
@@ -74,14 +73,11 @@ const generateTradingSignalPrompt = ai.definePrompt({
     *   **Parabolic SAR:** If SAR is below price, uptrend. If above, downtrend.
     *   **Bollinger Bands:** Note if price is near the upper or lower bands.
 5.  **Synthesize and Decide Signal:** Combine the news sentiment and all technical indicator analyses to decide on a final trading signal: 'BUY', 'SELL', or 'HOLD'.
-6.  **Set Targets:** Calculate 'entryZone', 'stopLoss', and 'takeProfit' levels. These MUST be mathematically relative to the **price** from the \`fetchMarketData\` tool. Adjust the percentage range based on the user's selected \`riskLevel\`:
-    *   **Low Risk:** ~1-2% for stop-loss, ~2-4% for take-profit.
-    *   **Medium Risk:** ~3-5% for stop-loss, ~5-8% for take-profit.
-    *   **High Risk:** ~6-10% for stop-loss, ~10-15% for take-profit.
-    *   For 'BUY', Stop Loss must be below Entry, Take Profit above. For 'SELL', the reverse. For 'HOLD', set targets to "N/A".
-7.  **Assess Confidence & Risk:** Provide a 'confidence' percentage and a 'gptConfidenceScore' based on how strongly the data aligns. Provide an AI-assessed 'riskRating'.
-8.  **Disclaimer:** Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
-9.  **Populate Output:** Fill out the entire JSON output. The output 'symbol' must match the input 'symbol'. The 'id' should be a new unique identifier.
+6.  **Assess Confidence & Risk:** Provide a 'confidence' percentage and a 'gptConfidenceScore' based on how strongly the data aligns. Provide an AI-assessed 'riskRating'.
+7.  **Disclaimer:** Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
+8.  **Populate Output:** Fill out the entire JSON output, *except for price targets*. The output 'symbol' must match the input 'symbol'. The 'id' should be a new unique identifier.
+
+**IMPORTANT: DO NOT calculate 'entryZone', 'stopLoss', or 'takeProfit'. These will be calculated by the system later. Your only job is to provide the signal and the analysis.**
 
 **Final Output:** Adhere strictly to the JSON format. All generated values MUST be directly derived from the information returned by the tools.
 `,

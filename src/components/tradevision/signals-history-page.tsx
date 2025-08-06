@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { GenerateTradingSignalOutput } from '@/ai/flows/generate-trading-signal';
+import type { TradingSignalWithTargets } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/card';
 import type { Theme } from './tradevision-page';
 import { cn } from '@/lib/utils';
@@ -9,7 +9,7 @@ import { Badge } from '../ui/badge';
 import { Bot, Info } from 'lucide-react';
 
 interface SignalsHistoryPageProps {
-  signals: (GenerateTradingSignalOutput & { symbol?: string; id?: string })[];
+  signals: TradingSignalWithTargets[];
   theme: Theme;
 }
 
