@@ -6,6 +6,11 @@ import {
   type GenerateTradingSignalInput,
   type GenerateTradingSignalOutput,
 } from '@/ai/flows/generate-trading-signal';
+import { 
+    generateNewsSummary, 
+    type GenerateNewsSummaryInput, 
+    type GenerateNewsSummaryOutput 
+} from '@/ai/flows/generate-news-summary';
 import { getMarketData, type MarketData } from '@/services/market-data';
 
 export async function getTradingSignalAction(
@@ -36,4 +41,16 @@ export async function getMarketDataAction(
     // Generic fallback
     throw new Error('An unexpected error occurred while fetching market data.');
   }
+}
+
+export async function getNewsSummaryAction(
+  input: GenerateNewsSummaryInput
+): Promise<GenerateNewsSummaryOutput> {
+    try {
+        const result = await generateNewsSummary(input);
+        return result;
+    } catch (error) {
+        console.error('Error generating news summary:', error);
+        throw new Error('Failed to generate news summary. Please try again.');
+    }
 }

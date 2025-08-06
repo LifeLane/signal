@@ -25,6 +25,7 @@ import { IntroLogo } from './intro-logo';
 import { cn } from '@/lib/utils';
 import { TechnicalAnalysisCard } from './technical-analysis-card';
 import { SignalsHistoryPage } from './signals-history-page';
+import { AiNewsPage } from './ai-news-page';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -132,6 +133,10 @@ export default function TradeVisionPage() {
   const renderContent = () => {
     if (activeView === 'Signals') {
       return <SignalsHistoryPage signals={signalHistory} theme={theme} />;
+    }
+
+    if (activeView === 'AI News') {
+        return <AiNewsPage theme={theme} />;
     }
 
     // Prime View
