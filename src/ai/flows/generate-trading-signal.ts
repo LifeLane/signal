@@ -61,7 +61,12 @@ const generateTradingSignalPrompt = ai.definePrompt({
     tools: [fetchMarketData, fetchNews],
     prompt: `You are an expert AI trading strategy assistant. Your entire analysis and the final trading signal MUST be based *exclusively* on the data returned by the tools for the specified symbol. Do not use any other data, examples, or prior knowledge. The output 'symbol' MUST match the input 'symbol'.
 
-**Instructions:**
+**Risk Level Instructions:**
+The user has specified their risk level as: \`{{riskLevel}}\`. You MUST adhere to the following rule:
+- If \`riskLevel\` is 'Low', you should strongly prefer to issue a 'HOLD' signal. Only issue a 'BUY' or 'SELL' signal if the combined technical and sentiment indicators are overwhelmingly strong in one direction. Your primary goal is capital preservation.
+- If \`riskLevel\` is 'Medium' or 'High', you MUST issue either a 'BUY' or 'SELL' signal. Do NOT issue a 'HOLD' signal. Your analysis should determine the most likely profitable direction.
+
+**General Instructions:**
 1.  **Fetch Market Data:** Call the \`fetchMarketData\` tool with the user's selected \`symbol\`.
 2.  **Fetch News:** From the market data, get the full name of the cryptocurrency (e.g., "Bitcoin" for "BTC"). Call the \`fetchNews\` tool using this full name as the query.
 3.  **Analyze News Sentiment:** Based on the headlines from the \`fetchNews\` tool, determine an overall sentiment for the news.
@@ -72,7 +77,7 @@ const generateTradingSignalPrompt = ai.definePrompt({
     *   **VWAP:** If price is above VWAP, bullish intraday momentum. If below, bearish. State the relationship.
     *   **Parabolic SAR:** If SAR is below price, it signals an uptrend. If above, a downtrend. State the relationship.
     *   **Bollinger Bands:** Note if the price is near the upper or lower bands, suggesting potential reversals or breakouts.
-5.  **Synthesize and Decide Signal:** Combine the news sentiment and all technical indicator analyses to decide on a final trading signal: 'BUY', 'SELL', or 'HOLD'.
+5.  **Synthesize and Decide Signal:** Combine the news sentiment and all technical indicator analyses to decide on a final trading signal ('BUY', 'SELL', or 'HOLD'), strictly following the **Risk Level Instructions**.
 6.  **Assess Confidence & Risk:** Provide a 'confidence' percentage and a 'gptConfidenceScore' based on how strongly the data aligns. Provide an AI-assessed 'riskRating'.
 7.  **Disclaimer:** Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
 8.  **Populate Output:** Fill out the entire JSON output, including all interpretations. The output 'symbol' must match the input 'symbol'. The 'id' should be a new unique identifier.
