@@ -127,7 +127,9 @@ export default function TradeVisionPage({ theme }: TradeVisionPageProps) {
              <IntroHooks />
         </div>
         
-        <AnimatedIntroText />
+        <div className="w-full whitespace-nowrap">
+            <AnimatedIntroText />
+        </div>
 
         <div className="w-full max-w-sm">
             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
