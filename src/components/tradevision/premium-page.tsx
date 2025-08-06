@@ -69,7 +69,11 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         <div className="grid grid-cols-1 gap-6">
             {subscriptionTiers.map(tier => (
-                <Card key={tier.name} className={cn('flex flex-col', tier.popular && 'border-primary ring-2 ring-primary')}>
+                <Card key={tier.name} className={cn(
+                    'flex flex-col',
+                    tier.popular && 'border-primary ring-2 ring-primary',
+                    theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
+                )}>
                     <CardHeader>
                         <CardTitle className="flex justify-between items-center">
                             <span>{tier.name}</span>
@@ -94,7 +98,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             ))}
         </div>
         
-        <Card>
+        <Card className={cn(theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
             <CardHeader>
                 <CardTitle>Solana Wallet</CardTitle>
                 <CardDescription>Connect your wallet to subscribe and swap tokens.</CardDescription>
@@ -110,7 +114,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             </CardContent>
         </Card>
 
-        <Card>
+        <Card className={cn(theme === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.green.500/0.7)]')}>
             <CardHeader>
                 <CardTitle>Swap Tokens</CardTitle>
                 <CardDescription>Powered by Jupiter</CardDescription>

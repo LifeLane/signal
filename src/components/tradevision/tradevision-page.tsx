@@ -269,7 +269,7 @@ export default function TradeVisionPage() {
   const renderContent = () => {
     switch (activeView) {
       case 'SHADOW':
-        return <ShadowPage />;
+        return <ShadowPage theme={theme} />;
       case 'Dashboard':
         return renderDashboard();
       case 'Signals':
