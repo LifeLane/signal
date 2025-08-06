@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { VersionedTransaction, TransactionMessage, PublicKey, Transaction } from '@solana/web3.js';
-import { getOrCreateAssociatedTokenAccount, createTransferInstruction, getAssociatedTokenAddress } from '@solana/spl-token';
+import { getOrCreateAssociatedTokenAccount, createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -127,7 +127,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
 
   const handleSwap = async () => {
-    if (!publicKey || !quote || !signTransaction) {
+    if (!publicKey || !quote || !sendTransaction) {
       toast({ variant: 'destructive', title: "Swap Error", description: "Wallet not connected or quote not available." });
       return;
     }
@@ -184,35 +184,24 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
         setIsSubscribing(tierName);
         try {
-            // Get the sender's token account address
             const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
-
-            // Get the creator's token account address
             const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
-            
-            // Check if creator's token account exists, if not, it needs to be created.
-            // The `createTransferInstruction` does not create the destination account.
-            // A robust solution involves checking and creating it if needed.
-            // For this, we can build a small transaction.
             
             const transaction = new Transaction();
 
-            // Check if the destination ATA exists
             const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
 
             if (!toTokenAccountInfo) {
-              // If it does not exist, add an instruction to create it
                transaction.add(
                     createAssociatedTokenAccountInstruction(
-                        publicKey, // Payer to create account
-                        toTokenAccountAddress, // The new ATA
-                        CREATOR_WALLET_ADDRESS, // Owner of the new ATA
-                        SHADOW_TOKEN_MINT // Mint
+                        publicKey, 
+                        toTokenAccountAddress, 
+                        CREATOR_WALLET_ADDRESS, 
+                        SHADOW_TOKEN_MINT 
                     )
                 );
             }
             
-            // Add the transfer instruction
             transaction.add(
                 createTransferInstruction(
                     fromTokenAccountAddress,
@@ -392,5 +381,3 @@ export function PremiumPage({ theme }: PremiumPageProps) {
     </div>
   );
 }
-
-    
