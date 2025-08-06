@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 
 const hooks = [
   'Analyze Market Trends',
-  'Predict Price Action',
+  'Leverage AI Insights',
+  'Optimize Your Strategy',
 ];
 
 export function IntroHooks() {
