@@ -1,40 +1,90 @@
 'use client';
 
-import type { Symbol } from './tradevision-page';
-import { Button } from '@/components/ui/button';
+import * as React from 'react';
+import { Check, ChevronsUpDown } from 'lucide-react';
+
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import type { Symbol } from './tradevision-page';
+
+const symbols: { value: Symbol; label: string }[] = [
+  { value: 'BTC', label: 'BTC' },
+  { value: 'ETH', label: 'ETH' },
+  { value: 'XRP', label: 'XRP' },
+  { value: 'SOL', label: 'SOL' },
+  { value: 'DOGE', label: 'DOGE' },
+];
 
 interface SymbolSelectorProps {
   selectedSymbol: Symbol;
   onSelectSymbol: (symbol: Symbol) => void;
 }
 
-const symbols: Symbol[] = ['BTC', 'ETH', 'XRP', 'SOL', 'DOGE'];
+export function SymbolSelector({
+  selectedSymbol,
+  onSelectSymbol,
+}: SymbolSelectorProps) {
+  const [open, setOpen] = React.useState(false);
 
-export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelectorProps) {
   return (
-    <div className="relative">
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-        {symbols.map((symbol) => (
-          <Button
-            key={symbol}
-            variant="secondary"
-            size="sm"
-            onClick={() => onSelectSymbol(symbol)}
-            className={cn(
-              "rounded-full px-4 py-1 h-auto text-base font-medium whitespace-nowrap",
-              "bg-muted text-muted-foreground hover:bg-primary/20",
-              selectedSymbol === symbol && "bg-primary text-primary-foreground hover:bg-primary/90"
-            )}
-          >
-            {symbol}
-          </Button>
-        ))}
-      </div>
-       <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pointer-events-none bg-gradient-to-l from-background to-transparent pl-8">
-          <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 mx-1"></span>
-          <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50 mx-1"></span>
-        </div>
+    <div className="flex flex-col gap-2">
+       <label className="text-sm font-medium text-muted-foreground">Select Asset</label>
+        <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+            <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between h-12 text-lg"
+            >
+            {selectedSymbol
+                ? symbols.find((symbol) => symbol.value === selectedSymbol)?.label
+                : 'Select symbol...'}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+            <Command>
+            <CommandInput placeholder="Search symbol..." />
+            <CommandEmpty>No symbol found.</CommandEmpty>
+            <CommandList>
+                <CommandGroup>
+                {symbols.map((symbol) => (
+                    <CommandItem
+                    key={symbol.value}
+                    value={symbol.value}
+                    onSelect={(currentValue) => {
+                        onSelectSymbol(currentValue.toUpperCase() as Symbol);
+                        setOpen(false);
+                    }}
+                    >
+                    <Check
+                        className={cn(
+                        'mr-2 h-4 w-4',
+                        selectedSymbol === symbol.value ? 'opacity-100' : 'opacity-0'
+                        )}
+                    />
+                    {symbol.label}
+                    </CommandItem>
+                ))}
+                </CommandGroup>
+            </CommandList>
+            </Command>
+        </PopoverContent>
+        </Popover>
     </div>
   );
 }

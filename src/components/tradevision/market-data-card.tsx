@@ -31,14 +31,14 @@ export function MarketDataCard({ volume, marketCap }: MarketDataCardProps) {
           <BarChart2 className="text-primary" />
           <div>
             <p className="text-sm text-muted-foreground">24h Volume</p>
-            <p className="font-semibold">{formatNumber(volume)}</p>
+            <p className="font-semibold">${formatNumber(volume)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <DollarSign className="text-primary" />
           <div>
             <p className="text-sm text-muted-foreground">Market Cap</p>
-            <p className="font-semibold">{formatNumber(marketCap)}</p>
+            <p className="font-semibold">${formatNumber(marketCap)}</p>
           </div>
         </div>
       </CardContent>

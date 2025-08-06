@@ -109,7 +109,6 @@ export default function TradeVisionPage() {
     <div className="bg-background text-foreground h-full flex flex-col">
       <AppHeader />
       <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
-        <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         
         {isDataLoading && !marketData ? (
           <div className="h-48 flex items-center justify-center">
@@ -117,11 +116,13 @@ export default function TradeVisionPage() {
           </div>
         ) : !marketData ? (
           <div className="h-48 flex flex-col items-center justify-center text-center p-4">
-            <p className="text-destructive mb-4">Failed to load market data.</p>
+             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
+            <p className="text-destructive my-4">Failed to load market data for {symbol}.</p>
             <Button onClick={() => fetchMarketData(symbol, true)}>Retry</Button>
           </div>
         ) : (
           <>
+            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
             <PriceDisplay price={marketData.price} change={marketData.change} />
             {signal ? (
               <>
@@ -193,9 +194,9 @@ export default function TradeVisionPage() {
           size="lg"
           className="w-full h-12 text-lg font-bold"
           onClick={handleGetSignal}
-          disabled={isSignalPending || isDataLoading}
+          disabled={isSignalPending || isDataLoading || !marketData}
         >
-          {isSignalPending ? <Loader className="animate-spin" /> : 'Get Signal'}
+          {isSignalPending ? <Loader className="animate-spin" /> : 'Get AI Signal'}
         </Button>
         <div className="h-24"></div>
       </main>
