@@ -5,11 +5,9 @@ import React, { useMemo } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
-import {
-    PhantomWalletAdapter,
-    SolflareWalletAdapter,
-    TorusWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
+import { TorusWalletAdapter } from '@solana/wallet-adapter-torus';
 
 // This provider component wraps the application with the necessary Solana wallet context providers.
 // By explicitly defining the supported wallets, we avoid issues with auto-detection when multiple wallet extensions are installed.
@@ -30,7 +28,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             );
         }
         return rpcUrl;
-    }, [network]);
+    }, []);
 
     // Define the list of wallets to support explicitly.
     // This provides a consistent user experience and avoids auto-detection conflicts.
