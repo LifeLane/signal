@@ -26,7 +26,8 @@ export async function getNews(
 ): Promise<{title: string; description: string; url: string}[]> {
   const apiKey = process.env.NEWS_API_KEY;
   if (!apiKey) {
-    throw new Error('NEWS_API_KEY is not set in the environment variables. Please add it to your .env file.');
+    console.error('NEWS_API_KEY is not set in the environment variables.');
+    throw new Error('Server configuration error: The news service is currently unavailable.');
   }
 
   const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
@@ -36,7 +37,9 @@ export async function getNews(
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      throw new Error(`NewsAPI request failed with status ${response.status}`);
+        const errorBody = await response.json();
+        console.error("NewsAPI request failed:", errorBody);
+        throw new Error(`Failed to fetch news. Status: ${response.status}.`);
     }
     const data: NewsApiResponse = await response.json();
 
@@ -51,10 +54,9 @@ export async function getNews(
     }));
   } catch (error) {
     console.error('Error fetching news:', error);
-    if (error instanceof Error) {
+    if (error instanceof Error && error.message.startsWith('Failed to fetch news')) {
         throw error;
     }
-    // Return an empty array or a custom error object
-    return [];
+    throw new Error('An unexpected error occurred while fetching news.');
   }
 }

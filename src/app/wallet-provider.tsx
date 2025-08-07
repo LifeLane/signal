@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
@@ -24,7 +24,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
     // Use a custom RPC endpoint from environment variables for better reliability,
     // falling back to the public RPC if it's not set.
-    const endpoint = useMemo(() => process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(network), [network]);
+    const endpoint = useMemo(() => {
+        const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+        if (!rpcUrl) {
+            console.warn(
+                'NEXT_PUBLIC_SOLANA_RPC_URL is not set. Falling back to public RPC. This may cause rate-limiting issues in production.'
+            );
+        }
+        return rpcUrl || clusterApiUrl(network);
+    }, [network]);
 
     // Define the list of wallets to support explicitly.
     // This provides a consistent user experience and avoids auto-detection conflicts.
