@@ -11,6 +11,22 @@ export interface CandlestickPattern {
     description: string;
 }
 
+export interface FearAndGreed {
+    value: number;
+    classification: string;
+}
+
+export interface Volatility {
+    atr: number;
+    vxi: number;
+}
+
+export interface VolumeProfilePoint {
+    time: string;
+    volume: number;
+}
+
+
 export interface MarketData {
   name: string;
   symbol: string;
@@ -28,41 +44,16 @@ export interface MarketData {
   support: number;
   resistance: number;
   patterns: CandlestickPattern[];
-  fearAndGreed: { value: number; classification: string };
+  fearAndGreed?: FearAndGreed;
   momentum: { trend: string; analysis: string; };
-  volatility: { atr: number; vxi: number; };
-  volumeProfile: { time: string; volume: number }[];
+  volatility?: Volatility;
+  volumeProfile?: VolumeProfilePoint[];
 }
 
 export interface SearchResult {
     id: string; // e.g., 'bitcoin'
     name: string; // e.g., 'Bitcoin'
     symbol: string; // e.g., 'BTC'
-}
-
-
-interface CmcQuote {
-    price: number;
-    volume_24h: number;
-    percent_change_24h: number;
-    market_cap: number;
-}
-
-interface CmcResponse {
-  status: {
-    error_code: number;
-    error_message: string | null;
-  };
-  data: {
-    [symbol: string]: {
-      id: number;
-      name: string;
-      symbol: string;
-      quote: {
-        USD: CmcQuote;
-      };
-    }[]; // Changed to array to handle multiple matches
-  };
 }
 
 interface CoinGeckoSimplePriceResponse {
@@ -73,107 +64,11 @@ interface CoinGeckoSimplePriceResponse {
         usd_market_cap: number;
     }
 }
-interface CoinGeckoCoinResponse {
-    id: string;
-    symbol: string;
-    name: string;
-}
-
-const getFearAndGreedClassification = (value: number): string => {
-    if (value <= 20) return "Extreme Fear";
-    if (value <= 40) return "Fear";
-    if (value <= 60) return "Neutral";
-    if (value <= 80) return "Greed";
-    return "Extreme Greed";
-};
-
-
-// This function fakes technical indicator data for now.
-// In a real application, you would use a library like 'technicalindicators'
-// and real historical data to calculate these values.
-const generateTechnicalIndicators = (price: number) => {
-    // Simulate some realistic volatility and indicator behavior.
-    const volatility = 0.05; // 5% volatility
-    const randomFactor = () => (Math.random() - 0.5) * 2; // -1 to 1
-
-    const rsi = 50 + randomFactor() * 25; // e.g., 25 to 75
-    const adx = 25 + randomFactor() * 15; // e.g., 10 to 40
-    const ema = price * (1 - 0.02 * randomFactor());
-    const vwap = price * (1 - 0.01 * randomFactor());
-    const sar = price * (1 - 0.03 * (Math.random() > 0.5 ? 1 : -1));
-    const upperBand = price * (1 + volatility);
-    const lowerBand = price * (1 - volatility);
-
-    const fearAndGreedValue = Math.floor(Math.random() * 101);
-
-    const volumeProfileData = [
-        { time: '00:00', volume: Math.random() * 1000 },
-        { time: '04:00', volume: Math.random() * 1000 },
-        { time: '08:00', volume: Math.random() * 1000 },
-        { time: '12:00', volume: Math.random() * 1000 },
-        { time: '16:00', volume: Math.random() * 1000 },
-        { time: '20:00', volume: Math.random() * 1000 },
-    ];
-
-
-    return {
-        longShortRatio: 50 + randomFactor() * 10, // e.g., 40% to 60%
-        rsi,
-        ema,
-        vwap,
-        bollingerBands: {
-          upper: upperBand,
-          lower: lowerBand,
-        },
-        sar,
-        adx,
-        support: price * (1 - volatility * 1.5),
-        resistance: price * (1 + volatility * 1.5),
-        patterns: [
-            {
-                name: "Morning Star",
-                timestamp: "7-22 05:30",
-                confidence: 95.00,
-                description: "Bullish reversal pattern formed over three candles, indicating a potential bottom and shift from bearish to bullish sentiment",
-            },
-            {
-                name: "Three White Soldiers",
-                timestamp: "7-21 11:00",
-                confidence: 88.50,
-                description: "Strong bullish signal indicating a potential reversal of a downtrend.",
-            }
-        ],
-        fearAndGreed: {
-            value: fearAndGreedValue,
-            classification: getFearAndGreedClassification(fearAndGreedValue)
-        },
-        momentum: {
-            trend: "Weak Uptrend",
-            analysis: "Increased Downtrend potential",
-        },
-        volatility: {
-            atr: price * volatility,
-            vxi: 30 + randomFactor() * 10,
-        },
-        volumeProfile: volumeProfileData,
-    }
-}
-
-const coinMapping: { [key: string]: {id: string, name: string, symbol: string} } = {
-    'BTC': { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC' },
-    'ETH': { id: 'ethereum', name: 'Ethereum', symbol: 'ETH' },
-    'XRP': { id: 'ripple', name: 'XRP', symbol: 'XRP' },
-    'SOL': { id: 'solana', name: 'Solana', symbol: 'SOL' },
-    'DOGE': { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE' },
-};
 
 // A helper function to find a coin's ID and name from a symbol, name, or address
 const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
     // 1. Check our hardcoded mapping first for common tickers
     const upperQuery = query.toUpperCase();
-    if (coinMapping[upperQuery]) {
-        return coinMapping[upperQuery];
-    }
     
     // 2. If it's a long string, assume it's a contract address (basic check)
     // For Solana, addresses are typically 32-44 characters long.
@@ -242,66 +137,150 @@ export async function searchCoins(query: string): Promise<SearchResult[]> {
   }
 }
 
+// Fetch Fear and Greed Index
+async function getFearAndGreedIndex(): Promise<FearAndGreed | undefined> {
+    try {
+        const response = await fetch('https://api.alternative.me/fng/?limit=1');
+        if (!response.ok) {
+            console.warn(`Fear & Greed API request failed with status ${response.status}`);
+            return undefined;
+        }
+        const data = await response.json();
+        const value = parseInt(data.data[0].value, 10);
+        return {
+            value,
+            classification: data.data[0].value_classification,
+        };
+    } catch (error) {
+        console.error('Error fetching Fear & Greed Index:', error);
+        return undefined;
+    }
+}
+
+// Fetch historical data for ATR and Volume Profile
+async function getHistoricalData(coinId: string): Promise<{ volumeProfile: VolumeProfilePoint[], atr: number }> {
+    const now = Date.now();
+    const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
+
+    // CoinGecko wants timestamps in seconds
+    const from = Math.floor(twentyFourHoursAgo / 1000);
+    const to = Math.floor(now / 1000);
+
+    const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`;
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`CoinGecko market_chart request failed with status ${response.status}`);
+        }
+        const data = await response.json();
+
+        // Calculate Volume Profile (hourly)
+        const volumes = data.total_volumes as [number, number][];
+        const volumeProfile = volumes.map(([timestamp, volume]) => ({
+            time: new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            volume,
+        }));
+        
+        // Calculate ATR from prices
+        const prices = data.prices as [number, number][];
+        let trueRanges = [];
+        for (let i = 1; i < prices.length; i++) {
+             // Mocking High/Low/Close from price data for ATR calculation
+            const high = Math.max(prices[i-1][1], prices[i][1]);
+            const low = Math.min(prices[i-1][1], prices[i][1]);
+            const prevClose = prices[i-1][1];
+            
+            const tr1 = high - low;
+            const tr2 = Math.abs(high - prevClose);
+            const tr3 = Math.abs(low - prevClose);
+            trueRanges.push(Math.max(tr1, tr2, tr3));
+        }
+
+        const atr = trueRanges.length > 0 ? trueRanges.reduce((a, b) => a + b, 0) / trueRanges.length : 0;
+
+        return { volumeProfile, atr };
+
+    } catch (error) {
+        console.error(`Error fetching historical data for ${coinId}:`, error);
+        return { volumeProfile: [], atr: 0 };
+    }
+}
+
+
+const generateTechnicalIndicators = (price: number) => {
+    // Simulate some realistic volatility and indicator behavior.
+    const volatility = 0.05; // 5% volatility
+    const randomFactor = () => (Math.random() - 0.5) * 2; // -1 to 1
+
+    const rsi = 50 + randomFactor() * 25; // e.g., 25 to 75
+    const adx = 25 + randomFactor() * 15; // e.g., 10 to 40
+    const ema = price * (1 - 0.02 * randomFactor());
+    const vwap = price * (1 - 0.01 * randomFactor());
+    const sar = price * (1 - 0.03 * (Math.random() > 0.5 ? 1 : -1));
+    const upperBand = price * (1 + volatility);
+    const lowerBand = price * (1 - volatility);
+
+    return {
+        longShortRatio: 50 + randomFactor() * 10, // e.g., 40% to 60%
+        rsi,
+        ema,
+        vwap,
+        bollingerBands: {
+          upper: upperBand,
+          lower: lowerBand,
+        },
+        sar,
+        adx,
+        support: price * (1 - volatility * 1.5),
+        resistance: price * (1 + volatility * 1.5),
+        patterns: [
+            {
+                name: "Morning Star",
+                timestamp: "7-22 05:30",
+                confidence: 95.00,
+                description: "Bullish reversal pattern formed over three candles, indicating a potential bottom and shift from bearish to bullish sentiment",
+            },
+            {
+                name: "Three White Soldiers",
+                timestamp: "7-21 11:00",
+                confidence: 88.50,
+                description: "Strong bullish signal indicating a potential reversal of a downtrend.",
+            }
+        ],
+        momentum: {
+            trend: "Weak Uptrend",
+            analysis: "Increased Downtrend potential",
+        },
+    }
+}
+
 /**
- * Fetches market data for a given symbol. It first tries CoinMarketCap, then falls back to CoinGecko.
- * @param symbol The crypto symbol (e.g., "BTC", "ETH").
+ * Fetches market data for a given symbol.
+ * @param symbol The crypto symbol (e.g., "BTC", "ETH", or a contract address).
  * @returns A promise that resolves to the market data.
  */
 export async function getMarketData(symbol: string): Promise<MarketData> {
-  // First, try CoinMarketCap
-  const cmcApiKey = process.env.COINMARKETCAP_API_KEY;
-  if (cmcApiKey) {
-    try {
-      // Use slug for names, symbol for tickers
-      const param = symbol.length > 5 ? 'slug' : 'symbol';
-      const cmcUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?${param}=${symbol}`;
-      const cmcResponse = await fetch(cmcUrl, {
-        headers: {
-          'X-CMC_PRO_API_KEY': cmcApiKey,
-          'Accept': 'application/json',
-        },
-      });
-
-      if (cmcResponse.ok) {
-        const cmcData: CmcResponse = await cmcResponse.json() as CmcResponse;
-        // The API returns an object where keys are IDs, so we get the first value.
-        const data = Object.values(cmcData.data)[0][0]; 
-        const quote = data?.quote?.USD;
-        if (quote) {
-          console.log(`Successfully fetched data from CoinMarketCap for ${symbol}`);
-          const indicators = generateTechnicalIndicators(quote.price);
-          return {
-            name: data.name,
-            symbol: data.symbol,
-            price: quote.price,
-            change: quote.percent_change_24h,
-            volume24h: quote.volume_24h,
-            marketCap: quote.market_cap,
-            ...indicators,
-          };
-        }
-      } else {
-        // Log CMC error but don't throw, to allow fallback
-        console.warn(`CoinMarketCap request for ${symbol} failed with status ${cmcResponse.status}. Falling back to CoinGecko.`);
-      }
-    } catch (error) {
-      console.warn(`Error fetching from CoinMarketCap for ${symbol}:`, error, `Falling back to CoinGecko.`);
-    }
-  } else {
-    console.log("COINMARKETCAP_API_KEY not found, using CoinGecko as default.");
-  }
-
-  // Fallback to CoinGecko
   try {
     const coinInfo = await getCoinGeckoInfo(symbol);
-    const cgUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinInfo.id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`;
+    
+    // Fetch all data in parallel
+    const [
+        priceDataResponse, 
+        fearAndGreed, 
+        historicalData
+    ] = await Promise.all([
+        fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinInfo.id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`),
+        getFearAndGreedIndex(),
+        getHistoricalData(coinInfo.id)
+    ]);
 
-    const cgResponse = await fetch(cgUrl);
-    if (!cgResponse.ok) {
-      throw new Error(`CoinGecko API request failed with status ${cgResponse.status}`);
+
+    if (!priceDataResponse.ok) {
+      throw new Error(`CoinGecko price API request failed with status ${priceDataResponse.status}`);
     }
-    const cgData: CoinGeckoSimplePriceResponse = await cgResponse.json() as CoinGeckoSimplePriceResponse;
-    const data = cgData[coinInfo.id];
+    const priceData: CoinGeckoSimplePriceResponse = await priceDataResponse.json() as CoinGeckoSimplePriceResponse;
+    const data = priceData[coinInfo.id];
 
     if (!data) {
       throw new Error(`No data found for symbol "${symbol}" (CoinGecko ID: "${coinInfo.id}") in CoinGecko response.`);
@@ -318,6 +297,12 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
       volume24h: data.usd_24h_vol,
       marketCap: data.usd_market_cap,
       ...indicators,
+      fearAndGreed: fearAndGreed,
+      volatility: {
+          atr: historicalData.atr,
+          vxi: 30 + (Math.random() - 0.5) * 2 * 10, // Keep VXI faked for now
+      },
+      volumeProfile: historicalData.volumeProfile,
     };
   } catch (error) {
     console.error(`Fatal: Could not fetch market data for ${symbol} from any source.`, error);

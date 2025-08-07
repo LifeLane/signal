@@ -3,13 +3,25 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import type { FearAndGreed } from '@/services/market-data';
 
 interface FearAndGreedCardProps {
-  index: number;
-  classification: string;
+  index?: number;
+  classification?: string;
 }
 
 export function FearAndGreedCard({ index, classification }: FearAndGreedCardProps) {
+  if (index === undefined || !classification) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Fear & Greed Index</CardTitle>
+                <CardDescription>Could not load Fear & Greed data.</CardDescription>
+            </CardHeader>
+        </Card>
+    );
+  }
+
   const getIndexColor = (value: number) => {
     if (value <= 20) return 'bg-red-600'; // Extreme Fear
     if (value <= 40) return 'bg-red-500'; // Fear
@@ -27,7 +39,7 @@ export function FearAndGreedCard({ index, classification }: FearAndGreedCardProp
                 {classification}
             </span>
         </CardTitle>
-        <CardDescription>Current market sentiment based on multiple factors.</CardDescription>
+        <CardDescription>Current market sentiment based on multiple factors. (Source: alternative.me)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <Progress value={index} className={cn("[&>div]:", getIndexColor(index))} />

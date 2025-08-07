@@ -186,9 +186,9 @@ export default function TradeVisionPage() {
                       onSelectInterval={handleIntervalChange}
                     />
                     <TechnicalAnalysisCard {...marketData} />
-                    <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />
-                    <VolumeProfileChart data={marketData.volumeProfile} />
-                    <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />
+                    {marketData.fearAndGreed && <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />}
+                    {marketData.volumeProfile && <VolumeProfileChart data={marketData.volumeProfile} />}
+                    {marketData.volatility && <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />}
                 </>
             )}
 
