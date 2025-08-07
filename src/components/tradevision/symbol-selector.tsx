@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { Check, ChevronsUpDown, Loader } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -54,14 +54,15 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     <div className="space-y-4">
        <div className="grid grid-cols-2 gap-4">
         {popularSymbols.map((symbol) => (
-            <Button
-                key={symbol.id}
-                variant="outline"
-                className="text-lg font-bold h-14"
-                onClick={() => onSelectSymbol(symbol.id)}
-            >
-                {symbol.symbol}
-            </Button>
+            <div key={symbol.id} className="p-0.5 rounded-lg animate-multi-color-glow">
+              <Button
+                  variant="outline"
+                  className="text-lg font-bold h-14 w-full"
+                  onClick={() => onSelectSymbol(symbol.id)}
+              >
+                  {symbol.symbol}
+              </Button>
+            </div>
         ))}
       </div>
 
@@ -71,12 +72,15 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-full justify-between h-14 text-lg animate-multi-color-glow"
+                    className="w-full justify-between h-14 text-lg"
                 >
-                    {selectedSymbol 
-                        ? `Selected: ${selectedSymbol.toUpperCase()}`
-                        : "Search by name, ticker, or address..."
-                    }
+                    <div className='flex items-center gap-2'>
+                        <Search className='h-5 w-5' />
+                        {selectedSymbol 
+                            ? `Selected: ${selectedSymbol.toUpperCase()}`
+                            : "Search symbols..."
+                        }
+                    </div>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
