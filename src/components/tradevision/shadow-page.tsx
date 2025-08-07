@@ -98,8 +98,6 @@ const DetailRow = ({ label, value, canCopy = false }: { label: string; value: st
 export function ShadowPage() {
     return (
         <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-pulse-grid">
-            <h1 className="text-2xl font-bold text-foreground">SHADOW Token</h1>
-
             <Card className="animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]">
                 <CardHeader>
                     <CardTitle>Smart Contract Details</CardTitle>
