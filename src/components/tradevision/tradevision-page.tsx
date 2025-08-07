@@ -13,7 +13,6 @@ import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import { Bot, Loader } from 'lucide-react';
 import { StrategyCard } from './strategy-card';
-import { RiskAnalysisCard } from './risk-analysis-card';
 import { MarketDataCard } from './market-data-card';
 import { IndicatorCard } from './indicator-card';
 import type { MarketData } from '@/services/market-data';
@@ -31,9 +30,9 @@ import { SupportResistanceCard } from './support-resistance-card';
 import { CandlestickPatternCard } from './candlestick-pattern-card';
 import dynamic from 'next/dynamic';
 import { FearAndGreedCard } from './fear-and-greed-card';
-import { MomentumCard } from './momentum-card';
 import { VolatilityCard } from './volatility-card';
 import { VolumeProfileChart } from './volume-profile-chart';
+import { StickyRiskSelector } from './sticky-risk-selector';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -164,7 +163,6 @@ export default function TradeVisionPage() {
                     <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />
                     <CandlestickPatternCard patterns={marketData.patterns} />
                     <TechnicalAnalysisCard {...marketData} />
-                    <MomentumCard trend={marketData.momentum.trend} analysis={marketData.momentum.analysis} />
                     <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />
                     <VolumeProfileChart data={marketData.volumeProfile} />
                 </>
@@ -224,12 +222,6 @@ export default function TradeVisionPage() {
               selectedInterval={interval}
               onSelectInterval={handleIntervalChange}
             />
-            <RiskAnalysisCard
-              riskLevel={riskLevel}
-              onSetRiskLevel={setRiskLevel}
-              riskRating={signal?.riskRating}
-              gptConfidence={signal?.gptConfidenceScore}
-            />
              
           </>
         )}
@@ -267,7 +259,8 @@ export default function TradeVisionPage() {
       {renderContent()}
       
       {symbol && activeView === 'Dashboard' && (
-        <div className="sticky bottom-[73px] p-4 bg-background/80 backdrop-blur-sm">
+        <div className="sticky bottom-[73px] p-4 bg-background/80 backdrop-blur-sm space-y-2">
+            <StickyRiskSelector riskLevel={riskLevel} onSetRiskLevel={setRiskLevel}/>
             <Button
               size="lg"
               className="w-full h-12 text-lg font-bold"
