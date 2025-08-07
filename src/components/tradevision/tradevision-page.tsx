@@ -54,11 +54,15 @@ export default function TradeVisionPage() {
   const { toast } = useToast();
   const [activeView, setActiveView] = useState<NavItem>('Dashboard');
   const strategyCardRef = useRef<HTMLDivElement>(null);
+  const pageContainerRef = useRef<HTMLDivElement>(null);
 
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
     setDataLoading(true);
     setSignal(null); // Reset signal when symbol changes
+    if (pageContainerRef.current) {
+        pageContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     getMarketDataAction(currentSymbol)
       .then((data) => {
         setMarketData(data);
@@ -140,7 +144,7 @@ export default function TradeVisionPage() {
   );
 
   const renderDashboard = () => (
-    <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all bg-pulse-grid">
+    <main ref={pageContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all bg-pulse-grid">
         
         {!symbol && !isDataLoading && renderIntro()}
         
@@ -152,7 +156,6 @@ export default function TradeVisionPage() {
 
         {marketData && symbol && !isDataLoading && (
           <>
-            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
             <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} />
             <Separator />
 
