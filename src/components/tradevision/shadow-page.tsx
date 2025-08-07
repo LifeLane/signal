@@ -103,8 +103,7 @@ export function ShadowPage() {
                 <div className="border border-primary/20 rounded-xl p-4 w-full max-w-sm mx-auto animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <IntroLogo />
                 </div>
-                <h1 className="text-3xl font-bold text-foreground">SHADOW Token</h1>
-                <p className="text-muted-foreground">The official utility token of the SHADOW ecosystem.</p>
+                <p className="text-muted-foreground mt-2 text-lg">Your Unfair Advantage in the Crypto Markets.</p>
             </div>
             
             <Card className="animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]">
