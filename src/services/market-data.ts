@@ -27,6 +27,10 @@ export interface MarketData {
   support: number;
   resistance: number;
   patterns: CandlestickPattern[];
+  fearAndGreed: { value: number; classification: string };
+  momentum: { trend: string; analysis: string; };
+  volatility: { atr: number; vxi: number; };
+  volumeProfile: { time: string; volume: number }[];
 }
 
 
@@ -68,6 +72,13 @@ interface CoinGeckoCoinResponse {
     name: string;
 }
 
+const getFearAndGreedClassification = (value: number): string => {
+    if (value <= 20) return "Extreme Fear";
+    if (value <= 40) return "Fear";
+    if (value <= 60) return "Neutral";
+    if (value <= 80) return "Greed";
+    return "Extreme Greed";
+};
 
 // This function fakes technical indicator data for now.
 // In a real application, you would use a library like 'technicalindicators'
@@ -84,6 +95,18 @@ const generateTechnicalIndicators = (price: number) => {
     const sar = price * (1 - 0.03 * (Math.random() > 0.5 ? 1 : -1));
     const upperBand = price * (1 + volatility);
     const lowerBand = price * (1 - volatility);
+
+    const fearAndGreedValue = Math.floor(Math.random() * 101);
+
+    const volumeProfileData = [
+        { time: '00:00', volume: Math.random() * 1000 },
+        { time: '04:00', volume: Math.random() * 1000 },
+        { time: '08:00', volume: Math.random() * 1000 },
+        { time: '12:00', volume: Math.random() * 1000 },
+        { time: '16:00', volume: Math.random() * 1000 },
+        { time: '20:00', volume: Math.random() * 1000 },
+    ];
+
 
     return {
         longShortRatio: 50 + randomFactor() * 10, // e.g., 40% to 60%
@@ -111,7 +134,20 @@ const generateTechnicalIndicators = (price: number) => {
                 confidence: 88.50,
                 description: "Strong bullish signal indicating a potential reversal of a downtrend.",
             }
-        ]
+        ],
+        fearAndGreed: {
+            value: fearAndGreedValue,
+            classification: getFearAndGreedClassification(fearAndGreedValue)
+        },
+        momentum: {
+            trend: "Weak Uptrend",
+            analysis: "Increased Downtrend potential",
+        },
+        volatility: {
+            atr: price * volatility,
+            vxi: 30 + randomFactor() * 10,
+        },
+        volumeProfile: volumeProfileData,
     }
 }
 

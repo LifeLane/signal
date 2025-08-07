@@ -30,6 +30,10 @@ import { AnimatedIntroText } from './animated-intro-text';
 import { SupportResistanceCard } from './support-resistance-card';
 import { CandlestickPatternCard } from './candlestick-pattern-card';
 import dynamic from 'next/dynamic';
+import { FearAndGreedCard } from './fear-and-greed-card';
+import { MomentumCard } from './momentum-card';
+import { VolatilityCard } from './volatility-card';
+import { VolumeProfileChart } from './volume-profile-chart';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -157,8 +161,12 @@ export default function TradeVisionPage() {
             {!signal && !isSignalPending && (
                 <>
                     <SupportResistanceCard support={marketData.support} resistance={marketData.resistance} />
+                    <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />
                     <CandlestickPatternCard patterns={marketData.patterns} />
                     <TechnicalAnalysisCard {...marketData} />
+                    <MomentumCard trend={marketData.momentum.trend} analysis={marketData.momentum.analysis} />
+                    <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />
+                    <VolumeProfileChart data={marketData.volumeProfile} />
                 </>
             )}
 
