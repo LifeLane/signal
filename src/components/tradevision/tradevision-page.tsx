@@ -169,11 +169,19 @@ export default function TradeVisionPage() {
             {!signal && !isSignalPending && (
                 <>
                     <SupportResistanceCard support={marketData.support} resistance={marketData.resistance} />
-                    <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />
-                    <CandlestickPatternCard patterns={marketData.patterns} />
+                    <MarketDataCard
+                      volume={marketData.volume24h}
+                      marketCap={marketData.marketCap}
+                    />
+                    <PositionRatioCard
+                      ratio={marketData.longShortRatio}
+                      selectedInterval={interval}
+                      onSelectInterval={handleIntervalChange}
+                    />
                     <TechnicalAnalysisCard {...marketData} />
-                    <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />
+                    <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />
                     <VolumeProfileChart data={marketData.volumeProfile} />
+                    <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />
                 </>
             )}
 
@@ -185,6 +193,8 @@ export default function TradeVisionPage() {
               
               {/* Show detailed breakdown only AFTER signal is generated */}
               {signal && !isSignalPending && (
+                <>
+                <CandlestickPatternCard patterns={marketData.patterns} />
                 <div className="grid grid-cols-1 gap-4">
                     <IndicatorCard
                       title="RSI (Relative Strength Index)"
@@ -219,19 +229,9 @@ export default function TradeVisionPage() {
                       interpretation={signal.bollingerBandsInterpretation}
                     />
                 </div>
+                </>
               )}
             </div>
-            
-            <MarketDataCard
-              volume={marketData.volume24h}
-              marketCap={marketData.marketCap}
-            />
-            <PositionRatioCard
-              ratio={marketData.longShortRatio}
-              selectedInterval={interval}
-              onSelectInterval={handleIntervalChange}
-            />
-             
           </>
         )}
 
