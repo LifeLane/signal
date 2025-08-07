@@ -30,10 +30,13 @@ import { PremiumPage } from './premium-page';
 import { SignalLoadingHooks } from './signal-loading-hooks';
 import { useTheme } from '@/app/theme-provider';
 import { AnimatedIntroText } from './animated-intro-text';
+import dynamic from 'next/dynamic';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
+
+const ClientOnly = dynamic(() => import('./client-only'), { ssr: false });
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
@@ -119,13 +122,15 @@ export default function TradeVisionPage() {
         
         <p className="text-base md:text-lg font-semibold text-primary whitespace-nowrap">Your Unfair Advantage.</p>
         
-        <div className="w-full max-w-sm p-4 rounded-xl border border-primary/20 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
-             <IntroHooks />
-        </div>
-        
-        <div className="w-full whitespace-nowrap">
-            <AnimatedIntroText />
-        </div>
+        <ClientOnly>
+          <div className="w-full max-w-sm p-4 rounded-xl border border-primary/20 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
+              <IntroHooks />
+          </div>
+          
+          <div className="w-full whitespace-nowrap">
+              <AnimatedIntroText />
+          </div>
+        </ClientOnly>
 
         <div className="w-full max-w-sm">
             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
