@@ -56,11 +56,12 @@ export default function TradeVisionPage() {
   const strategyCardRef = useRef<HTMLDivElement>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
 
-
-  const fetchMarketData = useCallback((currentSymbol: Symbol) => {
-    setDataLoading(true);
+  const fetchMarketData = useCallback((currentSymbol: Symbol, isInitialLoad = false) => {
+    if (isInitialLoad) {
+      setDataLoading(true);
+    }
     setSignal(null); // Reset signal when symbol changes
-    if (pageContainerRef.current) {
+    if (pageContainerRef.current && isInitialLoad) {
         pageContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
     getMarketDataAction(currentSymbol)
@@ -76,14 +77,30 @@ export default function TradeVisionPage() {
         setMarketData(null);
       })
       .finally(() => {
-        setDataLoading(false);
+        if(isInitialLoad) {
+          setDataLoading(false);
+        }
       });
   }, [toast]);
+
+  useEffect(() => {
+    if (!symbol) return;
+    
+    // Fetch immediately, then set an interval
+    fetchMarketData(symbol, true);
+
+    const intervalId = setInterval(() => {
+      fetchMarketData(symbol, false); // Subsequent fetches are not "initial"
+    }, 15000); // Refresh every 15 seconds
+
+    // Cleanup on component unmount or when symbol changes
+    return () => clearInterval(intervalId);
+  }, [symbol, fetchMarketData]);
 
 
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
-    fetchMarketData(newSymbol);
+    // The useEffect will handle the initial data fetch
   };
 
   const handleChangeSymbolClick = () => {
