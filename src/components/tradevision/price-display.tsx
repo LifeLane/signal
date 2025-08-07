@@ -33,7 +33,7 @@ export function PriceDisplay({ symbol, price, change, onChangeSymbol }: PriceDis
                 </div>
                 <Button variant='ghost' size='sm' onClick={onChangeSymbol}>
                     <Replace className="h-4 w-4 " />
-                    Change
+                    Change {symbol}
                 </Button>
             </div>
         </CardContent>
