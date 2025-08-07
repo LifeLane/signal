@@ -86,6 +86,12 @@ export default function TradeVisionPage() {
     fetchMarketData(newSymbol);
   };
 
+  const handleChangeSymbolClick = () => {
+    setSymbol(null);
+    setMarketData(null);
+    setSignal(null);
+  };
+
   const handleIntervalChange = (newInterval: Interval) => {
     setInterval(newInterval);
   };
@@ -156,7 +162,7 @@ export default function TradeVisionPage() {
 
         {marketData && symbol && !isDataLoading && (
           <>
-            <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} />
+            <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
             <Separator />
 
             {/* Pre-signal general analysis */}
