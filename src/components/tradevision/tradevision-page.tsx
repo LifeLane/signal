@@ -155,7 +155,7 @@ export default function TradeVisionPage() {
   );
 
   const renderDashboard = () => (
-    <main ref={pageContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all bg-pulse-grid">
+    <div ref={pageContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all bg-pulse-grid">
         
         {!symbol && !isDataLoading && renderIntro()}
         
@@ -253,7 +253,7 @@ export default function TradeVisionPage() {
         )}
 
         <div className="h-24"></div>
-      </main>
+      </div>
   );
 
   const renderContent = () => {
