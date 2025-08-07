@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
+import { IntroLogo } from './intro-logo';
 
 
 const contractDetails = {
@@ -98,6 +99,14 @@ const DetailRow = ({ label, value, canCopy = false }: { label: string; value: st
 export function ShadowPage() {
     return (
         <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-pulse-grid">
+            <div className="text-center p-4 space-y-2">
+                <div className="border border-primary/20 rounded-xl p-4 w-full max-w-sm mx-auto animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
+                    <IntroLogo />
+                </div>
+                <h1 className="text-3xl font-bold text-foreground">SHADOW Token</h1>
+                <p className="text-muted-foreground">The official utility token of the SHADOW ecosystem.</p>
+            </div>
+            
             <Card className="animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]">
                 <CardHeader>
                     <CardTitle>Smart Contract Details</CardTitle>
@@ -216,5 +225,3 @@ export function ShadowPage() {
         </div>
     );
 }
-
-    

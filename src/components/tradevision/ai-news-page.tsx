@@ -12,6 +12,7 @@ import { SymbolSelector } from './symbol-selector';
 import { Bot, Info, Loader, Newspaper, TrendingDown, TrendingUp, MinusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { IntroLogo } from './intro-logo';
 
 const getSentimentClass = (sentiment?: 'Positive' | 'Negative' | 'Neutral') => {
   switch (sentiment) {
@@ -72,7 +73,9 @@ export function AiNewsPage() {
 
   const renderInitialState = () => (
     <div className="flex flex-col items-center justify-center text-center p-4 h-full space-y-4">
-      <Newspaper className="w-16 h-16 text-primary" />
+      <div className="border border-primary/20 rounded-xl p-4 w-full max-w-sm mx-auto animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
+        <IntroLogo />
+      </div>
       <h2 className="text-2xl font-bold">AI News Analysis</h2>
       <p className="text-muted-foreground">
         Select a cryptocurrency to get an AI-powered summary and sentiment analysis of the latest news.

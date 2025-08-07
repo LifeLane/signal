@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { Bot, Info } from 'lucide-react';
+import { IntroLogo } from './intro-logo';
 
 interface SignalsHistoryPageProps {
   signals: TradingSignalWithTargets[];
@@ -41,8 +42,10 @@ const getSignalClass = (signal?: 'BUY' | 'SELL' | 'HOLD') => {
 export function SignalsHistoryPage({ signals }: SignalsHistoryPageProps) {
     if (signals.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center text-center p-4 h-full">
-                <Bot className="w-16 h-16 text-primary" />
+            <div className="flex flex-col items-center justify-center text-center p-4 h-full space-y-4">
+                <div className="border border-primary/20 rounded-xl p-4 w-full max-w-sm mx-auto animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
+                    <IntroLogo />
+                </div>
                 <h2 className="text-2xl font-bold mt-4">No Signals Yet</h2>
                 <p className="text-muted-foreground">Your generated trading signals will appear here.</p>
             </div>
