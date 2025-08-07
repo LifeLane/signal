@@ -123,11 +123,19 @@ export default {
           to: { width: '100%' },
         },
         glitch: {
-            '0%': { textShadow: '-2px -2px 0 hsl(var(--primary)), 2px 2px 0 hsl(var(--accent))', clipPath: 'inset(30% 0 30% 0)' },
-            '25%': { clipPath: 'inset(10% 0 50% 0)' },
-            '50%': { clipPath: 'inset(60% 0 10% 0)' },
-            '75%': { clipPath: 'inset(40% 0 20% 0)' },
-            '100%': { clipPath: 'inset(50% 0 35% 0)' },
+            '0%, 100%': {
+                textShadow: '-1.5px -1.5px 0 hsl(var(--accent)), 1.5px 1.5px 0 hsl(var(--primary))',
+                clipPath: 'inset(50% 0 30% 0)',
+            },
+            '25%': {
+                clipPath: 'inset(15% 0 70% 0)',
+            },
+            '50%': {
+                clipPath: 'inset(80% 0 5% 0)',
+            },
+            '75%': {
+                clipPath: 'inset(45% 0 45% 0)',
+            },
         }
       },
       animation: {
@@ -139,7 +147,7 @@ export default {
         'background-pan': 'background-pan 30s linear infinite',
         'snap-in': 'snap-in 0.5s ease-out',
         'typing': 'typing 1s steps(40, end)',
-        'glitch': 'glitch 0.25s linear infinite',
+        'glitch': 'glitch 0.4s linear infinite',
       },
     },
   },
