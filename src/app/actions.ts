@@ -11,7 +11,7 @@ import {
     type GenerateNewsSummaryInput, 
     type GenerateNewsSummaryOutput 
 } from '@/ai/flows/generate-news-summary';
-import { getMarketData, type MarketData } from '@/services/market-data';
+import { getMarketData, type MarketData, searchCoins, type SearchResult } from '@/services/market-data';
 
 // Define the full output type that the UI expects, including calculated fields.
 export type TradingSignalWithTargets = GenerateTradingSignalOutput & {
@@ -94,5 +94,16 @@ export async function getNewsSummaryAction(
     } catch (error) {
         console.error('Error generating news summary:', error);
         throw new Error('Failed to generate news summary. Please try again.');
+    }
+}
+
+export async function searchSymbolsAction(query: string): Promise<SearchResult[]> {
+    try {
+        const results = await searchCoins(query);
+        return results;
+    } catch (error) {
+        console.error('Error searching symbols:', error);
+        // Return empty array on error to prevent crashing the client
+        return [];
     }
 }

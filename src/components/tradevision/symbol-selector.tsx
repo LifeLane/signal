@@ -2,67 +2,112 @@
 'use client';
 
 import * as React from 'react';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Check, ChevronsUpDown, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useDebounce } from '@/hooks/use-debounce';
+import { searchSymbolsAction } from '@/app/actions';
+import type { SearchResult } from '@/services/market-data';
 import type { Symbol } from './tradevision-page';
-import { Card, CardContent } from '../ui/card';
 
 interface SymbolSelectorProps {
   selectedSymbol: Symbol | null;
   onSelectSymbol: (symbol: Symbol) => void;
 }
 
-const popularSymbols: Symbol[] = ['BTC', 'ETH', 'SOL', 'XRP'];
-
 export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelectorProps) {
-  const [search, setSearch] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = React.useState(false);
 
-  const handleSelect = (symbol: Symbol) => {
-    setSearch('');
-    onSelectSymbol(symbol);
-  }
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (search.trim()) {
-      onSelectSymbol(search.trim().toUpperCase());
-      setSearch('');
+  React.useEffect(() => {
+    if (debouncedSearchQuery.length > 1) {
+      setIsSearching(true);
+      searchSymbolsAction(debouncedSearchQuery).then((results) => {
+        setSearchResults(results);
+        setIsSearching(false);
+      });
+    } else {
+      setSearchResults([]);
     }
-  }
+  }, [debouncedSearchQuery]);
+
+  const handleSelect = (symbol: SearchResult) => {
+    // We use the ID for fetching data as it's more reliable than the symbol/ticker
+    onSelectSymbol(symbol.id); 
+    setOpen(false);
+    setSearchQuery('');
+  };
+  
+  const popularSymbols: SearchResult[] = [
+      { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC'},
+      { id: 'ethereum', name: 'Ethereum', symbol: 'ETH'},
+      { id: 'solana', name: 'Solana', symbol: 'SOL'},
+      { id: 'ripple', name: 'XRP', symbol: 'XRP'},
+  ];
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+       <div className="grid grid-cols-2 gap-4">
         {popularSymbols.map((symbol) => (
-            <Card 
-                key={symbol}
-                onClick={() => handleSelect(symbol)}
-                className={cn(
-                    "cursor-pointer transition-all bg-card/50 animate-multi-color-glow",
-                    "hover:bg-primary/20",
-                    selectedSymbol === symbol && "ring-2 ring-primary"
-                )}
+            <Button
+                key={symbol.id}
+                variant="outline"
+                className="text-lg font-bold h-14"
+                onClick={() => onSelectSymbol(symbol.id)}
             >
-                <CardContent className="p-4 flex items-center justify-center">
-                    <span className="text-xl font-bold">{symbol}</span>
-                </CardContent>
-            </Card>
+                {symbol.symbol}
+            </Button>
         ))}
       </div>
-      <form onSubmit={handleSearch} className="relative flex justify-center">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search by name, ticker, or address..."
-            className="h-12 pl-10 text-base text-center animate-multi-color-glow"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </form>
+
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between h-14 text-lg"
+                >
+                    {selectedSymbol 
+                        ? `Selected: ${selectedSymbol.toUpperCase()}`
+                        : "Search by name, ticker, or address..."
+                    }
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command>
+                    <CommandInput 
+                        placeholder="Search for a cryptocurrency..."
+                        value={searchQuery}
+                        onValueChange={setSearchQuery}
+                    />
+                    <CommandList>
+                        {isSearching && (
+                            <div className="p-4 flex justify-center items-center">
+                                <Loader className="animate-spin"/>
+                            </div>
+                        )}
+                        <CommandEmpty>{!isSearching && "No results found."}</CommandEmpty>
+                        <CommandGroup>
+                            {searchResults.map((result) => (
+                                <CommandItem
+                                    key={result.id}
+                                    value={`${result.name} ${result.symbol}`} // Use a unique value for filtering
+                                    onSelect={() => handleSelect(result)}
+                                >
+                                    {result.name} ({result.symbol.toUpperCase()})
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
     </div>
   );
 }

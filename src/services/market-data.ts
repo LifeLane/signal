@@ -42,6 +42,12 @@ export interface MarketData {
   priceHistory: PriceHistoryPoint[];
 }
 
+export interface SearchResult {
+    id: string; // e.g., 'bitcoin'
+    name: string; // e.g., 'Bitcoin'
+    symbol: string; // e.g., 'BTC'
+}
+
 
 interface CmcQuote {
     price: number;
@@ -247,6 +253,31 @@ const getCoinGeckoInfo = async (query: string): Promise<{id: string, name: strin
     return { id: query.toLowerCase(), name: query.toUpperCase() };
 }
 
+export async function searchCoins(query: string): Promise<SearchResult[]> {
+  if (!query) {
+    return [];
+  }
+
+  try {
+    const searchUrl = `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(query)}`;
+    const response = await fetch(searchUrl);
+    if (!response.ok) {
+      console.error(`CoinGecko search API request failed with status ${response.status}`);
+      return [];
+    }
+    const data = await response.json();
+    return (data.coins || [])
+      .slice(0, 10) // Return top 10 results
+      .map((coin: any) => ({
+        id: coin.id,
+        name: coin.name,
+        symbol: coin.symbol,
+      }));
+  } catch (error) {
+    console.error('Error searching CoinGecko:', error);
+    return [];
+  }
+}
 
 /**
  * Fetches market data for a given symbol. It first tries CoinMarketCap, then falls back to CoinGecko.
