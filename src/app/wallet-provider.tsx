@@ -6,24 +6,35 @@ import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@sol
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
+import {
+    PhantomWalletAdapter,
+    SolflareWalletAdapter,
+    TorusWalletAdapter,
+} from '@solana/wallet-adapter-wallets';
 
-// Wallets are now auto-discovered by the Wallet Adapter, so we don't need to
-// import and list them manually unless we want to override the default behavior.
-// This new approach is more robust and avoids conflicts with multiple injected wallets.
-
+// This provider component wraps the application with the necessary Solana wallet context providers.
+// By explicitly defining the supported wallets, we avoid issues with auto-detection when multiple wallet extensions are installed.
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const network = WalletAdapterNetwork.Mainnet;
 
-    // Use a custom RPC endpoint from environment variables for reliability.
-    // Fallback to the public RPC for basic functionality.
+    // Use a custom RPC endpoint from environment variables for better reliability,
+    // falling back to the public RPC if it's not set.
     const endpoint = useMemo(() => process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(network), [network]);
-    
-    // The `wallets` prop is now omitted. The WalletProvider will automatically
-    // detect installed wallet extensions that follow the Solana wallet standard.
-    // This prevents conflicts between extensions like Phantom and Binance Wallet.
+
+    // Define the list of wallets to support explicitly.
+    // This provides a consistent user experience and avoids auto-detection conflicts.
+    const wallets = useMemo(
+        () => [
+            new PhantomWalletAdapter(),
+            new SolflareWalletAdapter(),
+            new TorusWalletAdapter(),
+        ],
+        []
+    );
+
     return (
         <ConnectionProvider endpoint={endpoint}>
-            <SolanaWalletProvider wallets={[]} autoConnect>
+            <SolanaWalletProvider wallets={wallets} autoConnect>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </SolanaWalletProvider>
         </ConnectionProvider>
