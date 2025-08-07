@@ -7,7 +7,6 @@ import { getTradingSignalAction, getMarketDataAction, type TradingSignalWithTarg
 
 import { SymbolSelector } from './symbol-selector';
 import { PriceDisplay } from './price-display';
-import { MomentumCard } from './momentum-card';
 import { PositionRatioCard } from './position-ratio-card';
 import { BottomBar, type NavItem } from './bottom-bar';
 import { Separator } from '../ui/separator';
@@ -155,7 +154,6 @@ export default function TradeVisionPage() {
             {/* Pre-signal general analysis */}
             {!signal && !isSignalPending && (
                 <>
-                    <MomentumCard />
                     <TechnicalAnalysisCard {...marketData} />
                 </>
             )}
