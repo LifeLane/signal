@@ -27,6 +27,8 @@ import { ShadowPage } from './shadow-page';
 import { PremiumPage } from './premium-page';
 import { SignalLoadingHooks } from './signal-loading-hooks';
 import { AnimatedIntroText } from './animated-intro-text';
+import { SupportResistanceCard } from './support-resistance-card';
+import { CandlestickPatternCard } from './candlestick-pattern-card';
 import dynamic from 'next/dynamic';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
@@ -154,6 +156,8 @@ export default function TradeVisionPage() {
             {/* Pre-signal general analysis */}
             {!signal && !isSignalPending && (
                 <>
+                    <SupportResistanceCard support={marketData.support} resistance={marketData.resistance} />
+                    <CandlestickPatternCard patterns={marketData.patterns} />
                     <TechnicalAnalysisCard {...marketData} />
                 </>
             )}

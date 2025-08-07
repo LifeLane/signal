@@ -4,6 +4,13 @@
  */
 import fetch from 'node-fetch';
 
+export interface CandlestickPattern {
+    name: string;
+    timestamp: string;
+    confidence: number;
+    description: string;
+}
+
 export interface MarketData {
   name: string;
   price: number;
@@ -17,6 +24,9 @@ export interface MarketData {
   bollingerBands: { upper: number; lower: number };
   sar: number;
   adx: number;
+  support: number;
+  resistance: number;
+  patterns: CandlestickPattern[];
 }
 
 
@@ -86,6 +96,22 @@ const generateTechnicalIndicators = (price: number) => {
         },
         sar,
         adx,
+        support: price * (1 - volatility * 1.5),
+        resistance: price * (1 + volatility * 1.5),
+        patterns: [
+            {
+                name: "Morning Star",
+                timestamp: "7-22 05:30",
+                confidence: 95.00,
+                description: "Bullish reversal pattern formed over three candles, indicating a potential bottom and shift from bearish to bullish sentiment",
+            },
+            {
+                name: "Three White Soldiers",
+                timestamp: "7-21 11:00",
+                confidence: 88.50,
+                description: "Strong bullish signal indicating a potential reversal of a downtrend.",
+            }
+        ]
     }
 }
 
