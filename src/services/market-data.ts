@@ -11,16 +11,9 @@ export interface CandlestickPattern {
     description: string;
 }
 
-export interface PriceHistoryPoint {
-    time: string;
-    open: number;
-    high: number;
-    low: number;
-    close: number;
-}
-
 export interface MarketData {
   name: string;
+  symbol: string;
   price: number;
   change: number;
   volume24h: number;
@@ -39,7 +32,6 @@ export interface MarketData {
   momentum: { trend: string; analysis: string; };
   volatility: { atr: number; vxi: number; };
   volumeProfile: { time: string; volume: number }[];
-  priceHistory: PriceHistoryPoint[];
 }
 
 export interface SearchResult {
@@ -95,35 +87,6 @@ const getFearAndGreedClassification = (value: number): string => {
     return "Extreme Greed";
 };
 
-
-const generatePriceHistory = (price: number): PriceHistoryPoint[] => {
-    const data: PriceHistoryPoint[] = [];
-    let currentPrice = price * (1 - (Math.random() - 0.5) * 0.2); // Start 20% away from current
-    for (let i = 0; i < 30; i++) {
-        const open = currentPrice;
-        const high = open * (1 + Math.random() * 0.025); // up to 2.5% higher
-        const low = open * (1 - Math.random() * 0.025); // up to 2.5% lower
-        const close = low + Math.random() * (high - low); // somewhere between high and low
-        
-        const date = new Date();
-        date.setDate(date.getDate() - (30 - i));
-
-        data.push({
-            time: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            open,
-            high,
-            low,
-            close,
-        });
-
-        currentPrice = close * (1 + (Math.random() - 0.5) * 0.03); // next day's open
-    }
-    // ensure last point is the current price
-    data[data.length - 1].close = price;
-    data[data.length - 1].high = Math.max(data[data.length - 1].high, price);
-    data[data.length - 1].low = Math.min(data[data.length - 1].low, price);
-    return data;
-}
 
 // This function fakes technical indicator data for now.
 // In a real application, you would use a library like 'technicalindicators'
@@ -193,20 +156,19 @@ const generateTechnicalIndicators = (price: number) => {
             vxi: 30 + randomFactor() * 10,
         },
         volumeProfile: volumeProfileData,
-        priceHistory: generatePriceHistory(price),
     }
 }
 
-const coinMapping: { [key: string]: {id: string, name: string} } = {
-    'BTC': { id: 'bitcoin', name: 'Bitcoin' },
-    'ETH': { id: 'ethereum', name: 'Ethereum' },
-    'XRP': { id: 'ripple', name: 'XRP' },
-    'SOL': { id: 'solana', name: 'Solana' },
-    'DOGE': { id: 'dogecoin', name: 'Dogecoin' },
+const coinMapping: { [key: string]: {id: string, name: string, symbol: string} } = {
+    'BTC': { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC' },
+    'ETH': { id: 'ethereum', name: 'Ethereum', symbol: 'ETH' },
+    'XRP': { id: 'ripple', name: 'XRP', symbol: 'XRP' },
+    'SOL': { id: 'solana', name: 'Solana', symbol: 'SOL' },
+    'DOGE': { id: 'dogecoin', name: 'Dogecoin', symbol: 'DOGE' },
 };
 
 // A helper function to find a coin's ID and name from a symbol, name, or address
-const getCoinGeckoInfo = async (query: string): Promise<{id: string, name: string}> => {
+const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
     // 1. Check our hardcoded mapping first for common tickers
     const upperQuery = query.toUpperCase();
     if (coinMapping[upperQuery]) {
@@ -223,7 +185,7 @@ const getCoinGeckoInfo = async (query: string): Promise<{id: string, name: strin
                 const cgData = await cgResponse.json();
                 if (cgData.id) {
                     console.log(`Found coin by contract address: ${cgData.name}`);
-                    return { id: cgData.id, name: cgData.name };
+                    return { id: cgData.id, name: cgData.name, symbol: cgData.symbol };
                 }
             }
         } catch(e) {
@@ -241,7 +203,7 @@ const getCoinGeckoInfo = async (query: string): Promise<{id: string, name: strin
             if (searchData.coins && searchData.coins.length > 0) {
                 const topResult = searchData.coins[0];
                 console.log(`Found coin by search: ${topResult.name}`);
-                return { id: topResult.id, name: topResult.name };
+                return { id: topResult.id, name: topResult.name, symbol: topResult.symbol };
             }
         }
     } catch(e) {
@@ -250,7 +212,8 @@ const getCoinGeckoInfo = async (query: string): Promise<{id: string, name: strin
     
     // 4. If all else fails, use the query as a fallback (and likely fail downstream)
     console.warn(`Could not resolve "${query}" to a CoinGecko ID. Using it directly.`);
-    return { id: query.toLowerCase(), name: query.toUpperCase() };
+    const fallbackSymbol = query.length <= 5 ? query.toUpperCase() : "UNKNOWN";
+    return { id: query.toLowerCase(), name: query.toUpperCase(), symbol: fallbackSymbol };
 }
 
 export async function searchCoins(query: string): Promise<SearchResult[]> {
@@ -309,6 +272,7 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
           const indicators = generateTechnicalIndicators(quote.price);
           return {
             name: data.name,
+            symbol: data.symbol,
             price: quote.price,
             change: quote.percent_change_24h,
             volume24h: quote.volume_24h,
@@ -348,6 +312,7 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
     
     return {
       name: coinInfo.name,
+      symbol: coinInfo.symbol.toUpperCase(),
       price: data.usd,
       change: data.usd_24h_change,
       volume24h: data.usd_24h_vol,

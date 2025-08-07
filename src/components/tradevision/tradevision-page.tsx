@@ -185,7 +185,7 @@ export default function TradeVisionPage() {
           <>
             <PriceDisplay symbol={marketData.name} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
             <Separator />
-             <PriceChart data={marketData.priceHistory} />
+            <PriceChart symbol={marketData.symbol} />
 
             {/* Pre-signal general analysis */}
             {!signal && !isSignalPending && (
