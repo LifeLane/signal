@@ -31,8 +31,9 @@ export function PriceDisplay({ symbol, price, change, onChangeSymbol }: PriceDis
                     {isPositive ? '+' : ''}{change.toFixed(2)}%
                     </div>
                 </div>
-                <Button variant='ghost' size='icon' onClick={onChangeSymbol}>
-                    <Replace className="h-5 w-5 text-muted-foreground" />
+                <Button variant='ghost' size='sm' onClick={onChangeSymbol}>
+                    <Replace className="h-4 w-4 " />
+                    Change
                 </Button>
             </div>
         </CardContent>
