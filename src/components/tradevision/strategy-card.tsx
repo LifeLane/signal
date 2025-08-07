@@ -19,12 +19,10 @@ import type { TradingSignalWithTargets } from '@/app/actions';
 import { Bot, Info, Cpu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
-import type { Theme } from '@/app/theme-provider';
 
 interface StrategyCardProps {
   strategy: TradingSignalWithTargets | null;
   isPending: boolean;
-  theme: Theme;
 }
 
 const getSignalClass = (signal?: 'BUY' | 'SELL' | 'HOLD') => {
@@ -75,16 +73,13 @@ const PendingContent = () => (
 );
 
 
-export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) {
+export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
     const signalClasses = getSignalClass(strategy?.signal);
     const cardTitle = strategy?.symbol ? `AI Strategy for ${strategy.symbol}` : 'AI Strategy';
 
     if (isPending || !strategy) {
         return (
-            <Card className={cn(
-                'transition-all',
-                theme.name === 'neural-pulse' && 'animate-none border-primary/50'
-            )}>
+            <Card className="transition-all animate-none border-primary/50">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -110,8 +105,8 @@ export function StrategyCard({ strategy, isPending, theme }: StrategyCardProps) 
     return (
     <Card
       className={cn(
-        'shadow-lg transition-all',
-        theme.name === 'neural-pulse' && `animate-pulse-glow ${signalClasses.glow}`
+        'shadow-lg transition-all animate-pulse-glow',
+        signalClasses.glow
       )}
     >
       <CardHeader>

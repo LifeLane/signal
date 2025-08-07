@@ -28,7 +28,6 @@ import { AiNewsPage } from './ai-news-page';
 import { ShadowPage } from './shadow-page';
 import { PremiumPage } from './premium-page';
 import { SignalLoadingHooks } from './signal-loading-hooks';
-import { useTheme } from '@/app/theme-provider';
 import { AnimatedIntroText } from './animated-intro-text';
 import dynamic from 'next/dynamic';
 
@@ -52,7 +51,6 @@ export default function TradeVisionPage() {
   const { toast } = useToast();
   const [activeView, setActiveView] = useState<NavItem>('Dashboard');
   const strategyCardRef = useRef<HTMLDivElement>(null);
-  const { theme } = useTheme();
 
 
   const fetchMarketData = useCallback((currentSymbol: Symbol) => {
@@ -139,10 +137,7 @@ export default function TradeVisionPage() {
   );
 
   const renderDashboard = () => (
-    <main className={cn(
-        "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all",
-        (theme.name === 'neural-pulse' || theme.name === 'neon-future') && 'bg-pulse-grid'
-      )}>
+    <main className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all bg-pulse-grid">
         
         {!symbol && !isDataLoading && renderIntro()}
         
@@ -161,15 +156,15 @@ export default function TradeVisionPage() {
             {/* Pre-signal general analysis */}
             {!signal && !isSignalPending && (
                 <>
-                    <MomentumCard theme={theme} />
-                    <TechnicalAnalysisCard {...marketData} theme={theme} />
+                    <MomentumCard />
+                    <TechnicalAnalysisCard {...marketData} />
                 </>
             )}
 
             <div ref={strategyCardRef} className="scroll-mt-4 space-y-4">
               {/* Show loading state or final strategy card */}
               {isSignalPending || signal ? (
-                <StrategyCard strategy={signal} isPending={isSignalPending} theme={theme} />
+                <StrategyCard strategy={signal} isPending={isSignalPending} />
               ) : null}
               
               {/* Show detailed breakdown only AFTER signal is generated */}
@@ -180,38 +175,32 @@ export default function TradeVisionPage() {
                       value={marketData.rsi.toFixed(2)}
                       interpretation={signal.rsiInterpretation}
                       gaugeValue={marketData.rsi}
-                      theme={theme}
                     />
                     <IndicatorCard
                       title="ADX (Average Directional Index)"
                       value={marketData.adx.toFixed(2)}
                       interpretation={signal.adxInterpretation}
                       gaugeValue={marketData.adx}
-                      theme={theme}
                     />
                     <IndicatorCard
                       title="EMA (Exponential Moving Average)"
                       value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       interpretation={signal.emaInterpretation}
-                      theme={theme}
                     />
                     <IndicatorCard
                       title="VWAP (Volume-Weighted Average Price)"
                       value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       interpretation={signal.vwapInterpretation}
-                      theme={theme}
                     />
                     <IndicatorCard
                       title="Parabolic SAR"
                       value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       interpretation={signal.sarInterpretation}
-                      theme={theme}
                     />
                     <IndicatorCard
                       title="Bollinger Bands"
                       value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
                       interpretation={signal.bollingerBandsInterpretation}
-                      theme={theme}
                     />
                 </div>
               )}
@@ -220,20 +209,17 @@ export default function TradeVisionPage() {
             <MarketDataCard
               volume={marketData.volume24h}
               marketCap={marketData.marketCap}
-              theme={theme}
             />
             <PositionRatioCard
               ratio={marketData.longShortRatio}
               selectedInterval={interval}
               onSelectInterval={handleIntervalChange}
-              theme={theme}
             />
             <RiskAnalysisCard
               riskLevel={riskLevel}
               onSetRiskLevel={setRiskLevel}
               riskRating={signal?.riskRating}
               gptConfidence={signal?.gptConfidenceScore}
-              theme={theme}
             />
              <Button
                 size="lg"
@@ -264,15 +250,15 @@ export default function TradeVisionPage() {
   const renderContent = () => {
     switch (activeView) {
       case 'SHADOW':
-        return <ShadowPage theme={theme} />;
+        return <ShadowPage />;
       case 'Dashboard':
         return renderDashboard();
       case 'Signals':
-        return <SignalsHistoryPage signals={signalHistory} theme={theme} />;
+        return <SignalsHistoryPage signals={signalHistory} />;
       case 'AI News':
-        return <AiNewsPage theme={theme} />;
+        return <AiNewsPage />;
       case 'Premium':
-        return <PremiumPage theme={theme} />;
+        return <PremiumPage />;
       default:
         return renderDashboard();
     }

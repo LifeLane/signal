@@ -4,7 +4,6 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { WalletProvider } from './wallet-provider';
 import '@solana/wallet-adapter-react-ui/styles.css';
-import { ThemeProvider } from './theme-provider';
 
 export const metadata: Metadata = {
   title: 'SHADOW',
@@ -18,27 +17,19 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased bg-background">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="neural-pulse"
-          themes={['neural-pulse', 'neon-future', 'forest-reserve', 'solana-summer', 'desert-mirage']}
-          enableSystem={false}
-          disableTransitionOnChange
-        >
           <WalletProvider>
               <div className="relative mx-auto max-w-sm h-dvh overflow-hidden border-x border-border/20">
                   {children}
               </div>
               <Toaster />
           </WalletProvider>
-        </ThemeProvider>
       </body>
     </html>
   );

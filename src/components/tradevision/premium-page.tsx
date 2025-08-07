@@ -10,7 +10,6 @@ import { createTransferInstruction, getAssociatedTokenAddress, createAssociatedT
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader, LogOut, Info } from 'lucide-react';
-import type { Theme } from '@/app/theme-provider';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -60,11 +59,7 @@ const trialTier = {
 };
 
 
-interface PremiumPageProps {
-  theme: Theme;
-}
-
-export function PremiumPage({ theme }: PremiumPageProps) {
+export function PremiumPage() {
   const { publicKey, connected, sendTransaction, disconnect } = useWallet();
   const { connection } = useConnection();
   const { toast } = useToast();
@@ -156,10 +151,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
 
 
   return (
-    <div className={cn(
-        "flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar",
-        (theme.name === 'neural-pulse' || theme.name === 'neon-future') && 'bg-pulse-grid'
-    )}>
+    <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar bg-pulse-grid">
         <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2"><Gem className='text-primary'/> Go Premium</h1>
             <p className="text-muted-foreground mt-2">Unlock the full power of SHADOW and gain your unfair advantage.</p>
@@ -175,7 +167,7 @@ export function PremiumPage({ theme }: PremiumPageProps) {
             </Alert>
         )}
 
-        <Card className={cn('bg-card', theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]')}>
+        <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]">
             <CardHeader>
                 <CardTitle>1. Connect Your Wallet</CardTitle>
                 <CardDescription>
@@ -246,10 +238,9 @@ export function PremiumPage({ theme }: PremiumPageProps) {
         <div className="grid grid-cols-1 gap-6">
             {subscriptionTiers.map(tier => (
                 <Card key={tier.name} className={cn(
-                    'bg-card flex flex-col',
+                    'bg-card flex flex-col animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]',
                     tier.popular && !activeSubscription && 'border-primary ring-2 ring-primary',
-                    activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500',
-                    theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]'
+                    activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500'
                 )}>
                     <CardHeader>
                         <CardTitle className="flex justify-between items-center">

@@ -7,12 +7,11 @@ export function AnimatedIntroText() {
   const text = "Select a symbol to begin analysis.";
 
   return (
-    <p className="text-lg text-center">
+    <p className="text-lg text-center whitespace-nowrap">
       {text.split('').map((char, index) => (
         <span
           key={index}
           className={cn(
-            'animate-multi-color-text',
             char === ' ' && 'px-1' // Add space for whitespace characters
           )}
           style={{ animationDelay: `${index * 50}ms, ${index * 70}ms` }}

@@ -59,90 +59,6 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-  
-  .theme-neural-pulse {
-    --background: 210 20% 15%;
-    --foreground: 210 40% 98%;
-    --card: 210 20% 18%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 70% 50%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 210 20% 25%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 180 60% 60%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 210 70% 50%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-  
-  .theme-neon-future {
-    --background: 220 40% 10%;
-    --foreground: 210 20% 95%;
-    --primary: 320 100% 60%;
-    --accent: 180 100% 50%;
-    --card: 220 30% 15%;
-    --primary-foreground: 210 20% 95%;
-    --secondary: 220 30% 20%;
-    --muted: 220 30% 25%;
-    --border: 220 30% 25%;
-    --input: 220 30% 25%;
-    --ring: 320 100% 60%;
-  }
-
-  .theme-forest-reserve {
-    --background: 150 25% 10%;
-    --foreground: 90 30% 90%;
-    --primary: 35 80% 60%;
-    --accent: 170 50% 55%;
-    --card: 150 20% 15%;
-    --primary-foreground: 150 25% 10%;
-    --secondary: 150 20% 20%;
-    --muted: 150 20% 25%;
-    --border: 150 20% 25%;
-    --input: 150 20% 25%;
-    --ring: 35 80% 60%;
-  }
-  
-  .theme-solana-summer {
-    --background: 240 10% 98%;
-    --foreground: 240 10% 20%;
-    --primary: 260 85% 65%;
-    --accent: 175 70% 45%;
-    --card: 0 0% 100%;
-    --primary-foreground: 240 10% 98%;
-    --secondary: 240 10% 95%;
-    --muted: 240 10% 90%;
-    --border: 240 10% 90%;
-    --input: 240 10% 90%;
-    --ring: 260 85% 65%;
-  }
-
-  .theme-desert-mirage {
-    --background: 35 50% 96%;
-    --foreground: 25 25% 25%;
-    --primary: 200 60% 50%; /* Terracotta */
-    --accent: 160 40% 45%; /* Sage Green */
-    --card: 35 40% 92%;
-    --primary-foreground: 35 50% 96%;
-    --secondary: 35 40% 90%;
-    --muted: 35 40% 85%;
-    --border: 35 40% 85%;
-    --input: 35 40% 85%;
-    --ring: 200 60% 50%;
-  }
-
 }
 
 @layer base {
@@ -164,7 +80,6 @@
 }
 
 @layer utilities {
-  /* Neural Pulse Theme Animations */
   @keyframes pulse-glow {
     0%, 100% {
       box-shadow: 0 0 2px var(--glow-color), 0 0 5px var(--glow-color), 0 0 10px var(--glow-color);
@@ -174,65 +89,24 @@
     }
   }
 
-  @keyframes multi-color-pulse-glow {
-      0% {
-        box-shadow: 0 0 5px hsl(var(--chart-1)), 0 0 10px hsl(var(--chart-2)), 0 0 15px hsl(var(--chart-3));
-      }
-      25% {
-        box-shadow: 0 0 5px hsl(var(--chart-2)), 0 0 10px hsl(var(--chart-3)), 0 0 15px hsl(var(--chart-4));
-      }
-      50% {
-        box-shadow: 0 0 5px hsl(var(--chart-3)), 0 0 10px hsl(var(--chart-4)), 0 0 15px hsl(var(--chart-5));
-      }
-      75% {
-        box-shadow: 0 0 5px hsl(var(--chart-4)), 0 0 10px hsl(var(--chart-5)), 0 0 15px hsl(var(--chart-1));
-      }
-      100% {
-        box-shadow: 0 0 5px hsl(var(--chart-5)), 0 0 10px hsl(var(--chart-1)), 0 0 15px hsl(var(--chart-2));
-      }
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
   }
-
-  .animate-multi-color-pulse-glow {
-    animation: multi-color-pulse-glow 4s linear infinite;
-  }
-
-  @keyframes multi-color-text {
-    0% { color: hsl(var(--chart-1)); }
-    20% { color: hsl(var(--chart-2)); }
-    40% { color: hsl(var(--chart-3)); }
-    60% { color: hsl(var(--chart-4)); }
-    80% { color: hsl(var(--chart-5)); }
-    100% { color: hsl(var(--chart-1)); }
-  }
-
-  @keyframes pulse-glow-text {
-    0%, 100% { text-shadow: 0 0 2px, 0 0 5px, 0 0 10px; }
-    50% { text-shadow: 0 0 5px, 0 0 15px, 0 0 25px; }
-  }
-
-  .animate-multi-color-text {
-    animation: multi-color-text 8s linear infinite, pulse-glow-text 3s ease-in-out infinite;
-  }
-
-  .theme-neural-pulse .bg-pulse-grid, .theme-neon-future .bg-pulse-grid {
+  
+  .bg-pulse-grid {
     background-image:
       linear-gradient(hsl(var(--primary) / 0.1) 1px, transparent 1px),
       linear-gradient(to right, hsl(var(--accent) / 0.1) 1px, transparent 1px);
     background-size: 3.5rem 3.5rem;
     animation: background-pan 30s linear infinite;
   }
-  
-  .animate-pulse-glow {
-    animation: pulse-glow 3s ease-in-out infinite;
-  }
-  
+
   @keyframes background-pan {
     from { background-position: 0 0; }
     to { background-position: -200% -200%; }
   }
 
 
-  /* Glitch & Refine Theme Animations */
   @keyframes snap-in {
     0% {
       opacity: 0;
@@ -261,5 +135,3 @@
     animation-fill-mode: forwards;
   }
 }
-
-    

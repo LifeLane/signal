@@ -8,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { cn } from '@/lib/utils';
-import type { Theme } from '@/app/theme-provider';
 
 
 const contractDetails = {
@@ -98,19 +97,12 @@ const DetailRow = ({ label, value, canCopy = false }: { label: string; value: st
     );
 };
 
-interface ShadowPageProps {
-  theme: Theme;
-}
-
-export function ShadowPage({ theme }: ShadowPageProps) {
+export function ShadowPage() {
     return (
-        <div className={cn(
-            "flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar",
-            (theme.name === 'neural-pulse' || theme.name === 'neon-future') && 'bg-pulse-grid'
-        )}>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-pulse-grid">
             <h1 className="text-2xl font-bold text-foreground">SHADOW Token</h1>
 
-            <Card className={cn(theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]')}>
+            <Card className="animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]">
                 <CardHeader>
                     <CardTitle>Smart Contract Details</CardTitle>
                 </CardHeader>
@@ -135,7 +127,7 @@ export function ShadowPage({ theme }: ShadowPageProps) {
                 </CardContent>
             </Card>
 
-            <Card className={cn(theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.accent/0.7)]')}>
+            <Card className="animate-pulse-glow [--glow-color:theme(colors.accent/0.7)]">
                 <CardHeader>
                     <CardTitle>Solana Explorer Links</CardTitle>
                 </CardHeader>
@@ -151,7 +143,7 @@ export function ShadowPage({ theme }: ShadowPageProps) {
                 </CardContent>
             </Card>
             
-            <Card className={cn(theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.blue.400/0.5)]')}>
+            <Card className="animate-pulse-glow [--glow-color:theme(colors.blue.400/0.5)]">
                 <CardHeader>
                     <CardTitle>Token Trading Links</CardTitle>
                 </CardHeader>
@@ -167,7 +159,7 @@ export function ShadowPage({ theme }: ShadowPageProps) {
                 </CardContent>
             </Card>
             
-             <Card className={cn(theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]')}>
+             <Card className="animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]">
                 <CardHeader>
                     <CardTitle>Jupiter Locker Token Lock</CardTitle>
                     <CardDescription>Locked token details from Jupiter Locker.</CardDescription>
@@ -204,7 +196,7 @@ export function ShadowPage({ theme }: ShadowPageProps) {
                 </CardContent>
             </Card>
 
-            <Card className={cn(theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.cyan.400/0.5)]')}>
+            <Card className="animate-pulse-glow [--glow-color:theme(colors.cyan.400/0.5)]">
                 <CardHeader>
                     <CardTitle>Jupiter Configurations</CardTitle>
                 </CardHeader>

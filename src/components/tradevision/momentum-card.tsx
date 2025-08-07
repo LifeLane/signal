@@ -3,7 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Info, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Theme } from '@/app/theme-provider';
 
 interface MomentumIndicatorProps {
   label: string;
@@ -23,16 +22,9 @@ const MomentumIndicator = ({ label, value, color }: MomentumIndicatorProps) => (
   </div>
 );
 
-interface MomentumCardProps {
-    theme: Theme;
-}
-
-export function MomentumCard({ theme }: MomentumCardProps) {
+export function MomentumCard() {
   return (
-    <Card className={cn(
-        'bg-card',
-        theme.name === 'neural-pulse' && 'animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]'
-    )}>
+    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]">
       <CardHeader className="flex-row items-center justify-between pb-2">
         <CardTitle className='text-base font-semibold text-primary'>Current Trend</CardTitle>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">

@@ -2,18 +2,10 @@
 'use client';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { useTheme } from '@/app/theme-provider';
-import { useEffect, useState } from 'react';
+import { Wand2 } from 'lucide-react';
 
 export function AppHeader() {
-  const { theme, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // When mounted on client, now we can show the UI
-  useEffect(() => setMounted(true), []);
-
-  const Icon = theme.icon;
-
+  
   return (
     <header className="p-4 bg-background">
       <div className="flex items-center justify-between">
@@ -21,8 +13,8 @@ export function AppHeader() {
           SHADOW
         </h1>
         <div className="flex items-center gap-2">
-           <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
-            {mounted && <Icon className="h-5 w-5 text-primary" />}
+           <Button variant="ghost" size="icon" className="h-8 w-8 hidden">
+            <Wand2 className="h-5 w-5 text-primary" />
           </Button>
           <div className="flex items-center gap-2 text-sm">
             <span>Analyzing</span>
