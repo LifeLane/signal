@@ -52,7 +52,7 @@ export default function TradeVisionPage() {
   );
   const [signalHistory, setSignalHistory] = useState<TradingSignalWithTargets[]>([]);
   const { toast } = useToast();
-  const [activeView, setActiveView] = useState<NavItem>('Dashboard');
+  const [activeView, setActiveView] = useState<NavItem>('SHADOW');
   const strategyCardRef = useRef<HTMLDivElement>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
 
@@ -103,6 +103,7 @@ export default function TradeVisionPage() {
 
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
+    setActiveView('Dashboard');
     // The useEffect will handle the initial data fetch
   };
 
@@ -279,7 +280,7 @@ export default function TradeVisionPage() {
       case 'Premium':
         return <PremiumPage />;
       default:
-        return renderDashboard();
+        return renderIntro();
     }
   }
 
@@ -311,3 +312,5 @@ export default function TradeVisionPage() {
     </div>
   );
 }
+
+    

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { VersionedTransaction, TransactionMessage, PublicKey, TransactionInstruction } from '@solana/web3.js';
@@ -11,8 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader, LogOut, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
@@ -68,7 +66,7 @@ export function PremiumPage() {
   const [activeSubscription, setActiveSubscription] = useState<string | null>(null);
 
   const handleSubscription = async (tierName: string, amount: number) => {
-    if (!publicKey || !sendTransaction) {
+    if (!publicKey) {
         toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet to subscribe.' });
         return;
     }
@@ -78,6 +76,12 @@ export function PremiumPage() {
     if (amount === 0) {
         toast({ title: "Free Trial Activated!", description: "Enjoy your 7-day trial of SHADOW."});
         setActiveSubscription(tierName);
+        setIsSubscribing(null);
+        return;
+    }
+
+    if (!sendTransaction) {
+        toast({ variant: 'destructive', title: 'Wallet Error', description: 'The connected wallet does not support sending transactions.' });
         setIsSubscribing(null);
         return;
     }
@@ -245,7 +249,7 @@ export function PremiumPage() {
                     <CardHeader>
                         <CardTitle className="flex justify-between items-center">
                             <span>{tier.name}</span>
-                            {tier.popular && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
+                            {tier.popular && !activeSubscription && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
                         </CardTitle>
                         <CardDescription className="text-2xl font-bold">{tier.priceLabel}</CardDescription>
                     </CardHeader>
@@ -272,3 +276,5 @@ export function PremiumPage() {
     </div>
   );
 }
+
+    
