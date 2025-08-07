@@ -34,12 +34,12 @@ import { VolatilityCard } from './volatility-card';
 import { VolumeProfileChart } from './volume-profile-chart';
 import { StickyRiskSelector } from './sticky-risk-selector';
 import { PriceChart } from './price-chart';
+import ClientOnly from './client-only';
+
 
 export type Symbol = string;
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
-
-const ClientOnly = dynamic(() => import('./client-only'), { ssr: false });
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();

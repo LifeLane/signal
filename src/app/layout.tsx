@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { WalletProvider } from './wallet-provider';
 import '@solana/wallet-adapter-react-ui/styles.css';
+import ClientOnly from '@/components/tradevision/client-only';
 
 export const metadata: Metadata = {
   title: 'SHADOW',
@@ -24,12 +25,14 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-sans antialiased bg-background">
+        <ClientOnly>
           <WalletProvider>
               <div className="relative mx-auto max-w-sm h-dvh overflow-hidden border-x border-border/20">
                   {children}
               </div>
               <Toaster />
           </WalletProvider>
+        </ClientOnly>
       </body>
     </html>
   );
