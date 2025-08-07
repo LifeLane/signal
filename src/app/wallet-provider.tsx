@@ -7,10 +7,15 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 import {
-    PhantomWalletAdapter,
-    SolflareWalletAdapter,
-    TorusWalletAdapter,
-} from '@solana/wallet-adapter-wallets';
+    PhantomWalletAdapter
+} from '@solana/wallet-adapter-phantom';
+import {
+    SolflareWalletAdapter
+} from '@solana/wallet-adapter-solflare';
+import {
+    TorusWalletAdapter
+} from '@solana/wallet-adapter-torus';
+
 
 // This provider component wraps the application with the necessary Solana wallet context providers.
 // By explicitly defining the supported wallets, we avoid issues with auto-detection when multiple wallet extensions are installed.
