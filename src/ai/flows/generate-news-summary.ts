@@ -53,7 +53,7 @@ const generateNewsSummaryPrompt = ai.definePrompt({
 1.  **Fetch News:** Call the \`fetchNews\` tool with the provided \`topic\`.
 2.  **Analyze Sentiment:** Read the headlines and descriptions of the articles returned by the tool. Based on the overall tone (e.g., positive developments, price drops, regulatory concerns), determine the market sentiment. It must be one of: 'Positive', 'Neutral', or 'Negative'.
 3.  **Provide Reasoning:** Write a single, concise sentence explaining *why* you chose that sentiment.
-4.  **Summarize Articles:** For each of the top 3 articles, provide a one-sentence summary of the key takeaway.
+4.  **Summarize Articles:** For each of the top 3 articles returned by the tool, provide a one-sentence summary of its key takeaway.
 5.  **Disclaimer:** Provide this exact disclaimer: "Market sentiment can change rapidly. This is a snapshot based on current news, not a prediction."
 
 **Final Output:**

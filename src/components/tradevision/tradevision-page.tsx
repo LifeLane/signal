@@ -47,7 +47,9 @@ export default function TradeVisionPage() {
   const [symbol, setSymbol] = useState<Symbol | null>(null);
   const [interval, setInterval] = useState<Interval>('1d');
   const [riskLevel, setRiskLevel] = useState<RiskLevel>('Medium');
-  const [marketData, setMarketData] = useState<MarketData | null>(null);
+  const [marketData, setMarketData] = useState<MarketData | null>(
+    null
+  );
   const [signal, setSignal] = useState<TradingSignalWithTargets | null>(
     null
   );
@@ -57,17 +59,15 @@ export default function TradeVisionPage() {
   const strategyCardRef = useRef<HTMLDivElement>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
 
-  const fetchMarketData = useCallback((currentSymbol: Symbol, isInitialLoad = false) => {
-    if (isInitialLoad) {
-      setDataLoading(true);
-    }
-    // Don't reset signal when just refreshing data, only on symbol change
-    if (isInitialLoad) {
-        setSignal(null); 
-    }
-    if (pageContainerRef.current && isInitialLoad) {
+  const fetchMarketData = useCallback((currentSymbol: Symbol) => {
+    setDataLoading(true);
+    setMarketData(null); // Clear old data immediately
+    setSignal(null); // Clear old signal
+    
+    if (pageContainerRef.current) {
         pageContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
     getMarketDataAction(currentSymbol)
       .then((data) => {
         setMarketData(data);
@@ -78,33 +78,16 @@ export default function TradeVisionPage() {
           title: 'Error fetching market data',
           description: e.message,
         });
-        setMarketData(null);
+        setMarketData(null); // Ensure data is null on error
       })
       .finally(() => {
-        if(isInitialLoad) {
-          setDataLoading(false);
-        }
+        setDataLoading(false);
       });
   }, [toast]);
-
-  useEffect(() => {
-    if (!symbol) return;
-    
-    // Fetch immediately, then set an interval
-    fetchMarketData(symbol, true);
-
-    const intervalId = setInterval(() => {
-      fetchMarketData(symbol, false); // Subsequent fetches are not "initial"
-    }, 15000); // Refresh every 15 seconds
-
-    // Cleanup on component unmount or when symbol changes
-    return () => clearInterval(intervalId);
-  }, [symbol, fetchMarketData]);
-
-
+  
   const handleSymbolChange = (newSymbol: Symbol) => {
     setSymbol(newSymbol);
-    // The useEffect will handle the initial data fetch
+    fetchMarketData(newSymbol);
   };
 
   const handleChangeSymbolClick = () => {
@@ -119,6 +102,7 @@ export default function TradeVisionPage() {
 
   const handleGetSignal = async () => {
     if (!symbol || !marketData) return;
+    setSignal(null); // Clear previous signal before fetching new one
     startSignalTransition(async () => {
       try {
         const input = {
@@ -176,8 +160,9 @@ export default function TradeVisionPage() {
         {!symbol && !isDataLoading && renderIntro()}
         
         {isDataLoading && (
-          <div className="h-full flex items-center justify-center">
+          <div className="h-full flex flex-col items-center justify-center text-center gap-4">
             <Loader className="animate-spin h-10 w-10 text-primary" />
+            <p className='text-muted-foreground'>Fetching live data for {symbol?.toUpperCase()}...</p>
           </div>
         )}
 
@@ -259,8 +244,11 @@ export default function TradeVisionPage() {
 
         {!isDataLoading && symbol && !marketData && (
              <div className="h-full flex flex-col justify-center items-center text-center">
-                <p className='text-destructive'>Could not load data for {symbol}.</p>
-                <p className='text-muted-foreground text-sm'>Please check your network or try a different symbol.</p>
+                <p className='text-destructive'>Could not load data for {symbol.toUpperCase()}.</p>
+                <p className='text-muted-foreground text-sm'>Please check the symbol or try another.</p>
+                 <Button variant="outline" size="sm" onClick={handleChangeSymbolClick} className="mt-4">
+                    Change Symbol
+                </Button>
             </div>
         )}
 
@@ -289,7 +277,7 @@ export default function TradeVisionPage() {
     <div className={"bg-background text-foreground h-full flex flex-col"}>
       {renderContent()}
       
-      {symbol && activeView === 'Dashboard' && (
+      {symbol && marketData && activeView === 'Dashboard' && (
         <div className="sticky bottom-[73px] p-4 bg-background/80 backdrop-blur-sm space-y-2">
             <StickyRiskSelector riskLevel={riskLevel} onSetRiskLevel={setRiskLevel}/>
             <Button

@@ -62,8 +62,11 @@ export async function getTradingSignalAction(
 
     return finalResult;
   } catch (error) {
-    console.error('Error generating trading signal:', error);
-    throw new Error('Failed to generate trading signal. Please try again.');
+    console.error('Error in getTradingSignalAction:', error);
+    if (error instanceof Error) {
+        throw new Error(error.message);
+    }
+    throw new Error('An unexpected error occurred while generating the trading signal.');
   }
 }
 
@@ -74,7 +77,7 @@ export async function getMarketDataAction(
     const result = await getMarketData(symbol);
     return result;
   } catch (error) {
-    console.error('Error fetching market data:', error);
+    console.error(`Error in getMarketDataAction for symbol ${symbol}:`, error);
     // This is a user-facing error, so make it helpful.
     if (error instanceof Error) {
         // Pass the specific error message from the service layer
@@ -92,8 +95,11 @@ export async function getNewsSummaryAction(
         const result = await generateNewsSummary(input);
         return result;
     } catch (error) {
-        console.error('Error generating news summary:', error);
-        throw new Error('Failed to generate news summary. Please try again.');
+        console.error('Error in getNewsSummaryAction:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred while generating the news summary.');
     }
 }
 
@@ -102,8 +108,8 @@ export async function searchSymbolsAction(query: string): Promise<SearchResult[]
         const results = await searchCoins(query);
         return results;
     } catch (error) {
-        console.error('Error searching symbols:', error);
-        // Return empty array on error to prevent crashing the client
+        console.error('Error in searchSymbolsAction:', error);
+        // Return empty array on error to prevent crashing the client, but log it.
         return [];
     }
 }
