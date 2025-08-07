@@ -11,6 +11,14 @@ export interface CandlestickPattern {
     description: string;
 }
 
+export interface PriceHistoryPoint {
+    time: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+}
+
 export interface MarketData {
   name: string;
   price: number;
@@ -31,6 +39,7 @@ export interface MarketData {
   momentum: { trend: string; analysis: string; };
   volatility: { atr: number; vxi: number; };
   volumeProfile: { time: string; volume: number }[];
+  priceHistory: PriceHistoryPoint[];
 }
 
 
@@ -79,6 +88,36 @@ const getFearAndGreedClassification = (value: number): string => {
     if (value <= 80) return "Greed";
     return "Extreme Greed";
 };
+
+
+const generatePriceHistory = (price: number): PriceHistoryPoint[] => {
+    const data: PriceHistoryPoint[] = [];
+    let currentPrice = price * (1 - (Math.random() - 0.5) * 0.2); // Start 20% away from current
+    for (let i = 0; i < 30; i++) {
+        const open = currentPrice;
+        const high = open * (1 + Math.random() * 0.025); // up to 2.5% higher
+        const low = open * (1 - Math.random() * 0.025); // up to 2.5% lower
+        const close = low + Math.random() * (high - low); // somewhere between high and low
+        
+        const date = new Date();
+        date.setDate(date.getDate() - (30 - i));
+
+        data.push({
+            time: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            open,
+            high,
+            low,
+            close,
+        });
+
+        currentPrice = close * (1 + (Math.random() - 0.5) * 0.03); // next day's open
+    }
+    // ensure last point is the current price
+    data[data.length - 1].close = price;
+    data[data.length - 1].high = Math.max(data[data.length - 1].high, price);
+    data[data.length - 1].low = Math.min(data[data.length - 1].low, price);
+    return data;
+}
 
 // This function fakes technical indicator data for now.
 // In a real application, you would use a library like 'technicalindicators'
@@ -148,6 +187,7 @@ const generateTechnicalIndicators = (price: number) => {
             vxi: 30 + randomFactor() * 10,
         },
         volumeProfile: volumeProfileData,
+        priceHistory: generatePriceHistory(price),
     }
 }
 

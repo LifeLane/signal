@@ -33,6 +33,7 @@ import { FearAndGreedCard } from './fear-and-greed-card';
 import { VolatilityCard } from './volatility-card';
 import { VolumeProfileChart } from './volume-profile-chart';
 import { StickyRiskSelector } from './sticky-risk-selector';
+import { PriceChart } from './price-chart';
 
 export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
@@ -185,6 +186,7 @@ export default function TradeVisionPage() {
           <>
             <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
             <Separator />
+             <PriceChart data={marketData.priceHistory} />
 
             {/* Pre-signal general analysis */}
             {!signal && !isSignalPending && (
