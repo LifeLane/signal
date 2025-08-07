@@ -207,6 +207,32 @@ async function getHistoricalData(coinId: string): Promise<{ volumeProfile: Volum
     }
 }
 
+// Fetch Long/Short ratio from Binance
+async function getLongShortRatio(symbol: string): Promise<number | null> {
+    if (!symbol) return null;
+    const binanceSymbol = `${symbol.toUpperCase()}USDT`;
+    const url = `https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=${binanceSymbol}&period=5m&limit=1`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.warn(`Binance Long/Short ratio API request failed for ${binanceSymbol} with status ${response.status}`);
+            return null; // Return null if the symbol is not found or another error occurs
+        }
+        const data = await response.json();
+        if (data && data.length > 0) {
+            const longAccount = parseFloat(data[0].longAccount);
+            const shortAccount = parseFloat(data[0].shortAccount);
+            // The ratio is Longs / Shorts, we need to convert it to a percentage of longs.
+            return (longAccount / (longAccount + shortAccount)) * 100;
+        }
+        return null;
+    } catch (error) {
+        console.error(`Error fetching Long/Short ratio for ${binanceSymbol}:`, error);
+        return null;
+    }
+}
+
 
 const generateTechnicalIndicators = (price: number) => {
     // Simulate some realistic volatility and indicator behavior.
@@ -222,7 +248,6 @@ const generateTechnicalIndicators = (price: number) => {
     const lowerBand = price * (1 - volatility);
 
     return {
-        longShortRatio: 50 + randomFactor() * 10, // e.g., 40% to 60%
         rsi,
         ema,
         vwap,
@@ -268,11 +293,13 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
     const [
         priceDataResponse, 
         fearAndGreed, 
-        historicalData
+        historicalData,
+        longShortRatio,
     ] = await Promise.all([
         fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinInfo.id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`),
         getFearAndGreedIndex(),
-        getHistoricalData(coinInfo.id)
+        getHistoricalData(coinInfo.id),
+        getLongShortRatio(coinInfo.symbol),
     ]);
 
 
@@ -296,6 +323,7 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
       change: data.usd_24h_change,
       volume24h: data.usd_24h_vol,
       marketCap: data.usd_market_cap,
+      longShortRatio: longShortRatio ?? 50, // Fallback to 50 if API fails
       ...indicators,
       fearAndGreed: fearAndGreed,
       volatility: {
