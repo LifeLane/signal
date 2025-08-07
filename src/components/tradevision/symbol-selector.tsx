@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Symbol } from './tradevision-page';
+import { Card, CardContent } from '../ui/card';
 
 interface SymbolSelectorProps {
   selectedSymbol: Symbol | null;
@@ -45,19 +46,21 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-4">
         {popularSymbols.map((symbol) => (
-          <Button
-            key={symbol}
-            variant={selectedSymbol === symbol ? 'default' : 'outline'}
-            onClick={() => handleSelect(symbol)}
-            className={cn(
-                "h-12 text-base transition-all",
-                selectedSymbol === symbol && "animate-pulse-glow [--glow-color:theme(colors.primary)]"
-            )}
-          >
-            {symbol}
-          </Button>
+            <Card 
+                key={symbol}
+                onClick={() => handleSelect(symbol)}
+                className={cn(
+                    "cursor-pointer transition-all bg-card/50",
+                    "hover:bg-primary/20",
+                    selectedSymbol === symbol ? "ring-2 ring-primary animate-multi-color-glow" : "animate-multi-color-glow"
+                )}
+            >
+                <CardContent className="p-4 flex items-center justify-center">
+                    <span className="text-xl font-bold">{symbol}</span>
+                </CardContent>
+            </Card>
         ))}
       </div>
       <div className="relative">
