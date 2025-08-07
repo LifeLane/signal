@@ -98,6 +98,17 @@ export default {
           '0%, 100%': { boxShadow: '0 0 2px var(--glow-color), 0 0 5px var(--glow-color), 0 0 10px var(--glow-color)' },
           '50%': { boxShadow: '0 0 5px var(--glow-color), 0 0 15px var(--glow-color), 0 0 25px var(--glow-color)' },
         },
+        'multi-color-glow': {
+            '0%': {
+                boxShadow: '0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary) / 0.8), 0 0 15px hsl(var(--primary) / 0.6)',
+            },
+            '50%': {
+                boxShadow: '0 0 5px hsl(var(--accent)), 0 0 10px hsl(var(--accent) / 0.8), 0 0 15px hsl(var(--accent) / 0.6)',
+            },
+            '100%': {
+                boxShadow: '0 0 5px hsl(var(--primary)), 0 0 10px hsl(var(--primary) / 0.8), 0 0 15px hsl(var(--primary) / 0.6)',
+            },
+        },
         'background-pan': {
           from: { backgroundPosition: '0 0' },
           to: { backgroundPosition: '-200% -200%' },
@@ -111,15 +122,24 @@ export default {
           from: { width: '0' },
           to: { width: '100%' },
         },
+        glitch: {
+            '0%': { textShadow: '-2px -2px 0 hsl(var(--primary)), 2px 2px 0 hsl(var(--accent))', clipPath: 'inset(30% 0 30% 0)' },
+            '25%': { clipPath: 'inset(10% 0 50% 0)' },
+            '50%': { clipPath: 'inset(60% 0 10% 0)' },
+            '75%': { clipPath: 'inset(40% 0 20% 0)' },
+            '100%': { clipPath: 'inset(50% 0 35% 0)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'border-shine': 'border-shine 2s linear infinite',
         'pulse-glow': 'pulse-glow 3s ease-in-out infinite',
+        'multi-color-glow': 'multi-color-glow 4s ease-in-out infinite',
         'background-pan': 'background-pan 30s linear infinite',
         'snap-in': 'snap-in 0.5s ease-out',
         'typing': 'typing 1s steps(40, end)',
+        'glitch': 'glitch 0.25s linear infinite',
       },
     },
   },

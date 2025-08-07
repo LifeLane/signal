@@ -34,14 +34,14 @@ export function SignalLoadingHooks() {
   }, []);
 
   return (
-    <div className="flex items-center gap-3 text-primary-foreground font-medium text-sm overflow-hidden whitespace-nowrap">
+    <div className="flex items-center justify-center text-center gap-3 text-primary-foreground font-medium text-sm overflow-hidden whitespace-nowrap">
       <Loader className="animate-spin h-5 w-5" />
-      <div className="relative h-5 w-full">
+      <div className="relative h-5 w-full text-center">
         {analysisSteps.map((step, index) => (
              <span
                 key={step}
                 className={cn(
-                    "absolute transition-all duration-500 ease-in-out",
+                    "absolute w-full left-0 transition-all duration-500 ease-in-out",
                     currentStep === index ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
                 )}
              >
