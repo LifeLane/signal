@@ -19,7 +19,7 @@ export function FearAndGreedCard({ index, classification }: FearAndGreedCardProp
   };
 
   return (
-    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.orange-400/0.5)]">
+    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
             <span>Fear & Greed Index</span>

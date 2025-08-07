@@ -11,7 +11,7 @@ interface VolatilityCardProps {
 
 export function VolatilityCard({ atr, vxi }: VolatilityCardProps) {
   return (
-    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.indigo-400/0.5)]">
+    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.indigo.400/0.5)]">
         <CardHeader>
             <CardTitle className="flex justify-between items-center">
                 <span>Volatility Analysis</span>

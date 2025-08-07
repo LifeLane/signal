@@ -10,7 +10,7 @@ interface MomentumCardProps {
 
 export function MomentumCard({trend, analysis}: MomentumCardProps) {
   return (
-    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.teal-400/0.5)]">
+    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.cyan.400/0.5)]">
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle>Momentum</CardTitle>
