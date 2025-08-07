@@ -5,9 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
-import { cn } from '@/lib/utils';
 
 
 const contractDetails = {
@@ -220,3 +218,5 @@ export function ShadowPage() {
         </div>
     );
 }
+
+    
