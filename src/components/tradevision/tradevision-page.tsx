@@ -5,7 +5,6 @@ import { useState, useTransition, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getTradingSignalAction, getMarketDataAction, type TradingSignalWithTargets } from '@/app/actions';
 
-import { AppHeader } from './header';
 import { SymbolSelector } from './symbol-selector';
 import { PriceDisplay } from './price-display';
 import { MomentumCard } from './momentum-card';
@@ -266,7 +265,6 @@ export default function TradeVisionPage() {
 
   return (
     <div className={"bg-background text-foreground h-full flex flex-col"}>
-      <AppHeader />
       {renderContent()}
       <Separator className="bg-border/20" />
       <BottomBar activeView={activeView} setActiveView={setActiveView} />
