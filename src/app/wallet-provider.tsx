@@ -4,10 +4,12 @@
 import React, { useMemo } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-// Wallets are now auto-discovered, so we don't need to import them manually unless we want to add a wallet that doesn't follow the standard.
-import { TorusWalletAdapter } from '@solana/wallet-adapter-torus';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
+
+// Wallets are now auto-discovered by the Wallet Adapter, so we don't need to
+// import and list them manually unless we want to override the default behavior.
+// This new approach is more robust and avoids conflicts with multiple injected wallets.
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
     const network = WalletAdapterNetwork.Mainnet;
@@ -15,20 +17,13 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     // Use a custom RPC endpoint from environment variables for reliability.
     // Fallback to the public RPC for basic functionality.
     const endpoint = useMemo(() => process.env.NEXT_PUBLIC_SOLANA_RPC_URL || clusterApiUrl(network), [network]);
-
-    const wallets = useMemo(
-        () => [
-            // Wallets that support the mobile wallet standard will be automatically discovered.
-            // We can still add wallets that don't follow the standard here.
-            new TorusWalletAdapter(),
-        ],
-        // The network dependency is removed because TorusWalletAdapter does not depend on it
-        []
-    );
-
+    
+    // The `wallets` prop is now omitted. The WalletProvider will automatically
+    // detect installed wallet extensions that follow the Solana wallet standard.
+    // This prevents conflicts between extensions like Phantom and Binance Wallet.
     return (
         <ConnectionProvider endpoint={endpoint}>
-            <SolanaWalletProvider wallets={wallets} autoConnect>
+            <SolanaWalletProvider wallets={[]} autoConnect>
                 <WalletModalProvider>{children}</WalletModalProvider>
             </SolanaWalletProvider>
         </ConnectionProvider>
