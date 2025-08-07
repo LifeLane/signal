@@ -52,9 +52,9 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                 key={symbol}
                 onClick={() => handleSelect(symbol)}
                 className={cn(
-                    "cursor-pointer transition-all bg-card/50",
+                    "cursor-pointer transition-all bg-card/50 animate-multi-color-glow",
                     "hover:bg-primary/20",
-                    selectedSymbol === symbol ? "ring-2 ring-primary animate-multi-color-glow" : "animate-multi-color-glow"
+                    selectedSymbol === symbol && "ring-2 ring-primary"
                 )}
             >
                 <CardContent className="p-4 flex items-center justify-center">
@@ -69,7 +69,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
           <Input
             type="text"
             placeholder="Search for other symbols..."
-            className="h-12 pl-10 text-base text-center focus-visible:animate-multi-color-glow"
+            className="h-12 pl-10 text-base text-center animate-multi-color-glow"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
