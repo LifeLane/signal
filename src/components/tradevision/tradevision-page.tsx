@@ -282,14 +282,14 @@ export default function TradeVisionPage() {
             <StickyRiskSelector riskLevel={riskLevel} onSetRiskLevel={setRiskLevel}/>
             <Button
               size="lg"
-              className="w-full h-14 text-lg font-bold group relative overflow-hidden bg-muted/50 border border-primary/50 animate-multi-color-glow"
+              className="w-full h-14 text-lg font-bold transition-colors bg-primary/80 border border-primary/50 text-primary-foreground hover:bg-green-500 hover:text-black"
               onClick={handleGetSignal}
               disabled={isSignalPending || isDataLoading || !marketData}
             >
               {isSignalPending ? 
                 <SignalLoadingHooks /> : 
-                <span className="relative z-10 text-primary-foreground group-hover:animate-glitch">
-                  {`ANALYZE ${symbol.toUpperCase()} NOW`}
+                <span>
+                  {`ANALYZE ${marketData.name.toUpperCase()} NOW`}
                 </span>
               }
             </Button>

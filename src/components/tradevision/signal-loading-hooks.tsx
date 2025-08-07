@@ -6,13 +6,13 @@ import { Loader } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const analysisSteps = [
+  'Shadow Engine Engaged...',
   'Connecting to market data feed...',
   'Fetching real-time price...',
   'Analyzing 24h volume...',
-  'Calculating RSI...',
-  'Evaluating EMA trends...',
+  'Calculating RSI & EMA...',
   'Reviewing Bollinger Bands...',
-  'Scanning news feeds...',
+  'Scanning news feeds for sentiment...',
   'Synthesizing final signal...',
 ];
 
@@ -34,7 +34,7 @@ export function SignalLoadingHooks() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center text-center gap-3 text-primary-foreground font-medium text-sm overflow-hidden whitespace-nowrap">
+    <div className="flex items-center justify-center text-center gap-3 font-medium text-sm overflow-hidden whitespace-nowrap">
       <Loader className="animate-spin h-5 w-5" />
       <div className="relative h-5 w-full text-center">
         {analysisSteps.map((step, index) => (
