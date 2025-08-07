@@ -218,18 +218,7 @@ export default function TradeVisionPage() {
               riskRating={signal?.riskRating}
               gptConfidence={signal?.gptConfidenceScore}
             />
-             <Button
-                size="lg"
-                className="w-full h-12 text-lg font-bold relative group"
-                onClick={handleGetSignal}
-                disabled={isSignalPending || isDataLoading}
-              >
-                {isSignalPending ? <SignalLoadingHooks /> : 
-                <span className="flex items-center gap-2">
-                    <Bot /> Get {symbol ? `${symbol} Signal` : 'SHADOW Signal'}
-                </span>
-                }
-              </Button>
+             
           </>
         )}
 
@@ -264,6 +253,24 @@ export default function TradeVisionPage() {
   return (
     <div className={"bg-background text-foreground h-full flex flex-col"}>
       {renderContent()}
+      
+      {symbol && activeView === 'Dashboard' && (
+        <div className="sticky bottom-[73px] p-4 bg-background/80 backdrop-blur-sm">
+            <Button
+              size="lg"
+              className="w-full h-12 text-lg font-bold"
+              onClick={handleGetSignal}
+              disabled={isSignalPending || isDataLoading || !marketData}
+            >
+              {isSignalPending ? <SignalLoadingHooks /> : 
+              <span className="flex items-center gap-2">
+                  <Bot /> Get {symbol} Signal
+              </span>
+              }
+            </Button>
+        </div>
+      )}
+
       <Separator className="bg-border/20" />
       <BottomBar activeView={activeView} setActiveView={setActiveView} />
     </div>
