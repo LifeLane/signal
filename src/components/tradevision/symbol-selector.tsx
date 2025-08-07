@@ -10,6 +10,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { searchSymbolsAction } from '@/app/actions';
 import type { SearchResult } from '@/services/market-data';
 import type { Symbol } from './tradevision-page';
+import { cn } from '@/lib/utils';
 
 interface SymbolSelectorProps {
   selectedSymbol: Symbol | null;
@@ -70,7 +71,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-full justify-between h-14 text-lg"
+                    className="w-full justify-between h-14 text-lg animate-multi-color-glow"
                 >
                     {selectedSymbol 
                         ? `Selected: ${selectedSymbol.toUpperCase()}`
