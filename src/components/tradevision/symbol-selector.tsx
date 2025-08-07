@@ -103,7 +103,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                             {searchResults.map((result) => (
                                 <CommandItem
                                     key={result.id}
-                                    value={`${result.name} ${result.symbol}`} // Use a unique value for filtering
+                                    value={result.id} // Use the unique ID for value
                                     onSelect={() => handleSelect(result)}
                                 >
                                     {result.name} ({result.symbol.toUpperCase()})
