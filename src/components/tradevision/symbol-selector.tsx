@@ -66,6 +66,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
         ))}
       </div>
 
+      <div className="p-0.5 rounded-lg animate-multi-color-glow">
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
@@ -113,6 +114,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                 </Command>
             </PopoverContent>
         </Popover>
+      </div>
     </div>
   );
 }
