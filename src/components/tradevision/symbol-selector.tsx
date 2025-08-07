@@ -63,28 +63,30 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
             </Card>
         ))}
       </div>
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Search for other symbols..."
-          className="h-12 pl-10 text-base focus-visible:animate-pulse-glow [--glow-color:theme(colors.primary)]"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {searchResults.length > 0 && (
-            <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-10">
-                {searchResults.map((symbol) => (
-                    <div
-                        key={symbol.value}
-                        className="p-4 hover:bg-muted cursor-pointer"
-                        onClick={() => handleSelect(symbol.value)}
-                    >
-                        {symbol.label}
-                    </div>
-                ))}
-            </div>
-        )}
+      <div className="relative flex justify-center">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search for other symbols..."
+            className="h-12 pl-10 text-base text-center focus-visible:animate-multi-color-glow"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          {searchResults.length > 0 && (
+              <div className="absolute top-full mt-2 w-full rounded-md border bg-card text-card-foreground shadow-lg z-10">
+                  {searchResults.map((symbol) => (
+                      <div
+                          key={symbol.value}
+                          className="p-4 hover:bg-muted cursor-pointer"
+                          onClick={() => handleSelect(symbol.value)}
+                      >
+                          {symbol.label}
+                      </div>
+                  ))}
+              </div>
+          )}
+        </div>
       </div>
     </div>
   );
