@@ -136,6 +136,16 @@ export default {
             '75%': {
                 clipPath: 'inset(45% 0 45% 0)',
             },
+        },
+        'zoom-in-out-glow': {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            textShadow: '0 0 4px hsl(var(--primary) / 0.8), 0 0 8px hsl(var(--primary) / 0.6)',
+          },
+          '50%': {
+            transform: 'scale(1.05)',
+            textShadow: '0 0 6px hsl(var(--accent) / 0.8), 0 0 12px hsl(var(--accent) / 0.6)',
+          },
         }
       },
       animation: {
@@ -148,6 +158,7 @@ export default {
         'snap-in': 'snap-in 0.5s ease-out',
         'typing': 'typing 1s steps(40, end)',
         'glitch': 'glitch 0.4s linear infinite',
+        'zoom-in-out-glow': 'zoom-in-out-glow 4s ease-in-out infinite',
       },
     },
   },
