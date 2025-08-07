@@ -60,7 +60,10 @@ export default function TradeVisionPage() {
     if (isInitialLoad) {
       setDataLoading(true);
     }
-    setSignal(null); // Reset signal when symbol changes
+    // Don't reset signal when just refreshing data, only on symbol change
+    if (isInitialLoad) {
+        setSignal(null); 
+    }
     if (pageContainerRef.current && isInitialLoad) {
         pageContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -296,7 +299,7 @@ export default function TradeVisionPage() {
               {isSignalPending ? 
                 <SignalLoadingHooks /> : 
                 <span className="relative z-10 text-primary-foreground group-hover:animate-glitch">
-                  {isSignalPending ? 'ANALYZING...' : 'ANALYZE NOW'}
+                  {`ANALYZE ${symbol} NOW`}
                 </span>
               }
             </Button>
