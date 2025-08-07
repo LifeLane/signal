@@ -22,7 +22,7 @@ export function PriceDisplay({ symbol, price, change, onChangeSymbol }: PriceDis
                 <div className="flex items-center gap-4">
                     <div>
                     <h2 className="text-2xl font-semibold">{price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</h2>
-                    <span className="text-sm text-muted-foreground">{symbol} / USD</span>
+                    <span className="text-sm text-muted-foreground">{symbol.toUpperCase()} / USD</span>
                     </div>
                     <div className={cn(
                     "text-sm font-medium",
@@ -33,7 +33,7 @@ export function PriceDisplay({ symbol, price, change, onChangeSymbol }: PriceDis
                 </div>
                 <Button variant='ghost' size='sm' onClick={onChangeSymbol}>
                     <Replace className="h-4 w-4 " />
-                    Change {symbol}
+                    Change
                 </Button>
             </div>
         </CardContent>

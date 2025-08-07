@@ -35,7 +35,7 @@ import { VolumeProfileChart } from './volume-profile-chart';
 import { StickyRiskSelector } from './sticky-risk-selector';
 import { PriceChart } from './price-chart';
 
-export type Symbol = 'BTC' | 'ETH' | 'XRP' | 'SOL' | 'DOGE';
+export type Symbol = string;
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
@@ -184,7 +184,7 @@ export default function TradeVisionPage() {
 
         {marketData && symbol && !isDataLoading && (
           <>
-            <PriceDisplay symbol={symbol} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
+            <PriceDisplay symbol={marketData.name} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
             <Separator />
              <PriceChart data={marketData.priceHistory} />
 
@@ -302,7 +302,7 @@ export default function TradeVisionPage() {
               {isSignalPending ? 
                 <SignalLoadingHooks /> : 
                 <span className="relative z-10 text-primary-foreground group-hover:animate-glitch">
-                  {`ANALYZE ${symbol} NOW`}
+                  {`ANALYZE ${symbol.toUpperCase()} NOW`}
                 </span>
               }
             </Button>
@@ -314,5 +314,3 @@ export default function TradeVisionPage() {
     </div>
   );
 }
-
-    

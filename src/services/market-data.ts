@@ -63,7 +63,7 @@ interface CmcResponse {
       quote: {
         USD: CmcQuote;
       };
-    };
+    }[]; // Changed to array to handle multiple matches
   };
 }
 
@@ -194,13 +194,57 @@ const generateTechnicalIndicators = (price: number) => {
 const coinMapping: { [key: string]: {id: string, name: string} } = {
     'BTC': { id: 'bitcoin', name: 'Bitcoin' },
     'ETH': { id: 'ethereum', name: 'Ethereum' },
-    'XRP': { id: 'ripple', name: 'Ripple' },
+    'XRP': { id: 'ripple', name: 'XRP' },
     'SOL': { id: 'solana', name: 'Solana' },
     'DOGE': { id: 'dogecoin', name: 'Dogecoin' },
 };
 
-const getCoinGeckoInfo = (symbol: string): {id: string, name: string} => {
-    return coinMapping[symbol.toUpperCase()] || { id: symbol.toLowerCase(), name: symbol };
+// A helper function to find a coin's ID and name from a symbol, name, or address
+const getCoinGeckoInfo = async (query: string): Promise<{id: string, name: string}> => {
+    // 1. Check our hardcoded mapping first for common tickers
+    const upperQuery = query.toUpperCase();
+    if (coinMapping[upperQuery]) {
+        return coinMapping[upperQuery];
+    }
+    
+    // 2. If it's a long string, assume it's a contract address (basic check)
+    // For Solana, addresses are typically 32-44 characters long.
+    if (query.length > 30 && query.length < 50) {
+        try {
+            const cgUrl = `https://api.coingecko.com/api/v3/coins/solana/contract/${query}`;
+            const cgResponse = await fetch(cgUrl);
+            if(cgResponse.ok) {
+                const cgData = await cgResponse.json();
+                if (cgData.id) {
+                    console.log(`Found coin by contract address: ${cgData.name}`);
+                    return { id: cgData.id, name: cgData.name };
+                }
+            }
+        } catch(e) {
+             console.warn(`Could not find coin by contract address ${query}`, e);
+             // Fall through to search
+        }
+    }
+
+    // 3. Fallback to searching the CoinGecko API
+    try {
+        const searchUrl = `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(query)}`;
+        const searchResponse = await fetch(searchUrl);
+        if(searchResponse.ok) {
+            const searchData = await searchResponse.json();
+            if (searchData.coins && searchData.coins.length > 0) {
+                const topResult = searchData.coins[0];
+                console.log(`Found coin by search: ${topResult.name}`);
+                return { id: topResult.id, name: topResult.name };
+            }
+        }
+    } catch(e) {
+        console.error('Error searching CoinGecko', e);
+    }
+    
+    // 4. If all else fails, use the query as a fallback (and likely fail downstream)
+    console.warn(`Could not resolve "${query}" to a CoinGecko ID. Using it directly.`);
+    return { id: query.toLowerCase(), name: query.toUpperCase() };
 }
 
 
@@ -214,7 +258,9 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
   const cmcApiKey = process.env.COINMARKETCAP_API_KEY;
   if (cmcApiKey) {
     try {
-      const cmcUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${symbol}`;
+      // Use slug for names, symbol for tickers
+      const param = symbol.length > 5 ? 'slug' : 'symbol';
+      const cmcUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?${param}=${symbol}`;
       const cmcResponse = await fetch(cmcUrl, {
         headers: {
           'X-CMC_PRO_API_KEY': cmcApiKey,
@@ -224,7 +270,8 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
 
       if (cmcResponse.ok) {
         const cmcData: CmcResponse = await cmcResponse.json() as CmcResponse;
-        const data = cmcData.data[symbol];
+        // The API returns an object where keys are IDs, so we get the first value.
+        const data = Object.values(cmcData.data)[0][0]; 
         const quote = data?.quote?.USD;
         if (quote) {
           console.log(`Successfully fetched data from CoinMarketCap for ${symbol}`);
@@ -251,7 +298,7 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
 
   // Fallback to CoinGecko
   try {
-    const coinInfo = getCoinGeckoInfo(symbol);
+    const coinInfo = await getCoinGeckoInfo(symbol);
     const cgUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${coinInfo.id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`;
 
     const cgResponse = await fetch(cgUrl);
