@@ -36,9 +36,11 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     }
   }, [debouncedSearchQuery]);
 
-  const handleSelect = (symbol: SearchResult) => {
-    // We use the ID for fetching data as it's more reliable than the symbol/ticker
-    onSelectSymbol(symbol.id); 
+  const handleSelect = (currentValue: string) => {
+    const symbol = searchResults.find(r => r.id === currentValue) || popularSymbols.find(r => r.id === currentValue);
+    if (symbol) {
+        onSelectSymbol(symbol.id); 
+    }
     setOpen(false);
     setSearchQuery('');
   };
@@ -104,7 +106,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                                 <CommandItem
                                     key={result.id}
                                     value={result.id} // Use the unique ID for value
-                                    onSelect={() => handleSelect(result)}
+                                    onSelect={handleSelect}
                                 >
                                     {result.name} ({result.symbol.toUpperCase()})
                                 </CommandItem>
