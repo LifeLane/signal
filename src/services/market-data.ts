@@ -65,6 +65,27 @@ interface CoinGeckoSimplePriceResponse {
     }
 }
 
+// A helper function to get a coin's ID from its contract address.
+async function getCoinByContractAddress(address: string): Promise<SearchResult | null> {
+    try {
+        const url = `https://api.coingecko.com/api/v3/coins/solana/contract/${address}`;
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            return {
+                id: data.id,
+                name: data.name,
+                symbol: data.symbol.toUpperCase(),
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching coin by contract address:', error);
+        return null;
+    }
+}
+
+
 // A helper function to find a coin's ID and name from a symbol, name, or address
 const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
     // 1. If it's a long string, assume it's a Solana contract address
@@ -104,25 +125,6 @@ const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
     console.warn(`Could not resolve "${query}" to a CoinGecko ID. Using it directly.`);
     const fallbackSymbol = query.length <= 5 ? query.toUpperCase() : "UNKNOWN";
     return { id: query.toLowerCase(), name: query.toUpperCase(), symbol: fallbackSymbol };
-}
-
-async function getCoinByContractAddress(address: string): Promise<SearchResult | null> {
-    try {
-        const url = `https://api.coingecko.com/api/v3/coins/solana/contract/${address}`;
-        const response = await fetch(url);
-        if (response.ok) {
-            const data = await response.json();
-            return {
-                id: data.id,
-                name: data.name,
-                symbol: data.symbol.toUpperCase(),
-            };
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching coin by contract address:', error);
-        return null;
-    }
 }
 
 export async function searchCoins(query: string): Promise<SearchResult[]> {
