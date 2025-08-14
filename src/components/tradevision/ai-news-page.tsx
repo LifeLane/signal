@@ -142,7 +142,7 @@ export function AiNewsPage() {
 
   return (
     <div className="flex flex-col h-full bg-pulse-grid flex-1">
-      <div className="p-4 space-y-4 bg-background">
+      <div className="p-4 space-y-4 bg-background z-10">
         <SymbolSelector selectedSymbol={selectedSymbol} onSelectSymbol={setSelectedSymbol} />
         <Button
           size="lg"

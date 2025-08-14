@@ -16,7 +16,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import type { TradingSignalWithTargets } from '@/app/actions';
-import { Bot, Info, Cpu } from 'lucide-react';
+import { Bot, Info, Cpu, Loader } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 

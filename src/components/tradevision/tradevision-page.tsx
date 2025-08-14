@@ -155,105 +155,126 @@ export default function TradeVisionPage() {
   );
 
   const renderDashboard = () => (
-    <div ref={pageContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all bg-pulse-grid">
-        
-        {!symbol && !isDataLoading && renderIntro()}
-        
-        {isDataLoading && (
-          <div className="h-full flex flex-col items-center justify-center text-center gap-4">
-            <Loader className="animate-spin h-10 w-10 text-primary" />
-            <p className='text-muted-foreground'>Fetching live data for {symbol?.toUpperCase()}...</p>
-          </div>
-        )}
-
-        {marketData && symbol && !isDataLoading && (
-          <>
-            <PriceDisplay symbol={marketData.name} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
-            <Separator />
-            <PriceChart symbol={marketData.symbol} />
-
-            {/* Pre-signal general analysis */}
-            {!signal && !isSignalPending && (
-                <>
-                    <SupportResistanceCard support={marketData.support} resistance={marketData.resistance} />
-                    <MarketDataCard
-                      volume={marketData.volume24h}
-                      marketCap={marketData.marketCap}
-                    />
-                    <PositionRatioCard
-                      ratio={marketData.longShortRatio}
-                      selectedInterval={interval}
-                      onSelectInterval={handleIntervalChange}
-                    />
-                    <TechnicalAnalysisCard {...marketData} />
-                    {marketData.fearAndGreed && <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />}
-                    {marketData.volumeProfile && <VolumeProfileChart data={marketData.volumeProfile} />}
-                    {marketData.volatility && <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />}
-                </>
-            )}
-
-            <div ref={strategyCardRef} className="scroll-mt-4 space-y-4">
-              {/* Show loading state or final strategy card */}
-              {isSignalPending || signal ? (
-                <StrategyCard strategy={signal} isPending={isSignalPending} />
-              ) : null}
-              
-              {/* Show detailed breakdown only AFTER signal is generated */}
-              {signal && !isSignalPending && (
-                <>
-                <CandlestickPatternCard patterns={marketData.patterns} />
-                <div className="grid grid-cols-1 gap-4">
-                    <IndicatorCard
-                      title="RSI (Relative Strength Index)"
-                      value={marketData.rsi.toFixed(2)}
-                      interpretation={signal.rsiInterpretation}
-                      gaugeValue={marketData.rsi}
-                    />
-                    <IndicatorCard
-                      title="ADX (Average Directional Index)"
-                      value={marketData.adx.toFixed(2)}
-                      interpretation={signal.adxInterpretation}
-                      gaugeValue={marketData.adx}
-                    />
-                    <IndicatorCard
-                      title="EMA (Exponential Moving Average)"
-                      value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                      interpretation={signal.emaInterpretation}
-                    />
-                    <IndicatorCard
-                      title="VWAP (Volume-Weighted Average Price)"
-                      value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                      interpretation={signal.vwapInterpretation}
-                    />
-                    <IndicatorCard
-                      title="Parabolic SAR"
-                      value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                      interpretation={signal.sarInterpretation}
-                    />
-                    <IndicatorCard
-                      title="Bollinger Bands"
-                      value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-                      interpretation={signal.bollingerBandsInterpretation}
-                    />
-                </div>
-                </>
-              )}
+    <>
+      <div ref={pageContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar transition-all bg-pulse-grid">
+          
+          {!symbol && !isDataLoading && renderIntro()}
+          
+          {isDataLoading && (
+            <div className="h-full flex flex-col items-center justify-center text-center gap-4">
+              <Loader className="animate-spin h-10 w-10 text-primary" />
+              <p className='text-muted-foreground'>Fetching live data for {symbol?.toUpperCase()}...</p>
             </div>
-          </>
-        )}
+          )}
 
-        {!isDataLoading && symbol && !marketData && (
-             <div className="h-full flex flex-col justify-center items-center text-center">
-                <p className='text-destructive'>Could not load data for {symbol.toUpperCase()}.</p>
-                <p className='text-muted-foreground text-sm'>Please check the symbol or try another.</p>
-                 <Button variant="outline" size="sm" onClick={handleChangeSymbolClick} className="mt-4">
-                    Change Symbol
+          {marketData && symbol && !isDataLoading && (
+            <>
+              <PriceDisplay symbol={marketData.name} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
+              <Separator />
+              <PriceChart symbol={marketData.symbol} />
+
+              {/* Pre-signal general analysis */}
+              {!signal && !isSignalPending && (
+                  <>
+                      <SupportResistanceCard support={marketData.support} resistance={marketData.resistance} />
+                      <MarketDataCard
+                        volume={marketData.volume24h}
+                        marketCap={marketData.marketCap}
+                      />
+                      <PositionRatioCard
+                        ratio={marketData.longShortRatio}
+                        selectedInterval={interval}
+                        onSelectInterval={handleIntervalChange}
+                      />
+                      <TechnicalAnalysisCard {...marketData} />
+                      {marketData.fearAndGreed && <FearAndGreedCard index={marketData.fearAndGreed.value} classification={marketData.fearAndGreed.classification} />}
+                      {marketData.volumeProfile && <VolumeProfileChart data={marketData.volumeProfile} />}
+                      {marketData.volatility && <VolatilityCard atr={marketData.volatility.atr} vxi={marketData.volatility.vxi} />}
+                  </>
+              )}
+
+              <div ref={strategyCardRef} className="scroll-mt-4 space-y-4">
+                {/* Show loading state or final strategy card */}
+                {isSignalPending || signal ? (
+                  <StrategyCard strategy={signal} isPending={isSignalPending} />
+                ) : null}
+                
+                {/* Show detailed breakdown only AFTER signal is generated */}
+                {signal && !isSignalPending && (
+                  <>
+                  <CandlestickPatternCard patterns={marketData.patterns} />
+                  <div className="grid grid-cols-1 gap-4">
+                      <IndicatorCard
+                        title="RSI (Relative Strength Index)"
+                        value={marketData.rsi.toFixed(2)}
+                        interpretation={signal.rsiInterpretation}
+                        gaugeValue={marketData.rsi}
+                      />
+                      <IndicatorCard
+                        title="ADX (Average Directional Index)"
+                        value={marketData.adx.toFixed(2)}
+                        interpretation={signal.adxInterpretation}
+                        gaugeValue={marketData.adx}
+                      />
+                      <IndicatorCard
+                        title="EMA (Exponential Moving Average)"
+                        value={marketData.ema.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        interpretation={signal.emaInterpretation}
+                      />
+                      <IndicatorCard
+                        title="VWAP (Volume-Weighted Average Price)"
+                        value={marketData.vwap.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        interpretation={signal.vwapInterpretation}
+                      />
+                      <IndicatorCard
+                        title="Parabolic SAR"
+                        value={marketData.sar.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                        interpretation={signal.sarInterpretation}
+                      />
+                      <IndicatorCard
+                        title="Bollinger Bands"
+                        value={`${marketData.bollingerBands.lower.toLocaleString(undefined, { maximumFractionDigits: 2 })} - ${marketData.bollingerBands.upper.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                        interpretation={signal.bollingerBandsInterpretation}
+                      />
+                  </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+
+          {!isDataLoading && symbol && !marketData && (
+              <div className="h-full flex flex-col justify-center items-center text-center">
+                  <p className='text-destructive'>Could not load data for {symbol.toUpperCase()}.</p>
+                  <p className='text-muted-foreground text-sm'>Please check the symbol or try another.</p>
+                  <Button variant="outline" size="sm" onClick={handleChangeSymbolClick} className="mt-4">
+                      Change Symbol
+                  </Button>
+              </div>
+          )}
+
+          <div className="h-24"></div>
+        </div>
+
+        {symbol && marketData && (
+            <div className="sticky bottom-[73px] p-4 bg-background/80 backdrop-blur-sm space-y-2">
+                <StickyRiskSelector riskLevel={riskLevel} onSetRiskLevel={setRiskLevel}/>
+                <Button
+                  size="lg"
+                  className="w-full h-14 text-lg font-bold transition-colors bg-primary/80 border border-primary/50 text-primary-foreground hover:bg-green-500 hover:text-black"
+                  onClick={handleGetSignal}
+                  disabled={isSignalPending || isDataLoading || !marketData}
+                >
+                  {isSignalPending ? 
+                    <SignalLoadingHooks /> : 
+                    <span>
+                      {`ANALYZE ${marketData.name.toUpperCase()} NOW`}
+                    </span>
+                  }
                 </Button>
             </div>
-        )}
-
-        <div className="h-24"></div>
-      </div>
+          )}
+    </>
   );
 
   const renderContent = () => {
@@ -276,26 +297,6 @@ export default function TradeVisionPage() {
   return (
     <div className={"bg-background text-foreground h-full flex flex-col"}>
       {renderContent()}
-      
-      {symbol && marketData && activeView === 'Dashboard' && (
-        <div className="sticky bottom-[73px] p-4 bg-background/80 backdrop-blur-sm space-y-2">
-            <StickyRiskSelector riskLevel={riskLevel} onSetRiskLevel={setRiskLevel}/>
-            <Button
-              size="lg"
-              className="w-full h-14 text-lg font-bold transition-colors bg-primary/80 border border-primary/50 text-primary-foreground hover:bg-green-500 hover:text-black"
-              onClick={handleGetSignal}
-              disabled={isSignalPending || isDataLoading || !marketData}
-            >
-              {isSignalPending ? 
-                <SignalLoadingHooks /> : 
-                <span>
-                  {`ANALYZE ${marketData.name.toUpperCase()} NOW`}
-                </span>
-              }
-            </Button>
-        </div>
-      )}
-
       <Separator className="bg-border/20" />
       <BottomBar activeView={activeView} setActiveView={setActiveView} />
     </div>
