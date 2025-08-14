@@ -38,7 +38,7 @@ export interface MarketData {
   rsi: number;
   ema: number;
   vwap: number;
-  bollingerBands: { upper: number; lower: number };
+  bollingerBands: { upper: number; lower: number; };
   sar: number;
   adx: number;
   support: number;
@@ -67,11 +67,7 @@ interface CoinGeckoSimplePriceResponse {
 
 // A helper function to find a coin's ID and name from a symbol, name, or address
 const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
-    // 1. Check our hardcoded mapping first for common tickers
-    const upperQuery = query.toUpperCase();
-    
-    // 2. If it's a long string, assume it's a contract address (basic check)
-    // For Solana, addresses are typically 32-44 characters long.
+    // 1. If it's a long string, assume it's a Solana contract address
     if (query.length > 30 && query.length < 50) {
         try {
             const cgUrl = `https://api.coingecko.com/api/v3/coins/solana/contract/${query}`;
@@ -80,16 +76,15 @@ const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
                 const cgData = await cgResponse.json();
                 if (cgData.id) {
                     console.log(`Found coin by contract address: ${cgData.name}`);
-                    return { id: cgData.id, name: cgData.name, symbol: cgData.symbol };
+                    return { id: cgData.id, name: cgData.name, symbol: cgData.symbol.toUpperCase() };
                 }
             }
         } catch(e) {
-             console.warn(`Could not find coin by contract address ${query}`, e);
-             // Fall through to search
+             console.warn(`Could not find coin by contract address ${query}, falling back to search.`, e);
         }
     }
 
-    // 3. Fallback to searching the CoinGecko API
+    // 2. Fallback to searching the CoinGecko API for tickers or names
     try {
         const searchUrl = `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(query)}`;
         const searchResponse = await fetch(searchUrl);
@@ -98,22 +93,49 @@ const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
             if (searchData.coins && searchData.coins.length > 0) {
                 const topResult = searchData.coins[0];
                 console.log(`Found coin by search: ${topResult.name}`);
-                return { id: topResult.id, name: topResult.name, symbol: topResult.symbol };
+                return { id: topResult.id, name: topResult.name, symbol: topResult.symbol.toUpperCase() };
             }
         }
     } catch(e) {
         console.error('Error searching CoinGecko', e);
     }
     
-    // 4. If all else fails, use the query as a fallback (and likely fail downstream)
+    // 3. If all else fails, use the query as a fallback
     console.warn(`Could not resolve "${query}" to a CoinGecko ID. Using it directly.`);
     const fallbackSymbol = query.length <= 5 ? query.toUpperCase() : "UNKNOWN";
     return { id: query.toLowerCase(), name: query.toUpperCase(), symbol: fallbackSymbol };
 }
 
+async function getCoinByContractAddress(address: string): Promise<SearchResult | null> {
+    try {
+        const url = `https://api.coingecko.com/api/v3/coins/solana/contract/${address}`;
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            return {
+                id: data.id,
+                name: data.name,
+                symbol: data.symbol.toUpperCase(),
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching coin by contract address:', error);
+        return null;
+    }
+}
+
 export async function searchCoins(query: string): Promise<SearchResult[]> {
   if (!query) {
     return [];
+  }
+
+  // If query looks like a Solana address, prioritize it
+  if (query.length > 30 && query.length < 50) {
+      const coin = await getCoinByContractAddress(query);
+      if (coin) {
+          return [coin]; // Return only the exact match
+      }
   }
 
   try {
