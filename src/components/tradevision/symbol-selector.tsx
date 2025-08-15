@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { Check, ChevronsUpDown, Loader, Search } from 'lucide-react';
+import { ChevronsUpDown, Loader, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -10,7 +10,6 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { searchSymbolsAction } from '@/app/actions';
 import type { SearchResult } from '@/services/market-data';
 import type { Symbol } from './tradevision-page';
-import { cn } from '@/lib/utils';
 
 interface SymbolSelectorProps {
   selectedSymbol: Symbol | null;
