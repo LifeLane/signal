@@ -20,11 +20,17 @@ export type TradingSignalWithTargets = GenerateTradingSignalOutput & {
   takeProfit: string;
 }
 
-const riskLevelPercentages = {
-  Low: { stopLoss: 0.02, takeProfit: 0.04 }, // 2% SL, 4% TP
-  Medium: { stopLoss: 0.05, takeProfit: 0.08 }, // 5% SL, 8% TP
-  High: { stopLoss: 0.1, takeProfit: 0.15 }, // 10% SL, 15% TP
+const riskLevelStopLossFactor = {
+  Low: 1.5, // Wider stop loss for lower risk
+  Medium: 1.0,
+  High: 0.75, // Tighter stop loss for higher risk
 };
+
+const riskLevelTakeProfitFactor = {
+    Low: 1.5, // Modest take profit
+    Medium: 2.0,
+    High: 2.5, // Ambitious take profit
+}
 
 
 export async function getTradingSignalAction(
@@ -38,18 +44,27 @@ export async function getTradingSignalAction(
     // 2. Call the AI to get the signal and analysis (without price targets).
     const aiResult = await generateTradingSignal(input);
 
-    // 3. Calculate price targets based on the AI's signal and real market price.
+    // 3. Calculate price targets based on the AI's signal and real market data.
     let entryZone = "N/A", stopLoss = "N/A", takeProfit = "N/A";
-    const riskFactors = riskLevelPercentages[input.riskLevel];
+    
+    // Use a small buffer to create a more realistic zone
+    const entryBuffer = currentPrice * 0.005; // 0.5% buffer
+    entryZone = `${(currentPrice - entryBuffer).toFixed(2)} - ${(currentPrice + entryBuffer).toFixed(2)}`;
 
+    // Calculate Stop-Loss and Take-Profit based on Support/Resistance
     if (aiResult.signal === 'BUY') {
-      entryZone = `${(currentPrice * 0.99).toFixed(2)} - ${(currentPrice * 1.01).toFixed(2)}`;
-      stopLoss = (currentPrice * (1 - riskFactors.stopLoss)).toFixed(2);
-      takeProfit = (currentPrice * (1 + riskFactors.takeProfit)).toFixed(2);
+        const stopLossDistance = (currentPrice - marketData.support) * riskLevelStopLossFactor[input.riskLevel];
+        const takeProfitDistance = (marketData.resistance - currentPrice) * riskLevelTakeProfitFactor[input.riskLevel];
+        
+        stopLoss = (currentPrice - stopLossDistance).toFixed(2);
+        takeProfit = (currentPrice + takeProfitDistance).toFixed(2);
+
     } else if (aiResult.signal === 'SELL') {
-      entryZone = `${(currentPrice * 0.99).toFixed(2)} - ${(currentPrice * 1.01).toFixed(2)}`;
-      stopLoss = (currentPrice * (1 + riskFactors.stopLoss)).toFixed(2);
-      takeProfit = (currentPrice * (1 - riskFactors.takeProfit)).toFixed(2);
+        const stopLossDistance = (marketData.resistance - currentPrice) * riskLevelStopLossFactor[input.riskLevel];
+        const takeProfitDistance = (currentPrice - marketData.support) * riskLevelTakeProfitFactor[input.riskLevel];
+
+        stopLoss = (currentPrice + stopLossDistance).toFixed(2);
+        takeProfit = (currentPrice - takeProfitDistance).toFixed(2);
     }
 
     // 4. Combine the AI result with the calculated targets.
