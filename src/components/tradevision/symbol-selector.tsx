@@ -44,10 +44,10 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
   ];
 
   const handleSelect = (currentValue: string) => {
-    // Check both popular symbols and search results.
-    const symbol = popularSymbols.find(s => s.id === currentValue) || searchResults.find(r => r.id === currentValue);
-    if (symbol) {
-        onSelectSymbol(symbol.id);
+    // The `currentValue` is the `id` of the selected symbol.
+    const symbolInfo = popularSymbols.find(s => s.id === currentValue) || searchResults.find(r => r.id === currentValue);
+    if (symbolInfo) {
+        onSelectSymbol(symbolInfo.id);
     }
     setOpen(false);
     setSearchQuery('');
