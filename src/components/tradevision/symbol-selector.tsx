@@ -32,18 +32,21 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
       { id: 'ripple', name: 'XRP', symbol: 'XRP'},
   ];
 
-  // Fetch top coins when the popover is opened for the first time
+  // Fetch top coins when the popover is opened
   React.useEffect(() => {
     if (open && topCoins.length === 0 && !searchQuery) {
       setIsLoading(true);
       getTopCoinsAction().then(coins => {
         setTopCoins(coins);
         setIsLoading(false);
-      }).catch(() => setIsLoading(false));
+      }).catch(() => {
+        setIsLoading(false);
+        // You could add a toast notification here if needed
+      });
     }
   }, [open, topCoins.length, searchQuery]);
   
-  // Handle search results
+  // Handle search results based on user input
   React.useEffect(() => {
     if (debouncedSearchQuery.length > 1) {
       setIsLoading(true);
@@ -59,6 +62,12 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
   const displayList = debouncedSearchQuery.length > 1 ? searchResults : topCoins;
   const allKnownCoins = [...popularSymbols, ...topCoins, ...searchResults];
   const selectedCoin = allKnownCoins.find(coin => coin.id === selectedSymbol);
+
+  const handleSelect = (symbolId: string) => {
+    onSelectSymbol(symbolId);
+    setOpen(false);
+    setSearchQuery('');
+  };
 
   return (
     <div className="space-y-4">
@@ -121,11 +130,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                                 <CommandItem
                                     key={result.id}
                                     value={result.id}
-                                    onSelect={(currentValue) => {
-                                      onSelectSymbol(currentValue);
-                                      setOpen(false);
-                                      setSearchQuery('');
-                                    }}
+                                    onSelect={handleSelect}
                                 >
                                    <Check
                                         className={cn(
