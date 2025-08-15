@@ -43,16 +43,6 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
       { id: 'ripple', name: 'XRP', symbol: 'XRP'},
   ];
 
-  const handleSelect = (currentValue: string) => {
-    // The `currentValue` is the `id` of the selected symbol.
-    const symbolInfo = popularSymbols.find(s => s.id === currentValue) || searchResults.find(r => r.id === currentValue);
-    if (symbolInfo) {
-        onSelectSymbol(symbolInfo.id);
-    }
-    setOpen(false);
-    setSearchQuery('');
-  };
-  
   return (
     <div className="space-y-4">
        <div className="grid grid-cols-2 gap-4">
@@ -106,8 +96,12 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                             {searchResults.map((result) => (
                                 <CommandItem
                                     key={result.id}
-                                    value={result.id} // Use the unique ID for value
-                                    onSelect={handleSelect}
+                                    value={result.id}
+                                    onSelect={(currentValue) => {
+                                        onSelectSymbol(currentValue);
+                                        setOpen(false);
+                                        setSearchQuery('');
+                                    }}
                                 >
                                     {result.name} ({result.symbol.toUpperCase()})
                                 </CommandItem>
