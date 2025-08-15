@@ -36,15 +36,6 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     }
   }, [debouncedSearchQuery]);
 
-  const handleSelect = (currentValue: string) => {
-    const symbol = searchResults.find(r => r.id === currentValue) || popularSymbols.find(r => r.id === currentValue);
-    if (symbol) {
-        onSelectSymbol(symbol.id); 
-    }
-    setOpen(false);
-    setSearchQuery('');
-  };
-  
   const popularSymbols: SearchResult[] = [
       { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC'},
       { id: 'ethereum', name: 'Ethereum', symbol: 'ETH'},
@@ -52,6 +43,16 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
       { id: 'ripple', name: 'XRP', symbol: 'XRP'},
   ];
 
+  const handleSelect = (currentValue: string) => {
+    // Check both popular symbols and search results.
+    const symbol = popularSymbols.find(s => s.id === currentValue) || searchResults.find(r => r.id === currentValue);
+    if (symbol) {
+        onSelectSymbol(symbol.id);
+    }
+    setOpen(false);
+    setSearchQuery('');
+  };
+  
   return (
     <div className="space-y-4">
        <div className="grid grid-cols-2 gap-4">
@@ -106,7 +107,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                                 <CommandItem
                                     key={result.id}
                                     value={result.id} // Use the unique ID for value
-                                    onSelect={handleSelect}
+                                    onSelect={() => handleSelect(result.id)}
                                 >
                                     {result.name} ({result.symbol.toUpperCase()})
                                 </CommandItem>
