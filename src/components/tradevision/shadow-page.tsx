@@ -7,6 +7,8 @@ import { ExternalLink, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { IntroLogo } from './intro-logo';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { ThemeSwitcher } from './theme-switcher';
 
 
 const contractDetails = {
@@ -106,120 +108,131 @@ export function ShadowPage() {
                 <p className="text-muted-foreground mt-2 text-lg">Your Unfair Advantage in the Crypto Markets.</p>
             </div>
             
-            <Card className="animate-pulse-glow [--glow-color:theme(colors.primary/0.5)]">
-                <CardHeader>
-                    <CardTitle>Smart Contract Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DetailRow label="Token Name" value={contractDetails.name} />
-                    <Separator />
-                    <DetailRow label="Token Address" value={contractDetails.address} canCopy />
-                    <Separator />
-                    <DetailRow label="Creator" value={contractDetails.creator} canCopy />
-                    <Separator />
-                    <DetailRow label="Decimals" value={contractDetails.decimals.toString()} />
-                    <Separator />
-                     <DetailRow label="First Mint" value={contractDetails.firstMint} />
-                    <Separator />
-                    <DetailRow label="Mint Authority" value={contractDetails.mintAuth} />
-                    <Separator />
-                    <DetailRow label="Freeze Authority" value={contractDetails.freezeAuth} />
-                     <Separator />
-                    <DetailRow label="Update Authority" value={contractDetails.updateAuth} />
-                     <Separator />
-                    <DetailRow label="Token Extensions" value={contractDetails.extensions} />
-                </CardContent>
-            </Card>
+            <Accordion type="single" collapsible className="w-full space-y-4">
+                <AccordionItem value="item-1">
+                    <AccordionTrigger className='text-lg font-semibold'>Smart Contract Details</AccordionTrigger>
+                    <AccordionContent>
+                        <CardContent>
+                            <DetailRow label="Token Name" value={contractDetails.name} />
+                            <Separator />
+                            <DetailRow label="Token Address" value={contractDetails.address} canCopy />
+                            <Separator />
+                            <DetailRow label="Creator" value={contractDetails.creator} canCopy />
+                            <Separator />
+                            <DetailRow label="Decimals" value={contractDetails.decimals.toString()} />
+                            <Separator />
+                            <DetailRow label="First Mint" value={contractDetails.firstMint} />
+                            <Separator />
+                            <DetailRow label="Mint Authority" value={contractDetails.mintAuth} />
+                            <Separator />
+                            <DetailRow label="Freeze Authority" value={contractDetails.freezeAuth} />
+                            <Separator />
+                            <DetailRow label="Update Authority" value={contractDetails.updateAuth} />
+                            <Separator />
+                            <DetailRow label="Token Extensions" value={contractDetails.extensions} />
+                        </CardContent>
+                    </AccordionContent>
+                </AccordionItem>
 
-            <Card className="animate-pulse-glow [--glow-color:theme(colors.accent/0.7)]">
-                <CardHeader>
-                    <CardTitle>Solana Explorer Links</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-2">
-                    {explorerLinks.map(link => (
-                        <Button asChild key={link.name} variant="outline" className="justify-start gap-2">
-                            <a href={link.url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-4 w-4" />
-                                {link.name}
-                            </a>
-                        </Button>
-                    ))}
-                </CardContent>
-            </Card>
-            
-            <Card className="animate-pulse-glow [--glow-color:theme(colors.blue.400/0.5)]">
-                <CardHeader>
-                    <CardTitle>Token Trading Links</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-2">
-                    {tradingLinks.map(link => (
-                        <Button asChild key={link.name} variant="outline" className="justify-start gap-2">
-                            <a href={link.url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-4 w-4" />
-                                {link.name}
-                            </a>
-                        </Button>
-                    ))}
-                </CardContent>
-            </Card>
-            
-             <Card className="animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]">
-                <CardHeader>
-                    <CardTitle>Jupiter Locker Token Lock</CardTitle>
-                    <CardDescription>Locked token details from Jupiter Locker.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Account</TableHead>
-                                    <TableHead>Amount</TableHead>
-                                    <TableHead>Ratio</TableHead>
-                                    <TableHead>Link</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {jupiterLockerData.map((item, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{item.account}</TableCell>
-                                        <TableCell>{item.amount}</TableCell>
-                                        <TableCell>{item.ratio}</TableCell>
-                                        <TableCell>
-                                            <Button asChild variant="ghost" size="icon">
-                                                <a href={item.link} target="_blank" rel="noopener noreferrer">
-                                                    <ExternalLink className="h-4 w-4" />
-                                                </a>
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
+                <AccordionItem value="item-2">
+                    <AccordionTrigger className='text-lg font-semibold'>Solana Explorer Links</AccordionTrigger>
+                    <AccordionContent>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {explorerLinks.map(link => (
+                                <Button asChild key={link.name} variant="outline" className="justify-start gap-2">
+                                    <a href={link.url} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="h-4 w-4" />
+                                        {link.name}
+                                    </a>
+                                </Button>
+                            ))}
+                        </CardContent>
+                    </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-3">
+                    <AccordionTrigger className='text-lg font-semibold'>Token Trading Links</AccordionTrigger>
+                    <AccordionContent>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {tradingLinks.map(link => (
+                                <Button asChild key={link.name} variant="outline" className="justify-start gap-2">
+                                    <a href={link.url} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="h-4 w-4" />
+                                        {link.name}
+                                    </a>
+                                </Button>
+                            ))}
+                        </CardContent>
+                    </AccordionContent>
+                </AccordionItem>
+                
+                <AccordionItem value="item-4">
+                    <AccordionTrigger className='text-lg font-semibold'>Jupiter Locker Token Lock</AccordionTrigger>
+                    <AccordionContent>
+                        <CardContent>
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Account</TableHead>
+                                            <TableHead>Amount</TableHead>
+                                            <TableHead>Ratio</TableHead>
+                                            <TableHead>Link</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {jupiterLockerData.map((item, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>{item.account}</TableCell>
+                                                <TableCell>{item.amount}</TableCell>
+                                                <TableCell>{item.ratio}</TableCell>
+                                                <TableCell>
+                                                    <Button asChild variant="ghost" size="icon">
+                                                        <a href={item.link} target="_blank" rel="noopener noreferrer">
+                                                            <ExternalLink className="h-4 w-4" />
+                                                        </a>
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </CardContent>
+                    </AccordionContent>
+                </AccordionItem>
 
-            <Card className="animate-pulse-glow [--glow-color:theme(colors.cyan.400/0.5)]">
-                <CardHeader>
-                    <CardTitle>Jupiter Configurations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DetailRow label="Requests" value={jupiterConfigs.requests} />
-                    <Separator />
-                    <DetailRow label="Latency" value={jupiterConfigs.latency} />
-                    <Separator />
-                    <DetailRow label="Location" value={jupiterConfigs.location} />
-                    <Separator />
-                    <DetailRow label="Version" value={jupiterConfigs.version} />
-                    <Separator />
-                    <DetailRow label="Swap API" value={jupiterConfigs.swapApi} />
-                    <Separator />
-                    <DetailRow label="Public API" value={jupiterConfigs.publicApi} canCopy />
-                    <Separator />
-                    <DetailRow label="Swap API v1" value={jupiterConfigs.swapApiV1} canCopy />
-                </CardContent>
-            </Card>
+                <AccordionItem value="item-5">
+                    <AccordionTrigger className='text-lg font-semibold'>Jupiter Configurations</AccordionTrigger>
+                    <AccordionContent>
+                        <CardContent>
+                            <DetailRow label="Requests" value={jupiterConfigs.requests} />
+                            <Separator />
+                            <DetailRow label="Latency" value={jupiterConfigs.latency} />
+                            <Separator />
+                            <DetailRow label="Location" value={jupiterConfigs.location} />
+                            <Separator />
+                            <DetailRow label="Version" value={jupiterConfigs.version} />
+                            <Separator />
+                            <DetailRow label="Swap API" value={jupiterConfigs.swapApi} />
+                            <Separator />
+                            <DetailRow label="Public API" value={jupiterConfigs.publicApi} canCopy />
+                            <Separator />
+                            <DetailRow label="Swap API v1" value={jupiterConfigs.swapApiV1} canCopy />
+                        </CardContent>
+                    </AccordionContent>
+                </AccordionItem>
+
+                 <AccordionItem value="item-6">
+                    <AccordionTrigger className='text-lg font-semibold'>Theme Settings</AccordionTrigger>
+                    <AccordionContent>
+                        <CardContent>
+                           <ThemeSwitcher />
+                        </CardContent>
+                    </AccordionContent>
+                </AccordionItem>
+
+            </Accordion>
             <div className="h-12"></div>
         </div>
     );

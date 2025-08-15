@@ -3,6 +3,7 @@
  * @fileoverview Service for interacting with CoinMarketCap and CoinGecko to fetch market data.
  */
 import fetch from 'node-fetch';
+import { generateRealisticMarketData, RealisticData } from './mock-data-generator';
 
 export interface CandlestickPattern {
     name: string;
@@ -27,26 +28,14 @@ export interface VolumeProfilePoint {
 }
 
 
-export interface MarketData {
+export type MarketData = RealisticData & {
   name: string;
   symbol: string;
   price: number;
   change: number;
   volume24h: number;
   marketCap: number;
-  longShortRatio: number;
-  rsi: number;
-  ema: number;
-  vwap: number;
-  bollingerBands: { upper: number; lower: number; };
-  sar: number;
-  adx: number;
-  support: number;
-  resistance: number;
-  patterns: CandlestickPattern[];
   fearAndGreed?: FearAndGreed;
-  momentum: { trend: string; analysis: string; };
-  volatility?: Volatility;
   volumeProfile?: VolumeProfilePoint[];
 }
 
@@ -257,53 +246,6 @@ async function getLongShortRatio(symbol: string): Promise<number | null> {
     }
 }
 
-
-const generateTechnicalIndicators = (price: number) => {
-    // Simulate some realistic volatility and indicator behavior.
-    const volatility = 0.05; // 5% volatility
-    const randomFactor = () => (Math.random() - 0.5) * 2; // -1 to 1
-
-    const rsi = 50 + randomFactor() * 25; // e.g., 25 to 75
-    const adx = 25 + randomFactor() * 15; // e.g., 10 to 40
-    const ema = price * (1 - 0.02 * randomFactor());
-    const vwap = price * (1 - 0.01 * randomFactor());
-    const sar = price * (1 - 0.03 * (Math.random() > 0.5 ? 1 : -1));
-    const upperBand = price * (1 + volatility);
-    const lowerBand = price * (1 - volatility);
-
-    return {
-        rsi,
-        ema,
-        vwap,
-        bollingerBands: {
-          upper: upperBand,
-          lower: lowerBand,
-        },
-        sar,
-        adx,
-        support: price * (1 - volatility * 1.5),
-        resistance: price * (1 + volatility * 1.5),
-        patterns: [
-            {
-                name: "Morning Star",
-                timestamp: "7-22 05:30",
-                confidence: 95.00,
-                description: "Bullish reversal pattern formed over three candles, indicating a potential bottom and shift from bearish to bullish sentiment",
-            },
-            {
-                name: "Three White Soldiers",
-                timestamp: "7-21 11:00",
-                confidence: 88.50,
-                description: "Strong bullish signal indicating a potential reversal of a downtrend.",
-            }
-        ],
-        momentum: {
-            trend: "Weak Uptrend",
-            analysis: "Increased Downtrend potential",
-        },
-    }
-}
-
 /**
  * Fetches market data for a given symbol.
  * @param symbol The crypto symbol (e.g., "BTC", "ETH", or a contract address).
@@ -318,12 +260,10 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
         priceDataResponse, 
         fearAndGreed, 
         historicalData,
-        longShortRatio,
     ] = await Promise.all([
         fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinInfo.id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`),
         getFearAndGreedIndex(),
         getHistoricalData(coinInfo.id),
-        getLongShortRatio(coinInfo.symbol),
     ]);
 
 
@@ -338,7 +278,7 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
     }
     
     console.log(`Successfully fetched data from CoinGecko for ${symbol}`);
-    const indicators = generateTechnicalIndicators(data.usd);
+    const indicators = generateRealisticMarketData(data.usd);
     
     return {
       name: coinInfo.name,
@@ -347,12 +287,11 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
       change: data.usd_24h_change,
       volume24h: data.usd_24h_vol,
       marketCap: data.usd_market_cap,
-      longShortRatio: longShortRatio ?? 50, // Fallback to 50 if API fails
       ...indicators,
       fearAndGreed: fearAndGreed,
       volatility: {
           atr: historicalData.atr,
-          vxi: 30 + (Math.random() - 0.5) * 2 * 10, // Keep VXI faked for now
+          ...indicators.volatility,
       },
       volumeProfile: historicalData.volumeProfile,
     };

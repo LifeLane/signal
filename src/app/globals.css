@@ -5,14 +5,14 @@
 
 @layer base {
   /* Default Theme: Neural Pulse */
-  :root {
+  :root, .theme-neural-pulse {
     --background: 210 20% 15%;
     --foreground: 210 40% 98%;
     --card: 210 20% 18%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 0 70% 50%;
+    --primary: 210 70% 50%;
     --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -24,7 +24,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 0 70% 50%;
+    --ring: 210 70% 50%;
     --radius: 0.5rem;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -40,7 +40,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 0 70% 50%;
+    --primary: 210 70% 50%;
     --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -52,12 +52,34 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 0 70% 50%;
+    --ring: 210 70% 50%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+  }
+
+  .theme-solar-flare {
+    --background: 20 10% 10%; /* Very dark grey, almost black */
+    --foreground: 20 15% 95%; /* Off-white */
+    --card: 20 10% 15%; /* Slightly lighter dark grey */
+    --card-foreground: 20 15% 95%;
+    --popover: 20 10% 5%;
+    --popover-foreground: 20 15% 95%;
+    --primary: 35 90% 55%; /* Vibrant orange */
+    --primary-foreground: 20 10% 5%; /* Dark for high contrast on orange */
+    --secondary: 20 15% 25%; /* Darker grey for secondary elements */
+    --secondary-foreground: 20 15% 95%;
+    --muted: 20 15% 20%;
+    --muted-foreground: 20 15% 65%;
+    --accent: 50 95% 50%; /* Bright yellow */
+    --accent-foreground: 20 10% 5%;
+    --destructive: 0 80% 50%; /* Bright red */
+    --destructive-foreground: 20 15% 95%;
+    --border: 20 15% 25%;
+    --input: 20 15% 25%;
+    --ring: 35 90% 55%;
   }
 }
 
