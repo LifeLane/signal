@@ -128,3 +128,4 @@ export async function searchSymbolsAction(query: string): Promise<SearchResult[]
         return [];
     }
 }
+

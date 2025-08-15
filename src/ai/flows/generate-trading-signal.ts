@@ -75,7 +75,7 @@ The user has specified their risk level as: \`{{riskLevel}}\`. You MUST adhere t
     *   **VWAP:** If price is above VWAP, bullish intraday momentum. If below, bearish. State the relationship.
     *   **Parabolic SAR:** If SAR is below price, it signals an uptrend. If above, a downtrend. State the relationship.
     *   **Bollinger Bands:** Note if the price is near the upper band (potential reversal/overbought) or lower band (potential reversal/oversold).
-3.  **Synthesize and Decide Signal:** Combine the news sentiment from \`fetchNews\` and ALL technical indicator analyses to decide on a final trading signal ('BUY', 'SELL', or 'HOLD'), strictly following the **Risk Level Instructions**.
+3.  **Synthesize and Decide Signal:** Combine the news sentiment from \`fetchNews\` and ALL technical indicator analyses to decide on a final trading signal ('BUY', 'SELL', 'HOLD'), strictly following the **Risk Level Instructions**.
 4.  **Generate Justification:** Based on your synthesis, write a concise, one-sentence justification for the final signal. Example: "The BUY signal is based on strong bullish indicators like the EMA and Parabolic SAR, combined with positive market news." or "A HOLD signal is recommended as technical indicators are mixed and recent news suggests market uncertainty."
 5.  **Assess Confidence & Risk:** Provide a 'confidence' percentage, a 'gptConfidenceScore' (0-100), and an AI-assessed 'riskRating' based on how strongly the data aligns.
 6.  **Disclaimer:** Provide this exact disclaimer: "This is not financial advice. All trading involves risk. Past performance is not indicative of future results. Always do your own research."
@@ -99,3 +99,4 @@ const generateTradingSignalFlow = ai.defineFlow(
     return output!;
   }
 );
+
