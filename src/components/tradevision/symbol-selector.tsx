@@ -34,14 +34,14 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
 
   // Fetch top coins when the popover is opened for the first time
   React.useEffect(() => {
-    if (open && topCoins.length === 0) {
+    if (open && topCoins.length === 0 && !searchQuery) {
       setIsLoading(true);
       getTopCoinsAction().then(coins => {
         setTopCoins(coins);
         setIsLoading(false);
-      });
+      }).catch(() => setIsLoading(false));
     }
-  }, [open, topCoins.length]);
+  }, [open, topCoins.length, searchQuery]);
   
   // Handle search results
   React.useEffect(() => {
@@ -50,20 +50,15 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
       searchSymbolsAction(debouncedSearchQuery).then((results) => {
         setSearchResults(results);
         setIsLoading(false);
-      });
+      }).catch(() => setIsLoading(false));
     } else {
       setSearchResults([]);
     }
   }, [debouncedSearchQuery]);
 
-  const handleSelect = (symbolId: string) => {
-    onSelectSymbol(symbolId);
-    setOpen(false);
-    setSearchQuery('');
-  };
-
   const displayList = debouncedSearchQuery.length > 1 ? searchResults : topCoins;
-  const selectedCoin = [...topCoins, ...searchResults].find(coin => coin.id === selectedSymbol);
+  const allKnownCoins = [...popularSymbols, ...topCoins, ...searchResults];
+  const selectedCoin = allKnownCoins.find(coin => coin.id === selectedSymbol);
 
   return (
     <div className="space-y-4">
@@ -117,14 +112,20 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                             </div>
                         )}
                         {!isLoading && displayList.length === 0 && (
-                             <CommandEmpty>No results found.</CommandEmpty>
+                             <CommandEmpty>
+                                {searchQuery ? "No results found." : "Loading popular coins..."}
+                             </CommandEmpty>
                         )}
                         <CommandGroup heading={debouncedSearchQuery.length > 1 ? "Search Results" : "Top 100 by Market Cap"}>
                             {displayList.map((result) => (
                                 <CommandItem
                                     key={result.id}
                                     value={result.id}
-                                    onSelect={handleSelect}
+                                    onSelect={(currentValue) => {
+                                      onSelectSymbol(currentValue);
+                                      setOpen(false);
+                                      setSearchQuery('');
+                                    }}
                                 >
                                    <Check
                                         className={cn(
