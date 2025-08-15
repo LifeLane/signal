@@ -107,7 +107,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                                 <CommandItem
                                     key={result.id}
                                     value={result.id} // Use the unique ID for value
-                                    onSelect={() => handleSelect(result.id)}
+                                    onSelect={handleSelect}
                                 >
                                     {result.name} ({result.symbol.toUpperCase()})
                                 </CommandItem>
