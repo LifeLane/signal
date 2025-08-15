@@ -100,6 +100,12 @@ const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
         const searchResponse = await fetch(searchUrl);
         if(searchResponse.ok) {
             const searchData = await searchResponse.json();
+            // Find an exact match if possible
+            const exactMatch = searchData.coins.find((c: any) => c.symbol.toLowerCase() === query.toLowerCase() || c.id === query.toLowerCase());
+            if (exactMatch) {
+                 console.log(`Found exact coin match by search: ${exactMatch.name}`);
+                 return { id: exactMatch.id, name: exactMatch.name, symbol: exactMatch.symbol.toUpperCase() };
+            }
             if (searchData.coins && searchData.coins.length > 0) {
                 const topResult = searchData.coins[0];
                 console.log(`Found coin by search: ${topResult.name}`);
@@ -138,7 +144,7 @@ export async function searchCoins(query: string): Promise<SearchResult[]> {
     }
     const data = await response.json();
     return (data.coins || [])
-      .slice(0, 10) // Return top 10 results
+      .slice(0, 15) // Return top 15 results
       .map((coin: any) => ({
         id: coin.id,
         name: coin.name,
@@ -149,6 +155,29 @@ export async function searchCoins(query: string): Promise<SearchResult[]> {
     return [];
   }
 }
+
+// Fetch the top 100 coins by market cap
+export async function getTopCoins(): Promise<SearchResult[]> {
+    try {
+        const url = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false';
+        const response = await fetch(url);
+         if (!response.ok) {
+            console.error(`CoinGecko top coins API request failed with status ${response.status}`);
+            return [];
+        }
+        const data = await response.json();
+        return data.map((coin: any) => ({
+            id: coin.id,
+            name: coin.name,
+            symbol: coin.symbol.toUpperCase(),
+        }));
+
+    } catch (error) {
+        console.error('Error fetching top coins from CoinGecko:', error);
+        return [];
+    }
+}
+
 
 // Fetch Fear and Greed Index
 async function getFearAndGreedIndex(): Promise<FearAndGreed | undefined> {
