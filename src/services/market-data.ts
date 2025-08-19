@@ -190,14 +190,27 @@ export async function getShadowTokenDetails(): Promise<ShadowTokenDetails> {
         const price = shadowData.data.value;
         const priceOfSol = solData.data.value;
 
+        const overviewUrl = `https://public-api.birdeye.so/defi/token_overview?address=${SHADOW_CONTRACT_ADDRESS}`;
+        const overviewResponse = await fetch(overviewUrl, {
+            method: 'GET',
+            headers: { 'X-API-KEY': apiKey }
+        });
+        if (!overviewResponse.ok) {
+            throw new Error(`BirdEye overview request failed: ${overviewResponse.status}`);
+        }
+        const overviewData = await overviewResponse.json();
+        if (!overviewData.success || !overviewData.data) {
+            throw new Error('Invalid overview data from BirdEye');
+        }
+
         return {
             address: SHADOW_CONTRACT_ADDRESS,
             name: 'SHADOW',
             symbol: 'SHADOW',
             price: price,
-            priceChange24h: (Math.random() - 0.5) * 10, // Random change +/- 5%
-            marketCap: price * 10_000_000_000, // Total Supply * Price
-            solPrice: price / priceOfSol, // Price of SHADOW in terms of SOL
+            priceChange24h: overviewData.data.priceChange24hPercent,
+            marketCap: overviewData.data.mc,
+            solPrice: price / priceOfSol,
         };
     } catch (error) {
         console.error('Error fetching SHADOW token details from BirdEye:', error);
@@ -422,5 +435,3 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
     throw new Error('An unexpected error occurred while fetching market data.');
   }
 }
-
-    
