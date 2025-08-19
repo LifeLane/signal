@@ -1,6 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { Loader } from 'lucide-react';
+import ClientOnly from '@/components/tradevision/client-only';
 
 const TradeVisionPage = dynamic(() => import('@/components/tradevision/tradevision-page'), {
   ssr: false,
@@ -12,5 +13,9 @@ const TradeVisionPage = dynamic(() => import('@/components/tradevision/tradevisi
 });
 
 export default function Home() {
-  return <TradeVisionPage />;
+  return (
+    <ClientOnly>
+      <TradeVisionPage />
+    </ClientOnly>
+  );
 }
