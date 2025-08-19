@@ -131,11 +131,12 @@ const TokenDetailCard = ({ details, isLoading, onRefresh }: { details: ShadowTok
                     <Skeleton className="h-7 w-48" />
                     <Skeleton className="h-4 w-32" />
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4">
-                    <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
-                    <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
-                    <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
-                    <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
+                <CardContent className="space-y-4">
+                    <div className='grid grid-cols-2 gap-4'>
+                        <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
+                        <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
+                    </div>
+                    <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-full" /></div>
                 </CardContent>
             </Card>
         );
@@ -159,25 +160,23 @@ const TokenDetailCard = ({ details, isLoading, onRefresh }: { details: ShadowTok
                 </div>
                 <CardDescription>Live token data from BirdEye</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 text-sm">
-                 <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
-                    <span className="text-muted-foreground">Price</span>
-                    <span className="text-lg font-bold text-foreground">${formatNumber(details.price)}</span>
-                </div>
-                 <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
-                    <span className="text-muted-foreground">24h Change</span>
-                    <span className={cn("text-lg font-bold flex items-center", isPriceUp ? 'text-green-400' : 'text-red-400')}>
-                        {isPriceUp ? <TrendingUp className="mr-1 h-4 w-4" /> : <TrendingDown className="mr-1 h-4 w-4" />}
-                        {details.priceChange24h.toFixed(2)}%
-                    </span>
-                </div>
-                 <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
+            <CardContent className="space-y-4 text-sm">
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
+                        <span className="text-muted-foreground">Price</span>
+                        <span className="text-lg font-bold text-foreground">${formatNumber(details.price)}</span>
+                    </div>
+                    <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
+                        <span className="text-muted-foreground">24h Change</span>
+                        <span className={cn("text-lg font-bold flex items-center", isPriceUp ? 'text-green-400' : 'text-red-400')}>
+                            {isPriceUp ? <TrendingUp className="mr-1 h-4 w-4" /> : <TrendingDown className="mr-1 h-4 w-4" />}
+                            {details.priceChange24h.toFixed(2)}%
+                        </span>
+                    </div>
+                 </div>
+                 <div className="flex flex-col col-span-2 gap-1 p-3 bg-muted rounded-lg">
                     <span className="text-muted-foreground">Market Cap</span>
                     <span className="text-lg font-bold text-foreground">${formatNumber(details.marketCap)}</span>
-                </div>
-                 <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
-                    <span className="text-muted-foreground">Liquidity</span>
-                    <span className="text-lg font-bold text-foreground">${formatNumber(details.liquidity)}</span>
                 </div>
             </CardContent>
         </Card>
