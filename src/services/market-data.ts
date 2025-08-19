@@ -60,11 +60,12 @@ export interface ShadowTokenDetails {
     symbol: string;
     price: number;
     priceChange24h: number;
-    liquidity: number;
     marketCap: number;
+    solPrice?: number; // Price of SHADOW in SOL
 }
 
 const SHADOW_CONTRACT_ADDRESS = "B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR";
+const SOL_MINT_ADDRESS = "So11111111111111111111111111111111111111112";
 const SHADOW_COINGECKO_ID = { id: 'shadow-shadow', name: 'SHADOW (SHADOW)', symbol: 'SHADOW' };
 
 
@@ -150,6 +151,8 @@ export async function getShadowTokenDetails(): Promise<ShadowTokenDetails> {
     }
 
     const url = `https://public-api.birdeye.so/defi/price?address=${SHADOW_CONTRACT_ADDRESS}`;
+    const solUrl = `https://public-api.birdeye.so/defi/price?address=${SOL_MINT_ADDRESS}`;
+
     const options = {
         method: 'GET',
         headers: {
@@ -160,19 +163,32 @@ export async function getShadowTokenDetails(): Promise<ShadowTokenDetails> {
     };
 
     try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`BirdEye API request failed with status ${response.status}: ${errorBody}`);
+        const [shadowResponse, solResponse] = await Promise.all([
+            fetch(url, options),
+            fetch(solUrl, options)
+        ]);
+
+        if (!shadowResponse.ok) {
+            const errorBody = await shadowResponse.text();
+            throw new Error(`BirdEye API request for SHADOW failed with status ${shadowResponse.status}: ${errorBody}`);
         }
-        const data = await response.json();
+         if (!solResponse.ok) {
+            const errorBody = await solResponse.text();
+            throw new Error(`BirdEye API request for SOL failed with status ${solResponse.status}: ${errorBody}`);
+        }
+
+        const shadowData = await shadowResponse.json();
+        const solData = await solResponse.json();
         
-        if (!data.success || !data.data || typeof data.data.value === 'undefined') {
-            throw new Error('BirdEye API returned unsuccessful or invalid response for price.');
+        if (!shadowData.success || !shadowData.data || typeof shadowData.data.value === 'undefined') {
+            throw new Error('BirdEye API returned unsuccessful or invalid response for SHADOW price.');
+        }
+        if (!solData.success || !solData.data || typeof solData.data.value === 'undefined') {
+            throw new Error('BirdEye API returned unsuccessful or invalid response for SOL price.');
         }
         
-        const price = data.data.value;
-        const mockIndicators = generateRealisticMarketData(price);
+        const price = shadowData.data.value;
+        const priceOfSol = solData.data.value;
 
         return {
             address: SHADOW_CONTRACT_ADDRESS,
@@ -180,8 +196,8 @@ export async function getShadowTokenDetails(): Promise<ShadowTokenDetails> {
             symbol: 'SHADOW',
             price: price,
             priceChange24h: (Math.random() - 0.5) * 10, // Random change +/- 5%
-            liquidity: mockIndicators.support * 10000, // Mock liquidity
             marketCap: price * 10_000_000_000, // Total Supply * Price
+            solPrice: price / priceOfSol, // Price of SHADOW in terms of SOL
         };
     } catch (error) {
         console.error('Error fetching SHADOW token details from BirdEye:', error);
@@ -406,3 +422,5 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
     throw new Error('An unexpected error occurred while fetching market data.');
   }
 }
+
+    

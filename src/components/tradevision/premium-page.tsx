@@ -1,25 +1,35 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { VersionedTransaction, TransactionMessage, PublicKey, TransactionInstruction } from '@solana/web3.js';
-import { createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
+import { VersionedTransaction, TransactionMessage, PublicKey, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { getShadowDetailsAction } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ArrowRight, Zap, ShieldCheck, Loader, LogOut, Info } from 'lucide-react';
+import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Skeleton } from '../ui/skeleton';
 
-const SHADOW_TOKEN_MINT = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR");
-const SHADOW_TOKEN_DECIMALS = 6;
-const CREATOR_WALLET_ADDRESS = new PublicKey("38XnV4BZownmFeFrykAYhfMJvWxaZ31t4zBa96HqChEe");
 
-const subscriptionTiers = [
+const CREATOR_WALLET_ADDRESS = new PublicKey(process.env.NEXT_PUBLIC_CREATOR_WALLET_ADDRESS || "38XnV4BZownmFeFrykAYhfMJvWxaZ31t4zBa96HqChEe");
+
+type Tier = {
+    name: string;
+    price: number; // Price in SHADOW tokens
+    priceLabel: string;
+    features: string[];
+    cta: string;
+    popular?: boolean;
+    hook: string;
+};
+
+const subscriptionTiers: Tier[] = [
     {
         name: "Monthly Pro",
         price: 100_000,
@@ -47,7 +57,7 @@ const subscriptionTiers = [
     },
 ]
 
-const trialTier = {
+const trialTier: Tier = {
     name: "7-Day Free Trial",
     price: 0,
     priceLabel: "FREE",
@@ -64,18 +74,40 @@ export function PremiumPage() {
   
   const [isSubscribing, setIsSubscribing] = useState<string | null>(null);
   const [activeSubscription, setActiveSubscription] = useState<string | null>(null);
+  const [shadowToSolPrice, setShadowToSolPrice] = useState<number | null>(null);
+  const [isPriceLoading, startPriceTransition] = useTransition();
 
-  const handleSubscription = async (tierName: string, amount: number) => {
-    if (!publicKey) {
-        toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet to subscribe.' });
+  useEffect(() => {
+    startPriceTransition(async () => {
+        try {
+            const details = await getShadowDetailsAction();
+            if (details.solPrice) {
+                setShadowToSolPrice(details.solPrice);
+            } else {
+                 toast({ variant: 'destructive', title: 'Pricing Error', description: 'Could not fetch live SHADOW to SOL price.' });
+            }
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'API Error', description: 'Could not fetch token prices.' });
+        }
+    });
+
+    if (!process.env.NEXT_PUBLIC_CREATOR_WALLET_ADDRESS) {
+        console.warn("NEXT_PUBLIC_CREATOR_WALLET_ADDRESS is not set in .env. Using default address.");
+    }
+  }, [toast]);
+
+
+  const handleSubscription = async (tier: Tier) => {
+    if (!publicKey || !shadowToSolPrice) {
+        toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet and wait for price data to load.' });
         return;
     }
     
-    setIsSubscribing(tierName);
+    setIsSubscribing(tier.name);
 
-    if (amount === 0) {
+    if (tier.price === 0) {
         toast({ title: "Free Trial Activated!", description: "Enjoy your 7-day trial of SHADOW."});
-        setActiveSubscription(tierName);
+        setActiveSubscription(tier.name);
         setIsSubscribing(null);
         return;
     }
@@ -85,61 +117,36 @@ export function PremiumPage() {
         setIsSubscribing(null);
         return;
     }
+
+    const solAmount = tier.price * shadowToSolPrice;
     
     try {
-        const instructions = [];
-
-        // 1. Get Associated Token Accounts
-        const fromTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, publicKey);
-        const toTokenAccountAddress = await getAssociatedTokenAddress(SHADOW_TOKEN_MINT, CREATOR_WALLET_ADDRESS);
+        const lamports = Math.ceil(solAmount * LAMPORTS_PER_SOL);
         
-        // 2. Check if the recipient's ATA exists
-        const toTokenAccountInfo = await connection.getAccountInfo(toTokenAccountAddress);
+        const instruction = SystemProgram.transfer({
+            fromPubkey: publicKey,
+            toPubkey: CREATOR_WALLET_ADDRESS,
+            lamports: lamports,
+        });
 
-        // 3. Add instruction to create recipient's ATA if it doesn't exist
-        if (!toTokenAccountInfo) {
-            instructions.push(
-                createAssociatedTokenAccountInstruction(
-                    publicKey, // Payer
-                    toTokenAccountAddress, // ATA address
-                    CREATOR_WALLET_ADDRESS, // Owner
-                    SHADOW_TOKEN_MINT // Mint
-                )
-            );
-        }
-
-        // 4. Create the main transfer instruction
-        instructions.push(
-            createTransferInstruction(
-                fromTokenAccountAddress,
-                toTokenAccountAddress,
-                publicKey,
-                BigInt(amount * (10 ** SHADOW_TOKEN_DECIMALS))
-            )
-        );
-
-        // 5. Fetch the latest blockhash right before sending.
         const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
         
-        // 6. Build the transaction
         const messageV0 = new TransactionMessage({
             payerKey: publicKey,
             recentBlockhash: blockhash,
-            instructions: instructions,
+            instructions: [instruction],
         }).compileToV0Message();
 
         const transaction = new VersionedTransaction(messageV0);
         
-        // 7. Send the transaction using the wallet adapter
         const signature = await sendTransaction(transaction, connection);
         
-        // 8. Confirm the transaction
         await connection.confirmTransaction({ signature, blockhash, lastValidBlockHeight }, 'confirmed');
 
-        toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tierName}! Tx: ${signature.substring(0, 10)}...`, action: (
-            <a href={`https://solscan.io/tx/${signature}`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
+        toast({ title: "Subscription Successful!", description: `Thank you for subscribing to ${tier.name}! Tx: ${signature.substring(0, 10)}...`, action: (
+            <a href={`https://solscan.io/tx/${signature}?cluster=mainnet`} target="_blank" rel="noopener noreferrer" className="text-white underline">View on Solscan</a>
         )});
-        setActiveSubscription(tierName);
+        setActiveSubscription(tier.name);
 
     } catch (error: any) {
         console.error("Subscription failed:", error);
@@ -152,6 +159,22 @@ export function PremiumPage() {
         setIsSubscribing(null);
     }
   };
+
+  const renderPrice = (tierPrice: number) => {
+    if (isPriceLoading || !shadowToSolPrice) {
+        return <Skeleton className='h-5 w-24 mt-1' />;
+    }
+    if (tierPrice === 0) {
+        return <span className='text-2xl font-bold'>FREE</span>;
+    }
+    const solAmount = (tierPrice * shadowToSolPrice).toFixed(4);
+    return (
+        <>
+            <span className="text-2xl font-bold">{tierPrice.toLocaleString()} SHADOW</span>
+            <span className='text-base text-muted-foreground'>~{solAmount} SOL</span>
+        </>
+    )
+  }
 
 
   return (
@@ -230,7 +253,7 @@ export function PremiumPage() {
                 ))}
             </CardContent>
             <CardFooter>
-                <Button variant='outline' className="w-full" onClick={() => handleSubscription(trialTier.name, trialTier.price)} disabled={!connected || !!isSubscribing || !!activeSubscription}>
+                <Button variant='outline' className="w-full" onClick={() => handleSubscription(trialTier)} disabled={!connected || !!isSubscribing || !!activeSubscription}>
                    {isSubscribing === trialTier.name ? <Loader className="animate-spin" /> : (activeSubscription === trialTier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
                    {isSubscribing === trialTier.name ? 'Processing...' : (activeSubscription === trialTier.name ? 'Trial Active' : trialTier.cta)}
                 </Button>
@@ -251,7 +274,11 @@ export function PremiumPage() {
                             <span>{tier.name}</span>
                             {tier.popular && !activeSubscription && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
                         </CardTitle>
-                        <CardDescription className="text-2xl font-bold">{tier.priceLabel}</CardDescription>
+                        <CardDescription asChild>
+                            <div className='flex flex-col gap-1'>
+                                {renderPrice(tier.price)}
+                            </div>
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 space-y-3">
                         <p className='text-sm text-amber-400 font-semibold'>{tier.hook}</p>
@@ -263,7 +290,7 @@ export function PremiumPage() {
                         ))}
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full" onClick={() => handleSubscription(tier.name, tier.price)} disabled={!connected || !!isSubscribing || !!activeSubscription}>
+                        <Button className="w-full" onClick={() => handleSubscription(tier)} disabled={!connected || !!isSubscribing || !!activeSubscription || isPriceLoading}>
                            {isSubscribing === tier.name ? <Loader className="animate-spin" /> : (activeSubscription === tier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
                            {isSubscribing === tier.name ? 'Processing...' : (activeSubscription === tier.name ? 'Subscribed' : tier.cta)}
                         </Button>
@@ -276,3 +303,5 @@ export function PremiumPage() {
     </div>
   );
 }
+
+    
