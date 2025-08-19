@@ -11,7 +11,7 @@ import {
     type GenerateNewsSummaryInput, 
     type GenerateNewsSummaryOutput 
 } from '@/ai/flows/generate-news-summary';
-import { getMarketData, type MarketData, searchCoins, type SearchResult, getTopCoins } from '@/services/market-data';
+import { getMarketData, type MarketData, searchCoins, type SearchResult, getTopCoins, getShadowTokenDetails, type ShadowTokenDetails } from '@/services/market-data';
 
 // Define the full output type that the UI expects, including calculated fields.
 export type TradingSignalWithTargets = GenerateTradingSignalOutput & {
@@ -137,5 +137,18 @@ export async function getTopCoinsAction(): Promise<SearchResult[]> {
     } catch (error) {
         console.error('Error in getTopCoinsAction:', error);
         return [];
+    }
+}
+
+export async function getShadowDetailsAction(): Promise<ShadowTokenDetails> {
+    try {
+        const result = await getShadowTokenDetails();
+        return result;
+    } catch (error) {
+        console.error('Error in getShadowDetailsAction:', error);
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        throw new Error('An unexpected error occurred while fetching SHADOW token details.');
     }
 }

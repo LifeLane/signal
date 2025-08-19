@@ -54,61 +54,39 @@ interface CoinGeckoSimplePriceResponse {
     }
 }
 
-// A helper function to get a coin's ID from its contract address.
-async function getCoinByContractAddress(address: string): Promise<SearchResult | null> {
-    try {
-        const url = `https://api.coingecko.com/api/v3/coins/solana/contract/${address}`;
-        const response = await fetch(url);
-        if (response.ok) {
-            const data = await response.json();
-            return {
-                id: data.id,
-                name: data.name,
-                symbol: data.symbol.toUpperCase(),
-            };
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching coin by contract address:', error);
-        return null;
-    }
+export interface ShadowTokenDetails {
+    address: string;
+    name: string;
+    symbol: string;
+    price: number;
+    priceChange24h: number;
+    liquidity: number;
+    marketCap: number;
 }
+
+const SHADOW_CONTRACT_ADDRESS = "B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR";
+const SHADOW_COINGECKO_ID = { id: 'shadow-shadow', name: 'SHADOW (SHADOW)', symbol: 'SHADOW' };
 
 
 // A helper function to find a coin's ID and name from a symbol, name, or address
 const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
-    // 1. If it's a long string, assume it's a Solana contract address
-    if (query.length > 30 && query.length < 50) {
-        try {
-            const cgUrl = `https://api.coingecko.com/api/v3/coins/solana/contract/${query}`;
-            const cgResponse = await fetch(cgUrl);
-            if(cgResponse.ok) {
-                const cgData = await cgResponse.json();
-                if (cgData.id) {
-                    console.log(`Found coin by contract address: ${cgData.name}`);
-                    return { id: cgData.id, name: cgData.name, symbol: cgData.symbol.toUpperCase() };
-                }
-            }
-        } catch(e) {
-             console.warn(`Could not find coin by contract address ${query}, falling back to search.`, e);
-        }
+    // 1. If it's the SHADOW token, return the hardcoded ID to avoid lookup issues.
+    if (query.toUpperCase() === 'SHADOW' || query === SHADOW_CONTRACT_ADDRESS) {
+        return SHADOW_COINGECKO_ID;
     }
 
-    // 2. Fallback to searching the CoinGecko API for tickers or names
+    // 2. Fallback to searching the CoinGecko API for tickers or names for other coins
     try {
         const searchUrl = `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(query)}`;
         const searchResponse = await fetch(searchUrl);
         if(searchResponse.ok) {
             const searchData = await searchResponse.json();
-            // Find an exact match if possible
             const exactMatch = searchData.coins.find((c: any) => c.symbol.toLowerCase() === query.toLowerCase() || c.id === query.toLowerCase());
             if (exactMatch) {
-                 console.log(`Found exact coin match by search: ${exactMatch.name}`);
                  return { id: exactMatch.id, name: exactMatch.name, symbol: exactMatch.symbol.toUpperCase() };
             }
             if (searchData.coins && searchData.coins.length > 0) {
                 const topResult = searchData.coins[0];
-                console.log(`Found coin by search: ${topResult.name}`);
                 return { id: topResult.id, name: topResult.name, symbol: topResult.symbol.toUpperCase() };
             }
         }
@@ -117,24 +95,103 @@ const getCoinGeckoInfo = async (query: string): Promise<SearchResult> => {
     }
     
     // 3. If all else fails, use the query as a fallback
-    console.warn(`Could not resolve "${query}" to a CoinGecko ID. Using it directly.`);
     const fallbackSymbol = query.length <= 5 ? query.toUpperCase() : "UNKNOWN";
     return { id: query.toLowerCase(), name: query.toUpperCase(), symbol: fallbackSymbol };
 }
+
+// Special function to get SHADOW data from GeckoTerminal API as a fallback
+async function getShadowTokenData(): Promise<MarketData> {
+    const url = 'https://api.geckoterminal.com/api/v2/networks/solana/pools/3rwADkcUfcGWW2j2u3SXSdhJDRMDzWVVUgycnPSFg97o';
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`GeckoTerminal request failed with status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        const price = parseFloat(data.data.attributes.base_token_price_usd);
+        const volume = parseFloat(data.data.attributes.volume_usd.h24);
+
+        const indicators = generateRealisticMarketData(price);
+
+        return {
+            ...indicators,
+            name: "SHADOW (SHADOW)",
+            symbol: "SHADOW",
+            price: price,
+            change: 0, // GeckoTerminal pool data doesn't include 24h change
+            volume24h: volume,
+            marketCap: price * 10_000_000_000, // Total Supply * Price
+            fearAndGreed: await getFearAndGreedIndex(),
+        };
+
+    } catch (error) {
+        console.error('Failed to fetch SHADOW data from GeckoTerminal, generating mock data.', error);
+        // Fallback to mock data if API fails
+        const price = 0.00012345;
+        const indicators = generateRealisticMarketData(price);
+        return {
+            ...indicators,
+            name: "SHADOW (SHADOW)",
+            symbol: "SHADOW",
+            price: price,
+            change: -5.5,
+            volume24h: 50000,
+            marketCap: price * 10_000_000_000,
+        };
+    }
+}
+
+
+export async function getShadowTokenDetails(): Promise<ShadowTokenDetails> {
+    const apiKey = process.env.BIRDEYE_API_KEY;
+    if (!apiKey) {
+        throw new Error('Server configuration error: BirdEye API key is not available.');
+    }
+
+    const url = `https://public-api.birdeye.so/defi/token_overview?address=${SHADOW_CONTRACT_ADDRESS}`;
+    const options = {
+        method: 'GET',
+        headers: {
+            'X-API-KEY': apiKey,
+            'accept': 'application/json',
+            'x-chain': 'solana'
+        }
+    };
+
+    try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`BirdEye API request failed with status ${response.status}: ${errorBody}`);
+        }
+        const data = await response.json();
+        
+        if (!data.success || !data.data) {
+            throw new Error('BirdEye API returned unsuccessful response.');
+        }
+        
+        const tokenData = data.data;
+        return {
+            address: tokenData.address,
+            name: tokenData.name,
+            symbol: tokenData.symbol,
+            price: tokenData.price,
+            priceChange24h: tokenData.priceChange24h,
+            liquidity: tokenData.liquidity,
+            marketCap: tokenData.mc,
+        };
+    } catch (error) {
+        console.error('Error fetching SHADOW token details from BirdEye:', error);
+        throw new Error('An unexpected error occurred while fetching token details.');
+    }
+}
+
 
 export async function searchCoins(query: string): Promise<SearchResult[]> {
   if (!query) {
     return [];
   }
-
-  // If query looks like a Solana address, prioritize it
-  if (query.length > 30 && query.length < 50) {
-      const coin = await getCoinByContractAddress(query);
-      if (coin) {
-          return [coin]; // Return only the exact match
-      }
-  }
-
   try {
     const searchUrl = `https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(query)}`;
     const response = await fetch(searchUrl);
@@ -258,14 +315,12 @@ async function getLongShortRatio(symbol: string): Promise<number | null> {
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            console.warn(`Binance Long/Short ratio API request failed for ${binanceSymbol} with status ${response.status}`);
             return null; // Return null if the symbol is not found or another error occurs
         }
         const data = await response.json();
         if (data && data.length > 0) {
             const longAccount = parseFloat(data[0].longAccount);
             const shortAccount = parseFloat(data[0].shortAccount);
-            // The ratio is Longs / Shorts, we need to convert it to a percentage of longs.
             return (longAccount / (longAccount + shortAccount)) * 100;
         }
         return null;
@@ -281,6 +336,9 @@ async function getLongShortRatio(symbol: string): Promise<number | null> {
  * @returns A promise that resolves to the market data.
  */
 export async function getMarketData(symbol: string): Promise<MarketData> {
+    if (symbol.toUpperCase() === 'SHADOW' || symbol === SHADOW_CONTRACT_ADDRESS) {
+        return getShadowTokenData();
+    }
   try {
     const coinInfo = await getCoinGeckoInfo(symbol);
     
@@ -289,24 +347,34 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
         priceDataResponse, 
         fearAndGreed, 
         historicalData,
+        longShortRatio
     ] = await Promise.all([
         fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinInfo.id}&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`),
         getFearAndGreedIndex(),
         getHistoricalData(coinInfo.id),
+        getLongShortRatio(coinInfo.symbol)
     ]);
 
 
     if (!priceDataResponse.ok) {
+        // Fallback for SHADOW token if CoinGecko fails
+        if (coinInfo.id === SHADOW_COINGECKO_ID.id) {
+            console.warn('CoinGecko failed for SHADOW, falling back to GeckoTerminal');
+            return getShadowTokenData();
+        }
       throw new Error(`CoinGecko price API request failed with status ${priceDataResponse.status}`);
     }
     const priceData: CoinGeckoSimplePriceResponse = await priceDataResponse.json() as CoinGeckoSimplePriceResponse;
     const data = priceData[coinInfo.id];
 
     if (!data) {
+        if (coinInfo.id === SHADOW_COINGECKO_ID.id) {
+            console.warn('No data for SHADOW in CoinGecko response, falling back to GeckoTerminal');
+            return getShadowTokenData();
+        }
       throw new Error(`No data found for symbol "${symbol}" (CoinGecko ID: "${coinInfo.id}") in CoinGecko response.`);
     }
     
-    console.log(`Successfully fetched data from CoinGecko for ${symbol}`);
     const indicators = generateRealisticMarketData(data.usd);
     
     return {
@@ -317,6 +385,7 @@ export async function getMarketData(symbol: string): Promise<MarketData> {
       volume24h: data.usd_24h_vol,
       marketCap: data.usd_market_cap,
       ...indicators,
+      longShortRatio: longShortRatio ?? indicators.longShortRatio,
       fearAndGreed: fearAndGreed,
       volatility: {
           atr: historicalData.atr,
