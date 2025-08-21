@@ -51,7 +51,7 @@ const generateNewsSummaryPrompt = ai.definePrompt({
   prompt: `You are an expert financial news analyst. Your task is to analyze the latest news for a given cryptocurrency topic, determine the market sentiment, and provide concise summaries of the top articles.
 
 **Instructions:**
-1.  **Fetch News:** Call the \`fetchNews\` tool with the provided \`topic\`.
+1.  **Fetch News:** Call the \`fetchNews\` tool. Use the provided \`topic\` as the value for the \`query\` parameter.
 2.  **Analyze Sentiment:** Read the headlines and descriptions of the articles returned by the tool. Based on the overall tone (e.g., positive developments, price drops, regulatory concerns), determine the market sentiment. It must be one of: 'Positive', 'Neutral', or 'Negative'.
 3.  **Provide Reasoning:** Write a single, concise sentence explaining *why* you chose that sentiment.
 4.  **Summarize Articles:** For each of the top 3-5 articles returned by the tool, provide a one-sentence summary of its key takeaway. Include the original title, URL, and imageUrl.
