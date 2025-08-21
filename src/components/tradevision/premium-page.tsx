@@ -8,7 +8,7 @@ import { VersionedTransaction, TransactionMessage, PublicKey, SystemProgram, LAM
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info, Coins, Star } from 'lucide-react';
+import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info, Coins, Star, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
@@ -24,7 +24,7 @@ type Tier = {
     shadowPrice: number;
     solPrice: number; 
     priceLabel: string;
-    features: string[];
+    features: { text: string; included: boolean }[];
     cta: string;
     popular?: boolean;
     hook: string;
@@ -32,41 +32,51 @@ type Tier = {
 
 const subscriptionTiers: Tier[] = [
     {
-        name: "7-Day Trial",
-        shadowPrice: 10_000,
-        solPrice: 0.1,
-        priceLabel: "10K SHADOW / 0.1 SOL",
-        features: ["Unlimited AI Signals", "All Premium Features", "Limited Time"],
-        cta: "Start Trial",
-        hook: "Get a taste of the full power."
-    },
-    {
-        name: "Monthly Pro",
+        name: "Initiate",
         shadowPrice: 100_000,
         solPrice: 0.5,
         priceLabel: "100K SHADOW / 0.5 SOL",
-        features: ["Unlimited AI Signals", "Priority Analysis", "All Premium Features"],
-        cta: "Go Monthly",
-        popular: true,
-        hook: "Best for active traders."
+        hook: "For the aspiring trader.",
+        features: [
+            { text: "5 AI Signals / Day", included: true },
+            { text: "Standard Analysis Speed", included: true },
+            { text: "Full News Sentiment Access", included: true },
+            { text: "Unlimited AI Signals", included: false },
+            { text: "Priority Analysis Queue", included: false },
+            { text: "Exclusive Future Features", included: false },
+        ],
+        cta: "Become an Initiate",
     },
     {
-        name: "Yearly Elite",
+        name: "Vanguard",
         shadowPrice: 1_000_000,
         solPrice: 5,
         priceLabel: "1M SHADOW / 5 SOL",
-        features: ["12 Months for the Price of 10", "Everything in Monthly Pro", "Exclusive Future Updates"],
-        cta: "Go Yearly",
-        hook: "Best value & long-term growth."
+        hook: "For the dedicated analyst.",
+        popular: true,
+        features: [
+            { text: "Unlimited AI Signals", included: true },
+            { text: "Priority Analysis Queue", included: true },
+            { text: "Early Access to New Indicators", included: true },
+            { text: "Personalized Watchlist (soon)", included: true },
+            { text: "Exclusive Future Features", included: false },
+        ],
+        cta: "Join the Vanguard",
     },
     {
-        name: "Lifetime Access",
+        name: "Shadow Elite",
         shadowPrice: 10_000_000,
         solPrice: 10,
         priceLabel: "10M SHADOW / 10 SOL",
-        features: ["One-Time Payment, Forever", "Everything in Yearly Elite", "Become a SHADOW OG"],
-        cta: "Go Lifetime",
-        hook: "For the ultimate conviction."
+        hook: "For the master strategist.",
+        features: [
+            { text: "Everything in Vanguard", included: true },
+            { text: "Lifetime Access (One-Time)", included: true },
+            { text: "Exclusive Future Features", included: true },
+            { text: "Direct Line to Dev Team (soon)", included: true },
+            { text: "Become a SHADOW OG", included: true },
+        ],
+        cta: "Become Elite",
     },
 ]
 
@@ -282,7 +292,7 @@ export function PremiumPage() {
                 const canActivateWithShadow = shadowBalance !== null && shadowBalance >= tier.shadowPrice;
                 const ctaText = canActivateWithShadow ? "Activate with SHADOW" : tier.cta;
                 const buttonDisabled = !connected || !!isSubscribing || !!activeSubscription || isBalanceLoading;
-                const Icon = tier.name === "7-Day Trial" ? Star : Gem;
+                const Icon = Gem;
 
                 return (
                     <Card key={tier.name} className={cn(
@@ -321,9 +331,9 @@ export function PremiumPage() {
                                 </Alert>
                             )}
                             {tier.features.map(feature => (
-                                <div key={feature} className="flex items-center gap-2">
-                                    <Check className="w-4 h-4 text-green-500" />
-                                    <span className="text-sm">{feature}</span>
+                                <div key={feature.text} className={cn("flex items-center gap-2", !feature.included && "text-muted-foreground line-through")}>
+                                    {feature.included ? <Check className="w-4 h-4 text-green-500" /> : <X className="w-4 h-4 text-red-500" />}
+                                    <span className="text-sm">{feature.text}</span>
                                 </div>
                             ))}
                         </CardContent>
