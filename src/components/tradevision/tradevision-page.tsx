@@ -41,13 +41,6 @@ export type Symbol = string;
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
 
-const popularSymbols: { id: string; name: string; symbol: string; }[] = [
-    { id: 'bitcoin', name: 'Bitcoin', symbol: 'BTC'},
-    { id: 'ethereum', name: 'Ethereum', symbol: 'ETH'},
-    { id: 'solana', name: 'Solana', symbol: 'SOL'},
-    { id: 'ripple', name: 'XRP', symbol: 'XRP'},
-];
-
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
   const [isDataLoading, setDataLoading] = useState(false);
@@ -107,7 +100,7 @@ export default function TradeVisionPage() {
     setInterval(newInterval);
   };
 
-  const handleGetSignal = async () => {
+  const handleGetSignal = () => {
     if (!symbol || !marketData) return;
     setSignal(null); // Clear previous signal before fetching new one
     startSignalTransition(async () => {
@@ -156,22 +149,6 @@ export default function TradeVisionPage() {
         </ClientOnly>
 
         <div className="w-full max-w-sm space-y-4">
-             <div className="grid grid-cols-2 gap-4">
-              {popularSymbols.map((s) => (
-                  <div key={s.id} className="p-0.5 rounded-lg animate-multi-color-glow">
-                    <Button
-                        variant="outline"
-                        className={cn(
-                          "text-lg font-bold h-14 w-full",
-                          symbol === s.name && "ring-2 ring-primary border-primary"
-                        )}
-                        onClick={() => handleSymbolChange(s.name)}
-                    >
-                        {s.symbol}
-                    </Button>
-                  </div>
-              ))}
-            </div>
             <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         </div>
     </div>
