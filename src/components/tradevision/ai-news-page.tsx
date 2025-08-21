@@ -43,7 +43,14 @@ const getSentimentClass = (sentiment?: 'Positive' | 'Negative' | 'Neutral') => {
   }
 };
 
-const popularSymbols = ['Bitcoin', 'Ethereum', 'Solana'];
+const popularSymbols: { name: string; symbol: string }[] = [
+    { name: 'Bitcoin', symbol: 'BTC' },
+    { name: 'Ethereum', symbol: 'ETH' },
+    { name: 'Solana', symbol: 'SOL' },
+    { name: 'Cardano', symbol: 'ADA'},
+    { name: 'Toncoin', symbol: 'TON'},
+    { name: 'Raydium', symbol: 'RAY'},
+];
 
 
 export function AiNewsPage() {
@@ -167,15 +174,17 @@ export function AiNewsPage() {
   return (
     <div className="flex flex-col h-full bg-pulse-grid flex-1">
       <div className="p-4 space-y-4 bg-background z-10 border-b border-border">
-         <div className="grid grid-cols-1 gap-2">
-            {popularSymbols.map(s => (
+         <div className="grid grid-cols-3 gap-2">
+            {popularSymbols.map(({ name, symbol }) => (
                 <Button 
-                    key={s} 
-                    variant={selectedSymbol === s ? "default" : "outline"}
-                    onClick={() => handleAnalyzeNews(s)}
+                    key={name} 
+                    variant={selectedSymbol === name ? "default" : "outline"}
+                    onClick={() => handleAnalyzeNews(name)}
                     disabled={isPending}
+                    className='flex flex-col h-auto py-2'
                 >
-                    {isPending && selectedSymbol === s ? <Loader className="animate-spin" /> : s}
+                    <span className='font-bold text-base'>{symbol}</span>
+                    <span className='text-xs text-muted-foreground'>{name}</span>
                 </Button>
             ))}
          </div>
