@@ -43,7 +43,7 @@ const getSentimentClass = (sentiment?: 'Positive' | 'Negative' | 'Neutral') => {
   }
 };
 
-const popularSymbols = ['Bitcoin', 'Ethereum', 'Solana', 'SHADOW'];
+const popularSymbols = ['Bitcoin', 'Ethereum', 'Solana'];
 
 
 export function AiNewsPage() {
@@ -167,7 +167,7 @@ export function AiNewsPage() {
   return (
     <div className="flex flex-col h-full bg-pulse-grid flex-1">
       <div className="p-4 space-y-4 bg-background z-10 border-b border-border">
-         <div className="grid grid-cols-2 gap-2">
+         <div className="grid grid-cols-1 gap-2">
             {popularSymbols.map(s => (
                 <Button 
                     key={s} 

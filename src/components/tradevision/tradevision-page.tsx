@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useTransition, useCallback, useEffect, useRef } from 'react';
@@ -44,7 +43,6 @@ const popularSymbols: { name: string; symbol: string }[] = [
     { name: 'Bitcoin', symbol: 'BTC' },
     { name: 'Ethereum', symbol: 'ETH' },
     { name: 'Solana', symbol: 'SOL' },
-    { name: 'SHADOW', symbol: 'SHADOW' },
 ];
 
 export default function TradeVisionPage() {
@@ -155,7 +153,7 @@ export default function TradeVisionPage() {
 
         <div className="w-full max-w-sm space-y-2">
             <p className="text-sm text-muted-foreground">Select a symbol to start</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2">
                 {popularSymbols.map(({ name, symbol: sym }) => (
                     <Button key={sym} variant='outline' size="lg" onClick={() => handleSymbolChange(name)}>
                         {name} ({sym})
