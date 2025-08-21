@@ -1,105 +1,43 @@
 
 'use client';
-import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Lock, Unlock, MousePointerClick } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface TradingViewWidgetProps {
+const GECKO_TERMINAL_BASE_URL = 'https://www.geckoterminal.com/solana/pools';
+
+// This map allows us to direct to a specific, known-good pool for popular tokens.
+const SYMBOL_TO_POOL_MAP: Record<string, string> = {
+    'SHADOW': '3rwADkcUfcGWW2j2u3SXSdhJDRMDzWVVUgycnPSFg97o',
+    'SOL': '58oQChx4yWmvKdwLLZzBi4ChoCc2fqbAaGvG6E9cc7Ux', // SOL/USDC
+    'BTC': '3H9dxA5N3WNJZg1x9v5n6MM32jGg2gV12s241x3osF12', // WBTC/USDC
+    'ETH': '2cZp14Fa55xBS1K36k6W3a2jFp3gH1b2i7jdVfK4S6p1', // WETH/USDC
+    'XRP': '67W3nS2T63gce2yM3sV2aa1x2pD6tJAf24f4t8p2g2gA', // WXRP/USDC - Example, may need real pool
+};
+
+interface PriceChartProps {
     symbol: string;
 }
 
-const TV_SCRIPT_ID = 'tradingview-widget-script';
-const TV_CONTAINER_ID = 'tradingview-widget-container';
-
-export function PriceChart({ symbol }: TradingViewWidgetProps) {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [isInteractionEnabled, setIsInteractionEnabled] = useState(false);
+export function PriceChart({ symbol }: PriceChartProps) {
+    // We default to the SHADOW pool if the symbol is not in our map
+    const poolId = SYMBOL_TO_POOL_MAP[symbol.toUpperCase()] || SYMBOL_TO_POOL_MAP['SHADOW'];
     
-    useEffect(() => {
-        const createWidget = () => {
-            if (window.TradingView && containerRef.current && containerRef.current.id === TV_CONTAINER_ID) {
-                 new window.TradingView.widget({
-                    autosize: true,
-                    symbol: `COINBASE:${symbol}USD`,
-                    interval: 'D',
-                    timezone: 'Etc/UTC',
-                    theme: 'dark',
-                    style: '1',
-                    locale: 'en',
-                    enable_publishing: false,
-                    hide_side_toolbar: true,
-                    allow_symbol_change: false,
-                    container_id: TV_CONTAINER_ID,
-                    // Disable scrolling when the chart is focused.
-                    // This is handled by our overlay now.
-                });
-            }
-        };
-
-        const onScriptLoad = () => {
-             if(containerRef.current) {
-                containerRef.current.innerHTML = '';
-             }
-            createWidget();
-        }
-
-        if (!document.getElementById(TV_SCRIPT_ID)) {
-            const script = document.createElement('script');
-            script.id = TV_SCRIPT_ID;
-            script.src = 'https://s3.tradingview.com/tv.js';
-            script.async = true;
-            script.onload = onScriptLoad;
-            document.body.appendChild(script);
-        } else {
-             if(containerRef.current) {
-                containerRef.current.innerHTML = '';
-             }
-            createWidget();
-        }
-
-        return () => {
-            if (containerRef.current) {
-                containerRef.current.innerHTML = '';
-            }
-        }
-
-    }, [symbol]);
+    // Construct the embed URL
+    const embedUrl = `${GECKO_TERMINAL_BASE_URL}/${poolId}?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=5m`;
 
     return (
-        <Card className="bg-card w-full h-[400px]">
+        <Card className="bg-card w-full h-[450px] overflow-hidden">
             <CardContent className="p-0 w-full h-full relative">
-                <div 
-                    id={TV_CONTAINER_ID} 
-                    ref={containerRef} 
-                    className={cn(
-                        "w-full h-full",
-                        !isInteractionEnabled && 'pointer-events-none'
-                    )}
-                />
-                {!isInteractionEnabled && (
-                    <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
-                        <MousePointerClick className='text-primary w-10 h-10' />
-                        <h3 className="text-lg font-semibold">Interaction Locked</h3>
-                        <p className='text-sm text-muted-foreground'>Click the button below to interact with the chart.</p>
-                        <Button onClick={() => setIsInteractionEnabled(true)}>
-                            <Unlock className="mr-2" />
-                            Enable Chart Interaction
-                        </Button>
-                    </div>
-                )}
-                {isInteractionEnabled && (
-                     <Button 
-                        size="sm"
-                        variant="destructive"
-                        className="absolute top-2 right-2 z-10 bg-red-600/80 hover:bg-red-600"
-                        onClick={() => setIsInteractionEnabled(false)}
-                     >
-                        <Lock className="mr-2" />
-                        Lock Scrolling
-                     </Button>
-                )}
+                <iframe
+                    height="100%"
+                    width="100%"
+                    id="geckoterminal-embed"
+                    title="GeckoTerminal Embed"
+                    src={embedUrl}
+                    frameBorder="0"
+                    allow="clipboard-write"
+                    allowFullScreen
+                ></iframe>
             </CardContent>
         </Card>
     );
