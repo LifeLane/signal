@@ -123,48 +123,12 @@ const DetailRow = ({ label, value, canCopy = false }: { label: string; value: st
     );
 };
 
-const TokenDetailCard = () => {
-    return (
-        <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
-            <CardHeader>
-                <div className='flex justify-between items-center'>
-                    <CardTitle className="flex items-center gap-2">
-                        <Coins className='h-6 w-6 text-primary' />
-                        <span>SHADOW (SHADOW)</span>
-                    </CardTitle>
-                    <Button variant='ghost' size='icon' disabled>
-                        <RefreshCw className='h-4 w-4'/>
-                    </Button>
-                </div>
-                <CardDescription>Live on-chain token data</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
-                        <span className="text-muted-foreground">Price</span>
-                        <Skeleton className="h-6 w-24" />
-                    </div>
-                    <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
-                        <span className="text-muted-foreground">24h Change</span>
-                        <Skeleton className="h-6 w-20" />
-                    </div>
-                 </div>
-                 <div className="flex flex-col col-span-2 gap-1 p-3 bg-muted rounded-lg">
-                    <span className="text-muted-foreground">Market Cap</span>
-                    <Skeleton className="h-6 w-32" />
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
 
 export function ShadowPage() {
     const { toast } = useToast();
    
     return (
         <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-pulse-grid">
-            
-            <TokenDetailCard />
             
             <GeckoTerminalChart />
             
@@ -309,3 +273,4 @@ export function ShadowPage() {
     );
 
     
+
