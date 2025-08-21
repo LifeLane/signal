@@ -47,8 +47,8 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     }
   }, [debouncedSearchQuery]);
 
-  const handleSelect = (coin: SearchResult) => {
-    onSelectSymbol(coin.name); // Use the full name for news queries
+  const handleSelect = (coinName: string) => {
+    onSelectSymbol(coinName);
     setOpen(false);
   };
   
@@ -93,7 +93,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                   <CommandItem
                     key={coin.id}
                     value={coin.name}
-                    onSelect={() => handleSelect(coin)}
+                    onSelect={() => handleSelect(coin.name)}
                   >
                     <Check
                       className={cn(
