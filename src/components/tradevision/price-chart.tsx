@@ -1,46 +1,95 @@
 
 'use client';
+
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-
-const GECKO_TERMINAL_BASE_URL = 'https://www.geckoterminal.com/solana/pools';
-
-// This map allows us to direct to a specific, known-good pool for popular tokens.
-const SYMBOL_TO_POOL_MAP: Record<string, string> = {
-    'SHADOW': '3rwADkcUfcGWW2j2u3SXSdhJDRMDzWVVUgycnPSFg97o',
-    'SOL': '58oQChx4yWmvKdwLLZzBi4ChoCc2fqbAaGvG6E9cc7Ux', // SOL/USDC
-    'BTC': '3H9dxA5N3WNJZg1x9v5n6MM32jGg2gV12s241x3osF12', // WBTC/USDC
-    'ETH': '2cZp14Fa55xBS1K36k6W3a2jFp3gH1b2i7jdVfK4S6p1', // WETH/USDC
-    'XRP': '67W3nS2T63gce2yM3sV2aa1x2pD6tJAf24f4t8p2g2gA', // WXRP/USDC - Example, may need real pool
-};
 
 interface PriceChartProps {
-    symbol: string;
+  symbol: string; // e.g., 'BTC', 'ETH'
 }
 
 export function PriceChart({ symbol }: PriceChartProps) {
-    // We default to the SHADOW pool if the symbol is not in our map
-    const poolId = SYMBOL_TO_POOL_MAP[symbol.toUpperCase()] || SYMBOL_TO_POOL_MAP['SHADOW'];
-    
-    // Construct the embed URL
-    const embedUrl = `${GECKO_TERMINAL_BASE_URL}/${poolId}?embed=1&info=1&swaps=1&grayscale=0&light_chart=0&chart_type=price&resolution=5m`;
+  const container = useRef<HTMLDivElement>(null);
+  const hasRun = useRef(false);
 
-    return (
-        <Card className="bg-card w-full h-[450px] overflow-hidden">
-            <CardContent className="p-0 w-full h-full relative">
-                <iframe
-                    height="100%"
-                    width="100%"
-                    id="geckoterminal-embed"
-                    title="GeckoTerminal Embed"
-                    src={embedUrl}
-                    frameBorder="0"
-                    allow="clipboard-write"
-                    allowFullScreen
-                ></iframe>
-            </CardContent>
-        </Card>
-    );
+  useEffect(() => {
+    if (!container.current || hasRun.current) {
+      return;
+    }
+    
+    // Prevent the script from being added multiple times
+    if (document.getElementById('tradingview-widget-script')) {
+        // If script exists, just create the widget
+        if (window.TradingView) {
+             new window.TradingView.widget({
+                autosize: true,
+                symbol: `BINANCE:${symbol.toUpperCase()}USDT`,
+                interval: 'D',
+                timezone: 'Etc/UTC',
+                theme: 'dark',
+                style: '1',
+                locale: 'en',
+                enable_publishing: false,
+                hide_side_toolbar: true,
+                allow_symbol_change: false,
+                container_id: container.current.id,
+            });
+            hasRun.current = true;
+        }
+        return;
+    };
+
+
+    const script = document.createElement('script');
+    script.id = 'tradingview-widget-script';
+    script.src = 'https://s3.tradingview.com/tv.js';
+    script.async = true;
+    script.onload = () => {
+      if (container.current && window.TradingView) {
+        new window.TradingView.widget({
+          autosize: true,
+          symbol: `BINANCE:${symbol.toUpperCase()}USDT`,
+          interval: 'D',
+          timezone: 'Etc/UTC',
+          theme: 'dark',
+          style: '1',
+          locale: 'en',
+          enable_publishing: false,
+          hide_side_toolbar: true,
+          allow_symbol_change: false,
+          container_id: container.current.id,
+        });
+        hasRun.current = true;
+      }
+    };
+    document.body.appendChild(script);
+
+    // Clean up the script when the component unmounts
+    return () => {
+        const existingScript = document.getElementById('tradingview-widget-script');
+        if (existingScript) {
+            // It's generally better to leave the script in the DOM if other components might need it,
+            // but for this specific single-page app structure, cleanup might be desired on full page change.
+            // For now, we will not remove it to prevent re-downloads.
+        }
+        if (container.current) {
+            container.current.innerHTML = '';
+        }
+        hasRun.current = false;
+    };
+  }, [symbol]);
+
+  return (
+    <Card className="bg-card w-full h-[450px] overflow-hidden">
+        <CardContent className="p-0 w-full h-full">
+            <div 
+                id={`tradingview-widget-container-${symbol}`}
+                ref={container} 
+                className="tradingview-widget-container h-full w-full"
+            />
+        </CardContent>
+    </Card>
+  );
 }
 
 // Extend the global Window interface for the TradingView widget
