@@ -52,7 +52,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     setOpen(false);
   };
   
-  const currentCoin = topCoins.find(coin => coin.name === selectedSymbol);
+  const currentCoin = topCoins.find(coin => coin.name.toLowerCase() === selectedSymbol?.toLowerCase());
   const displayLabel = currentCoin ? `${currentCoin.name} (${currentCoin.symbol})` : "Select a symbol...";
   const coinList = searchQuery ? searchResults : topCoins;
 
@@ -94,13 +94,15 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                     key={coin.id}
                     value={coin.name}
                     onSelect={(currentValue) => {
-                      handleSelect(currentValue);
+                      // The onSelect event normalizes the value to lowercase.
+                      const selectedCoin = coinList.find(c => c.name.toLowerCase() === currentValue);
+                      handleSelect(selectedCoin?.name ?? currentValue);
                     }}
                   >
                     <Check
                       className={cn(
                         'mr-2 h-4 w-4',
-                        selectedSymbol === coin.name ? 'opacity-100' : 'opacity-0'
+                        selectedSymbol?.toLowerCase() === coin.name.toLowerCase() ? 'opacity-100' : 'opacity-0'
                       )}
                     />
                     {coin.name} ({coin.symbol})
