@@ -80,7 +80,7 @@ export function PriceChart({ symbol }: PriceChartProps) {
   }, [symbol]);
 
   return (
-    <Card className="bg-card w-full h-[450px] overflow-hidden">
+    <Card className="bg-card w-full h-[350px] overflow-hidden">
         <CardContent className="p-0 w-full h-full">
             <div 
                 id={`tradingview-widget-container-${symbol}`}
