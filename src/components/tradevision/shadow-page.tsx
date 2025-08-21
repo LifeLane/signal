@@ -215,8 +215,8 @@ export function ShadowPage() {
             
             <GeckoTerminalChart />
             
-            <Accordion type="single" collapsible className="w-full space-y-4" defaultValue='item-1'>
-                <AccordionItem value="item-1">
+            <Accordion type="single" collapsible className="w-full space-y-4">
+                <AccordionItem value="item-1" className="border border-primary/20 rounded-xl p-2 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <AccordionTrigger className='text-lg font-semibold'>Smart Contract Details</AccordionTrigger>
                     <AccordionContent>
                         <CardContent>
@@ -241,7 +241,7 @@ export function ShadowPage() {
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="item-2">
+                <AccordionItem value="item-2" className="border border-primary/20 rounded-xl p-2 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <AccordionTrigger className='text-lg font-semibold'>Solana Explorer Links</AccordionTrigger>
                     <AccordionContent>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -257,7 +257,7 @@ export function ShadowPage() {
                     </AccordionContent>
                 </AccordionItem>
                 
-                <AccordionItem value="item-3">
+                <AccordionItem value="item-3" className="border border-primary/20 rounded-xl p-2 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <AccordionTrigger className='text-lg font-semibold'>Token Trading Links</AccordionTrigger>
                     <AccordionContent>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -273,7 +273,7 @@ export function ShadowPage() {
                     </AccordionContent>
                 </AccordionItem>
                 
-                <AccordionItem value="item-4">
+                <AccordionItem value="item-4" className="border border-primary/20 rounded-xl p-2 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <AccordionTrigger className='text-lg font-semibold'>Jupiter Locker Token Lock</AccordionTrigger>
                     <AccordionContent>
                         <CardContent>
@@ -309,7 +309,7 @@ export function ShadowPage() {
                     </AccordionContent>
                 </AccordionItem>
 
-                <AccordionItem value="item-5">
+                <AccordionItem value="item-5" className="border border-primary/20 rounded-xl p-2 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <AccordionTrigger className='text-lg font-semibold'>Jupiter Configurations</AccordionTrigger>
                     <AccordionContent>
                         <CardContent>
@@ -330,7 +330,7 @@ export function ShadowPage() {
                     </AccordionContent>
                 </AccordionItem>
 
-                 <AccordionItem value="item-6">
+                 <AccordionItem value="item-6" className="border border-primary/20 rounded-xl p-2 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <AccordionTrigger className='text-lg font-semibold'>Theme Settings</AccordionTrigger>
                     <AccordionContent>
                         <CardContent>
@@ -338,7 +338,7 @@ export function ShadowPage() {
                         </CardContent>
                     </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="item-7">
+                <AccordionItem value="item-7" className="border border-primary/20 rounded-xl p-2 animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
                     <AccordionTrigger className='text-lg font-semibold'>About</AccordionTrigger>
                     <AccordionContent>
                        <CardContent className="space-y-4">
@@ -355,5 +355,3 @@ export function ShadowPage() {
         </div>
     );
 }
-
-    
