@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -47,14 +46,14 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
     }
   }, [debouncedSearchQuery]);
 
-  const handleSelect = (coinName: string) => {
+  const handleSelect = (coinName: string | null) => {
     onSelectSymbol(coinName);
     setOpen(false);
   };
   
-  const currentCoin = topCoins.find(coin => coin.name.toLowerCase() === selectedSymbol?.toLowerCase());
-  const displayLabel = currentCoin ? `${currentCoin.name} (${currentCoin.symbol})` : "Select a symbol...";
   const coinList = searchQuery ? searchResults : topCoins;
+  const currentCoin = coinList.find(coin => coin.name.toLowerCase() === selectedSymbol?.toLowerCase());
+  const displayLabel = currentCoin ? `${currentCoin.name} (${currentCoin.symbol})` : "Select a symbol...";
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -96,7 +95,7 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                     onSelect={(currentValue) => {
                       // The onSelect event normalizes the value to lowercase.
                       const selectedCoin = coinList.find(c => c.name.toLowerCase() === currentValue);
-                      handleSelect(selectedCoin?.name ?? currentValue);
+                      handleSelect(selectedCoin?.name ?? null);
                     }}
                   >
                     <Check
