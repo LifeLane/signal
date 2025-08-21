@@ -253,13 +253,15 @@ export function PremiumPage() {
                         ) : null}
                     </div>
                 ) : (
-                    <WalletMultiButton style={{width: '100%',
-                        backgroundColor: 'hsl(var(--primary))',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        height: '44px',
-                        fontSize: '1rem',
-                    }}/>
+                    <div className="flex justify-center">
+                        <WalletMultiButton style={{width: '100%',
+                            backgroundColor: 'hsl(var(--primary))',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            height: '44px',
+                            fontSize: '1rem',
+                        }}/>
+                    </div>
                 )}
             </CardContent>
         </Card>
