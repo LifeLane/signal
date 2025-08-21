@@ -1,7 +1,4 @@
 'use server';
-import { config } from 'dotenv';
-config({ path: '.env' });
-
 import '@/ai/flows/generate-trading-signal.ts';
 import '@/ai/flows/generate-news-summary.ts';
 import '@/ai/tools/news-tool.ts';
