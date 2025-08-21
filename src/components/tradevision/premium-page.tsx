@@ -9,7 +9,7 @@ import { getShadowDetailsAction } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info, Coins } from 'lucide-react';
+import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info, Coins, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
@@ -22,8 +22,8 @@ const SHADOW_MINT_ADDRESS = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR
 
 type Tier = {
     name: string;
-    shadowPrice: number; // Price in SHADOW tokens
-    solPrice?: number; // Equivalent price in SOL
+    shadowPrice: number;
+    solPrice: number; 
     priceLabel: string;
     features: string[];
     cta: string;
@@ -33,9 +33,19 @@ type Tier = {
 
 const subscriptionTiers: Tier[] = [
     {
+        name: "7-Day Trial",
+        shadowPrice: 10_000,
+        solPrice: 0.1,
+        priceLabel: "10K SHADOW / 0.1 SOL",
+        features: ["Unlimited AI Signals", "All Premium Features", "Limited Time"],
+        cta: "Start Trial",
+        hook: "Get a taste of the full power."
+    },
+    {
         name: "Monthly Pro",
         shadowPrice: 100_000,
-        priceLabel: "100K SHADOW",
+        solPrice: 0.5,
+        priceLabel: "100K SHADOW / 0.5 SOL",
         features: ["Unlimited AI Signals", "Priority Analysis", "All Premium Features"],
         cta: "Go Monthly",
         popular: true,
@@ -44,7 +54,8 @@ const subscriptionTiers: Tier[] = [
     {
         name: "Yearly Elite",
         shadowPrice: 1_000_000,
-        priceLabel: "1 Million SHADOW",
+        solPrice: 5,
+        priceLabel: "1M SHADOW / 5 SOL",
         features: ["12 Months for the Price of 10", "Everything in Monthly Pro", "Exclusive Future Updates"],
         cta: "Go Yearly",
         hook: "Best value & long-term growth."
@@ -52,7 +63,8 @@ const subscriptionTiers: Tier[] = [
     {
         name: "Lifetime Access",
         shadowPrice: 10_000_000,
-        priceLabel: "10 Million SHADOW",
+        solPrice: 10,
+        priceLabel: "10M SHADOW / 10 SOL",
         features: ["One-Time Payment, Forever", "Everything in Yearly Elite", "Become a SHADOW OG"],
         cta: "Go Lifetime",
         hook: "For the ultimate conviction."
@@ -84,39 +96,23 @@ export function PremiumPage() {
   
   const [isSubscribing, setIsSubscribing] = useState<string | null>(null);
   const [activeSubscription, setActiveSubscription] = useState<string | null>(null);
-  const [shadowToSolPrice, setShadowToSolPrice] = useState<number | null>(null);
-  const [isPriceLoading, startPriceTransition] = useTransition();
   const [shadowBalance, setShadowBalance] = useState<number | null>(null);
-
-  const fetchPrices = useCallback(() => {
-    startPriceTransition(async () => {
-        try {
-            const details = await getShadowDetailsAction();
-            if (details.solPrice) {
-                setShadowToSolPrice(details.solPrice);
-            } else {
-                 toast({ variant: 'destructive', title: 'Pricing Error', description: 'Could not fetch live SHADOW to SOL price.' });
-            }
-        } catch (error: any) {
-            toast({ variant: 'destructive', title: 'API Error', description: 'Could not fetch token prices.' });
-        }
-    });
-  }, [toast]);
-
+  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
 
   const checkBalance = useCallback(async () => {
       if(publicKey) {
+        setIsBalanceLoading(true);
         const balance = await getShadowBalance(connection, publicKey);
         setShadowBalance(balance);
+        setIsBalanceLoading(false);
       }
   }, [publicKey, connection]);
 
   useEffect(() => {
-    fetchPrices();
     if (!process.env.NEXT_PUBLIC_CREATOR_WALLET_ADDRESS) {
         console.warn("NEXT_PUBLIC_CREATOR_WALLET_ADDRESS is not set in .env. Using default address.");
     }
-  }, [fetchPrices]);
+  }, []);
 
   useEffect(() => {
       if(connected && publicKey) {
@@ -141,8 +137,8 @@ export function PremiumPage() {
         return;
     }
 
-    if (!publicKey || !shadowToSolPrice) {
-        toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet and wait for price data to load.' });
+    if (!publicKey) {
+        toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet.' });
         return;
     }
     
@@ -154,7 +150,7 @@ export function PremiumPage() {
         return;
     }
 
-    const solAmount = tier.shadowPrice * shadowToSolPrice;
+    const solAmount = tier.solPrice;
     
     try {
         const lamports = Math.ceil(solAmount * LAMPORTS_PER_SOL);
@@ -196,15 +192,11 @@ export function PremiumPage() {
     }
   };
 
-  const renderPrice = (tierPrice: number) => {
-    if (isPriceLoading || !shadowToSolPrice) {
-        return <Skeleton className='h-5 w-24 mt-1' />;
-    }
-    const solAmount = (tierPrice * shadowToSolPrice).toFixed(4);
+  const renderPrice = (tier: Tier) => {
     return (
         <>
-            <span className="text-2xl font-bold">{tierPrice.toLocaleString()} SHADOW</span>
-            <span className='text-base text-muted-foreground'>~{solAmount} SOL</span>
+            <span className="text-2xl font-bold">{tier.shadowPrice.toLocaleString()} SHADOW</span>
+            <span className='text-base text-muted-foreground'>or {tier.solPrice} SOL</span>
         </>
     )
   }
@@ -246,7 +238,12 @@ export function PremiumPage() {
                                 <LogOut className='h-5 w-5' />
                             </Button>
                         </div>
-                        {shadowBalance !== null ? (
+                        {isBalanceLoading ? (
+                            <Alert variant='default' className='border-primary/50'>
+                                <Loader className='h-5 w-5 text-primary animate-spin' />
+                                <AlertTitle>Checking SHADOW Balance...</AlertTitle>
+                            </Alert>
+                        ) : shadowBalance !== null ? (
                             <Alert variant='default' className='border-primary/50'>
                                 <Coins className='h-5 w-5 text-primary' />
                                 <AlertTitle>SHADOW Balance</AlertTitle>
@@ -254,12 +251,7 @@ export function PremiumPage() {
                                     You are holding <strong>{shadowBalance.toLocaleString()} SHADOW</strong>. Holders get wildcard access to the ecosystem.
                                 </AlertDescription>
                             </Alert>
-                        ) : (
-                             <Alert variant='default' className='border-primary/50'>
-                                <Loader className='h-5 w-5 text-primary animate-spin' />
-                                <AlertTitle>Checking SHADOW Balance...</AlertTitle>
-                            </Alert>
-                        )}
+                        ) : null}
                     </div>
                 ) : (
                     <WalletMultiButton style={{width: '100%',
@@ -288,7 +280,8 @@ export function PremiumPage() {
             {subscriptionTiers.map(tier => {
                 const canActivateWithShadow = shadowBalance !== null && shadowBalance >= tier.shadowPrice;
                 const ctaText = canActivateWithShadow ? "Activate with SHADOW" : tier.cta;
-                const buttonDisabled = !connected || !!isSubscribing || !!activeSubscription || (isPriceLoading && !canActivateWithShadow);
+                const buttonDisabled = !connected || !!isSubscribing || !!activeSubscription || isBalanceLoading;
+                const Icon = tier.name === "7-Day Trial" ? Star : Gem;
 
                 return (
                     <Card key={tier.name} className={cn(
@@ -303,7 +296,7 @@ export function PremiumPage() {
                             </CardTitle>
                              <CardDescription asChild>
                                 <div className='flex flex-col gap-1'>
-                                    {renderPrice(tier.shadowPrice)}
+                                    {renderPrice(tier)}
                                 </div>
                             </CardDescription>
                         </CardHeader>
@@ -322,13 +315,13 @@ export function PremiumPage() {
                                     <Coins className='h-5 w-5 text-amber-400' />
                                     <AlertTitle>Requirement</AlertTitle>
                                     <AlertDescription>
-                                        Hold {tier.shadowPrice.toLocaleString()} SHADOW or pay in SOL.
+                                        Hold {tier.shadowPrice.toLocaleString()} SHADOW or pay {tier.solPrice} SOL.
                                     </AlertDescription>
                                 </Alert>
                             )}
                             {tier.features.map(feature => (
                                 <div key={feature} className="flex items-center gap-2">
-                                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                                    <Check className="w-4 h-4 text-green-500" />
                                     <span className="text-sm">{feature}</span>
                                 </div>
                             ))}
@@ -339,7 +332,7 @@ export function PremiumPage() {
                                 onClick={() => handleSubscription(tier)} 
                                 disabled={buttonDisabled}
                             >
-                               {isSubscribing === tier.name ? <Loader className="animate-spin" /> : (activeSubscription === tier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
+                               {isSubscribing === tier.name ? <Loader className="animate-spin" /> : (activeSubscription === tier.name ? <Check className='mr-2 h-4 w-4' /> : <Icon className="mr-2 h-4 w-4" />)} 
                                {isSubscribing === tier.name ? 'Processing...' : (activeSubscription === tier.name ? 'Subscribed' : ctaText)}
                             </Button>
                         </CardFooter>
@@ -352,4 +345,6 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
