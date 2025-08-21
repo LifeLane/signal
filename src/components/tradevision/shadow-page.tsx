@@ -14,6 +14,7 @@ import { useEffect, useState, useTransition } from 'react';
 import type { ShadowTokenDetails } from '@/services/market-data';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
+import { GeckoTerminalChart } from './gecko-terminal-chart';
 
 
 const contractDetails = {
@@ -212,6 +213,8 @@ export function ShadowPage() {
             
             <TokenDetailCard details={details} isLoading={isPending} onRefresh={fetchDetails} />
             
+            <GeckoTerminalChart />
+            
             <Accordion type="single" collapsible className="w-full space-y-4" defaultValue='item-1'>
                 <AccordionItem value="item-1">
                     <AccordionTrigger className='text-lg font-semibold'>Smart Contract Details</AccordionTrigger>
@@ -352,3 +355,5 @@ export function ShadowPage() {
         </div>
     );
 }
+
+    
