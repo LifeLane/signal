@@ -159,7 +159,7 @@ const TokenDetailCard = ({ details, isLoading, onRefresh }: { details: ShadowTok
                         {isLoading ? <Loader className='h-4 w-4 animate-spin' /> : <RefreshCw className='h-4 w-4'/>}
                     </Button>
                 </div>
-                <CardDescription>Live token data from BirdEye</CardDescription>
+                <CardDescription>Live on-chain token data</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
                  <div className="grid grid-cols-2 gap-4">
@@ -354,4 +354,5 @@ export function ShadowPage() {
             <div className="h-12"></div>
         </div>
     );
-}
+
+    
