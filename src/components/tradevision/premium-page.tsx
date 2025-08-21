@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { VersionedTransaction, TransactionMessage, PublicKey, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
@@ -9,19 +9,21 @@ import { getShadowDetailsAction } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info } from 'lucide-react';
+import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Skeleton } from '../ui/skeleton';
 
-
 const CREATOR_WALLET_ADDRESS = new PublicKey(process.env.NEXT_PUBLIC_CREATOR_WALLET_ADDRESS || "38XnV4BZownmFeFrykAYhfMJvWxaZ31t4zBa96HqChEe");
+const SHADOW_MINT_ADDRESS = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR");
+
 
 type Tier = {
     name: string;
-    price: number; // Price in SHADOW tokens
+    shadowPrice: number; // Price in SHADOW tokens
+    solPrice?: number; // Equivalent price in SOL
     priceLabel: string;
     features: string[];
     cta: string;
@@ -32,7 +34,7 @@ type Tier = {
 const subscriptionTiers: Tier[] = [
     {
         name: "Monthly Pro",
-        price: 100_000,
+        shadowPrice: 100_000,
         priceLabel: "100K SHADOW",
         features: ["Unlimited AI Signals", "Priority Analysis", "All Premium Features"],
         cta: "Go Monthly",
@@ -41,7 +43,7 @@ const subscriptionTiers: Tier[] = [
     },
     {
         name: "Yearly Elite",
-        price: 1_000_000,
+        shadowPrice: 1_000_000,
         priceLabel: "1 Million SHADOW",
         features: ["12 Months for the Price of 10", "Everything in Monthly Pro", "Exclusive Future Updates"],
         cta: "Go Yearly",
@@ -49,7 +51,7 @@ const subscriptionTiers: Tier[] = [
     },
     {
         name: "Lifetime Access",
-        price: 10_000_000,
+        shadowPrice: 10_000_000,
         priceLabel: "10 Million SHADOW",
         features: ["One-Time Payment, Forever", "Everything in Yearly Elite", "Become a SHADOW OG"],
         cta: "Go Lifetime",
@@ -57,13 +59,21 @@ const subscriptionTiers: Tier[] = [
     },
 ]
 
-const trialTier: Tier = {
-    name: "7-Day Free Trial",
-    price: 0,
-    priceLabel: "FREE",
-    features: ["3 Free AI Signals", "Limited News Analysis", "Experience the power of SHADOW"],
-    cta: "Start Free Trial",
-    hook: "Get a taste of the future."
+const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
+    try {
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(walletPublicKey, {
+            mint: SHADOW_MINT_ADDRESS,
+        });
+
+        if (tokenAccounts.value.length > 0) {
+            const accountInfo = tokenAccounts.value[0].account.data.parsed.info;
+            return accountInfo.tokenAmount.uiAmount;
+        }
+        return 0;
+    } catch (error) {
+        console.error("Error getting SHADOW balance:", error);
+        return 0;
+    }
 };
 
 
@@ -76,8 +86,9 @@ export function PremiumPage() {
   const [activeSubscription, setActiveSubscription] = useState<string | null>(null);
   const [shadowToSolPrice, setShadowToSolPrice] = useState<number | null>(null);
   const [isPriceLoading, startPriceTransition] = useTransition();
+  const [shadowBalance, setShadowBalance] = useState<number | null>(null);
 
-  useEffect(() => {
+  const fetchPrices = useCallback(() => {
     startPriceTransition(async () => {
         try {
             const details = await getShadowDetailsAction();
@@ -90,14 +101,46 @@ export function PremiumPage() {
             toast({ variant: 'destructive', title: 'API Error', description: 'Could not fetch token prices.' });
         }
     });
-
-    if (!process.env.NEXT_PUBLIC_CREATOR_WALLET_ADDRESS) {
-        console.warn("NEXT_PUBLIC_CREATOR_WALLET_ADDRESS is not set in .env. Using default address.");
-    }
   }, [toast]);
 
 
+  const checkBalance = useCallback(async () => {
+      if(publicKey) {
+        const balance = await getShadowBalance(connection, publicKey);
+        setShadowBalance(balance);
+      }
+  }, [publicKey, connection]);
+
+  useEffect(() => {
+    fetchPrices();
+    if (!process.env.NEXT_PUBLIC_CREATOR_WALLET_ADDRESS) {
+        console.warn("NEXT_PUBLIC_CREATOR_WALLET_ADDRESS is not set in .env. Using default address.");
+    }
+  }, [fetchPrices]);
+
+  useEffect(() => {
+      if(connected && publicKey) {
+          checkBalance();
+      } else {
+          setShadowBalance(null);
+      }
+  }, [connected, publicKey, checkBalance])
+
+
   const handleSubscription = async (tier: Tier) => {
+    
+    // Wildcard entry for holders
+    if (shadowBalance && shadowBalance >= tier.shadowPrice) {
+        setIsSubscribing(tier.name);
+        // Simulate activation
+        setTimeout(() => {
+            toast({ title: "Holder Access Granted!", description: `Your SHADOW holdings have granted you free access to ${tier.name}!`});
+            setActiveSubscription(tier.name);
+            setIsSubscribing(null);
+        }, 1000)
+        return;
+    }
+
     if (!publicKey || !shadowToSolPrice) {
         toast({ variant: 'destructive', title: 'Subscription Error', description: 'Please connect your wallet and wait for price data to load.' });
         return;
@@ -105,20 +148,13 @@ export function PremiumPage() {
     
     setIsSubscribing(tier.name);
 
-    if (tier.price === 0) {
-        toast({ title: "Free Trial Activated!", description: "Enjoy your 7-day trial of SHADOW."});
-        setActiveSubscription(tier.name);
-        setIsSubscribing(null);
-        return;
-    }
-
     if (!sendTransaction) {
         toast({ variant: 'destructive', title: 'Wallet Error', description: 'The connected wallet does not support sending transactions.' });
         setIsSubscribing(null);
         return;
     }
 
-    const solAmount = tier.price * shadowToSolPrice;
+    const solAmount = tier.shadowPrice * shadowToSolPrice;
     
     try {
         const lamports = Math.ceil(solAmount * LAMPORTS_PER_SOL);
@@ -164,9 +200,6 @@ export function PremiumPage() {
     if (isPriceLoading || !shadowToSolPrice) {
         return <Skeleton className='h-5 w-24 mt-1' />;
     }
-    if (tierPrice === 0) {
-        return <span className='text-2xl font-bold'>FREE</span>;
-    }
     const solAmount = (tierPrice * shadowToSolPrice).toFixed(4);
     return (
         <>
@@ -202,15 +235,31 @@ export function PremiumPage() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                {connected ? (
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/20 text-green-400">
-                        <div className='flex items-center'>
-                           <Check className="mr-2 h-5 w-5" />
-                           <span className='font-semibold'>Wallet Connected</span>
+                {connected && publicKey ? (
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/20 text-green-400">
+                            <div className='flex items-center'>
+                               <Check className="mr-2 h-5 w-5" />
+                               <span className='font-semibold'>Wallet Connected</span>
+                            </div>
+                            <Button variant='ghost' size='icon' onClick={disconnect} className="text-green-400 hover:text-white h-7 w-7">
+                                <LogOut className='h-5 w-5' />
+                            </Button>
                         </div>
-                        <Button variant='ghost' size='icon' onClick={disconnect} className="text-green-400 hover:text-white h-7 w-7">
-                            <LogOut className='h-5 w-5' />
-                        </Button>
+                        {shadowBalance !== null ? (
+                            <Alert variant='default' className='border-primary/50'>
+                                <Coins className='h-5 w-5 text-primary' />
+                                <AlertTitle>SHADOW Balance</AlertTitle>
+                                <AlertDescription>
+                                    You are holding <strong>{shadowBalance.toLocaleString()} SHADOW</strong>. Holders get wildcard access to the ecosystem.
+                                </AlertDescription>
+                            </Alert>
+                        ) : (
+                             <Alert variant='default' className='border-primary/50'>
+                                <Loader className='h-5 w-5 text-primary animate-spin' />
+                                <AlertTitle>Checking SHADOW Balance...</AlertTitle>
+                            </Alert>
+                        )}
                     </div>
                 ) : (
                     <WalletMultiButton style={{width: '100%',
@@ -230,78 +279,77 @@ export function PremiumPage() {
                     {activeSubscription ? "Your Active Plan" : "2. Choose Your Plan"}
                 </CardTitle>
                 {!activeSubscription && (
-                    <CardDescription>Select the plan that best fits your trading style.</CardDescription>
+                    <CardDescription>Hold enough SHADOW for free access, or pay the equivalent in SOL.</CardDescription>
                 )}
             </CardHeader>
         </Card>
 
-        <Card key={trialTier.name} className={cn(
-            'bg-card/50 border-primary/50 border-dashed',
-            activeSubscription === trialTier.name && 'ring-2 ring-green-500 border-green-500'
-        )}>
-            <CardHeader>
-                <CardTitle>{trialTier.name}</CardTitle>
-                <CardDescription className="text-2xl font-bold">{trialTier.priceLabel}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 space-y-3">
-                <p className='text-sm text-amber-400 font-semibold'>{trialTier.hook}</p>
-                {trialTier.features.map(feature => (
-                    <div key={feature} className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-green-500" />
-                        <span className="text-sm">{feature}</span>
-                    </div>
-                ))}
-            </CardContent>
-            <CardFooter>
-                <Button variant='outline' className="w-full" onClick={() => handleSubscription(trialTier)} disabled={!connected || !!isSubscribing || !!activeSubscription}>
-                   {isSubscribing === trialTier.name ? <Loader className="animate-spin" /> : (activeSubscription === trialTier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
-                   {isSubscribing === trialTier.name ? 'Processing...' : (activeSubscription === trialTier.name ? 'Trial Active' : trialTier.cta)}
-                </Button>
-            </CardFooter>
-        </Card>
-
-        <Separator />
-
         <div className="grid grid-cols-1 gap-6">
-            {subscriptionTiers.map(tier => (
-                <Card key={tier.name} className={cn(
-                    'bg-card flex flex-col animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]',
-                    tier.popular && !activeSubscription && 'border-primary ring-2 ring-primary',
-                    activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500'
-                )}>
-                    <CardHeader>
-                        <CardTitle className="flex justify-between items-center">
-                            <span>{tier.name}</span>
-                            {tier.popular && !activeSubscription && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
-                        </CardTitle>
-                        <CardDescription asChild>
-                            <div className='flex flex-col gap-1'>
-                                {renderPrice(tier.price)}
-                            </div>
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-1 space-y-3">
-                        <p className='text-sm text-amber-400 font-semibold'>{tier.hook}</p>
-                        {tier.features.map(feature => (
-                            <div key={feature} className="flex items-center gap-2">
-                                <ShieldCheck className="w-4 h-4 text-green-500" />
-                                <span className="text-sm">{feature}</span>
-                            </div>
-                        ))}
-                    </CardContent>
-                    <CardFooter>
-                        <Button className="w-full" onClick={() => handleSubscription(tier)} disabled={!connected || !!isSubscribing || !!activeSubscription || isPriceLoading}>
-                           {isSubscribing === tier.name ? <Loader className="animate-spin" /> : (activeSubscription === tier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
-                           {isSubscribing === tier.name ? 'Processing...' : (activeSubscription === tier.name ? 'Subscribed' : tier.cta)}
-                        </Button>
-                    </CardFooter>
-                </Card>
-            ))}
+            {subscriptionTiers.map(tier => {
+                const canActivateWithShadow = shadowBalance !== null && shadowBalance >= tier.shadowPrice;
+                const ctaText = canActivateWithShadow ? "Activate with SHADOW" : tier.cta;
+                const buttonDisabled = !connected || !!isSubscribing || !!activeSubscription || (isPriceLoading && !canActivateWithShadow);
+
+                return (
+                    <Card key={tier.name} className={cn(
+                        'bg-card flex flex-col animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)]',
+                        tier.popular && !activeSubscription && 'border-primary ring-2 ring-primary',
+                        activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500'
+                    )}>
+                        <CardHeader>
+                            <CardTitle className="flex justify-between items-center">
+                                <span>{tier.name}</span>
+                                {tier.popular && !activeSubscription && <span className="text-xs font-semibold text-primary bg-primary/20 px-2 py-1 rounded-full">POPULAR</span>}
+                            </CardTitle>
+                             <CardDescription asChild>
+                                <div className='flex flex-col gap-1'>
+                                    {renderPrice(tier.shadowPrice)}
+                                </div>
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-3">
+                            <p className='text-sm text-amber-400 font-semibold'>{tier.hook}</p>
+                            {canActivateWithShadow ? (
+                                <Alert variant='default' className='border-green-500/50 bg-green-500/10 text-green-300'>
+                                    <ShieldCheck className="h-5 w-5 text-green-400" />
+                                    <AlertTitle>Holder Benefit Unlocked!</AlertTitle>
+                                    <AlertDescription>
+                                        You have enough SHADOW to activate this tier for free.
+                                    </AlertDescription>
+                                </Alert>
+                            ) : (
+                                <Alert variant='destructive'>
+                                    <Coins className='h-5 w-5 text-amber-400' />
+                                    <AlertTitle>Requirement</AlertTitle>
+                                    <AlertDescription>
+                                        Hold {tier.shadowPrice.toLocaleString()} SHADOW or pay in SOL.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                            {tier.features.map(feature => (
+                                <div key={feature} className="flex items-center gap-2">
+                                    <ShieldCheck className="w-4 h-4 text-green-500" />
+                                    <span className="text-sm">{feature}</span>
+                                </div>
+                            ))}
+                        </CardContent>
+                        <CardFooter>
+                            <Button 
+                                className={cn("w-full", canActivateWithShadow && "bg-green-600 hover:bg-green-500")}
+                                onClick={() => handleSubscription(tier)} 
+                                disabled={buttonDisabled}
+                            >
+                               {isSubscribing === tier.name ? <Loader className="animate-spin" /> : (activeSubscription === tier.name ? <Check className='mr-2 h-4 w-4' /> : <Gem className="mr-2 h-4 w-4" />)} 
+                               {isSubscribing === tier.name ? 'Processing...' : (activeSubscription === tier.name ? 'Subscribed' : ctaText)}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                )
+            })}
         </div>
 
         <div className="h-12"></div>
     </div>
   );
 }
-
     
