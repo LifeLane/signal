@@ -93,7 +93,9 @@ export function SymbolSelector({ selectedSymbol, onSelectSymbol }: SymbolSelecto
                   <CommandItem
                     key={coin.id}
                     value={coin.name}
-                    onSelect={() => handleSelect(coin.name)}
+                    onSelect={(currentValue) => {
+                      handleSelect(currentValue);
+                    }}
                   >
                     <Check
                       className={cn(

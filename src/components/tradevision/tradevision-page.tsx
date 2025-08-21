@@ -34,6 +34,7 @@ import { VolumeProfileChart } from './volume-profile-chart';
 import { StickyRiskSelector } from './sticky-risk-selector';
 import { PriceChart } from './price-chart';
 import ClientOnly from './client-only';
+import { SymbolSelector } from './symbol-selector';
 
 
 export type Symbol = string;
@@ -162,15 +163,16 @@ export default function TradeVisionPage() {
                         variant="outline"
                         className={cn(
                           "text-lg font-bold h-14 w-full",
-                          symbol === s.id && "ring-2 ring-primary border-primary"
+                          symbol === s.name && "ring-2 ring-primary border-primary"
                         )}
-                        onClick={() => handleSymbolChange(s.id)}
+                        onClick={() => handleSymbolChange(s.name)}
                     >
                         {s.symbol}
                     </Button>
                   </div>
               ))}
             </div>
+            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
         </div>
     </div>
   );
