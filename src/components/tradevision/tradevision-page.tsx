@@ -5,7 +5,6 @@ import { useState, useTransition, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getTradingSignalAction, getMarketDataAction, type TradingSignalWithTargets } from '@/app/actions';
 
-import { SymbolSelector } from './symbol-selector';
 import { PriceDisplay } from './price-display';
 import { PositionRatioCard } from './position-ratio-card';
 import { BottomBar, type NavItem } from './bottom-bar';
@@ -92,15 +91,15 @@ export default function TradeVisionPage() {
       });
   }, [toast]);
   
-  const handleSymbolChange = (newSymbol: Symbol) => {
-    setSymbol(newSymbol);
-    fetchMarketData(newSymbol);
-  };
-
-  const handleChangeSymbolClick = () => {
-    setSymbol(null);
-    setMarketData(null);
-    setSignal(null);
+  const handleSymbolChange = (newSymbol: Symbol | null) => {
+    if (newSymbol) {
+      setSymbol(newSymbol);
+      fetchMarketData(newSymbol);
+    } else {
+      setSymbol(null);
+      setMarketData(null);
+      setSignal(null);
+    }
   };
 
   const handleIntervalChange = (newInterval: Interval) => {
@@ -114,7 +113,7 @@ export default function TradeVisionPage() {
       try {
         const input = {
           id: Date.now().toString(), // Cache-busting ID
-          symbol: symbol,
+          symbol: marketData.name, // Use the full name for AI context
           riskLevel,
         };
         const result = await getTradingSignalAction(input);
@@ -191,7 +190,7 @@ export default function TradeVisionPage() {
 
           {marketData && symbol && !isDataLoading && (
             <>
-              <PriceDisplay symbol={marketData.name} price={marketData.price} change={marketData.change} onChangeSymbol={handleChangeSymbolClick} />
+              <PriceDisplay symbol={marketData.name} price={marketData.price} change={marketData.change} onChangeSymbol={() => handleSymbolChange(null)} />
               <Separator />
               <PriceChart symbol={marketData.symbol} />
 
@@ -269,7 +268,7 @@ export default function TradeVisionPage() {
               <div className="h-full flex flex-col justify-center items-center text-center">
                   <p className='text-destructive'>Could not load data for {symbol.toUpperCase()}.</p>
                   <p className='text-muted-foreground text-sm'>Please check the symbol or try another.</p>
-                  <Button variant="outline" size="sm" onClick={handleChangeSymbolClick} className="mt-4">
+                  <Button variant="outline" size="sm" onClick={() => handleSymbolChange(null)} className="mt-4">
                       Change Symbol
                   </Button>
               </div>
