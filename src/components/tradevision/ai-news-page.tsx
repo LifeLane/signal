@@ -9,7 +9,6 @@ import type { Symbol } from './tradevision-page';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { SymbolSelector } from './symbol-selector';
 import { Bot, Info, Loader, Newspaper, TrendingDown, TrendingUp, MinusCircle, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +43,8 @@ const getSentimentClass = (sentiment?: 'Positive' | 'Negative' | 'Neutral') => {
   }
 };
 
+const popularSymbols = ['Bitcoin', 'Ethereum', 'Solana', 'SHADOW'];
+
 
 export function AiNewsPage() {
   const [isPending, startTransition] = useTransition();
@@ -51,12 +52,12 @@ export function AiNewsPage() {
   const [selectedSymbol, setSelectedSymbol] = useState<Symbol | null>(null);
   const { toast } = useToast();
 
-  const handleAnalyzeNews = () => {
-    if (!selectedSymbol) return;
+  const handleAnalyzeNews = (symbol: Symbol) => {
+    setSelectedSymbol(symbol);
     setNewsSummary(null); // Clear previous summary
     startTransition(async () => {
       try {
-        const result = await getNewsSummaryAction({ topic: selectedSymbol });
+        const result = await getNewsSummaryAction({ topic: symbol });
         setNewsSummary(result);
       } catch (e: any) {
         toast({
@@ -166,17 +167,18 @@ export function AiNewsPage() {
   return (
     <div className="flex flex-col h-full bg-pulse-grid flex-1">
       <div className="p-4 space-y-4 bg-background z-10 border-b border-border">
-        <SymbolSelector selectedSymbol={selectedSymbol} onSelectSymbol={setSelectedSymbol} />
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={handleAnalyzeNews}
-          disabled={isPending || !selectedSymbol}
-        >
-          {isPending ? <Loader className="animate-spin" /> : 
-            <span className='flex items-center gap-2'><Bot /> Analyze News</span>
-          }
-        </Button>
+         <div className="grid grid-cols-2 gap-2">
+            {popularSymbols.map(s => (
+                <Button 
+                    key={s} 
+                    variant={selectedSymbol === s ? "default" : "outline"}
+                    onClick={() => handleAnalyzeNews(s)}
+                    disabled={isPending}
+                >
+                    {isPending && selectedSymbol === s ? <Loader className="animate-spin" /> : s}
+                </Button>
+            ))}
+         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">

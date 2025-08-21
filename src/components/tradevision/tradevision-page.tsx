@@ -34,12 +34,18 @@ import { VolumeProfileChart } from './volume-profile-chart';
 import { StickyRiskSelector } from './sticky-risk-selector';
 import { PriceChart } from './price-chart';
 import ClientOnly from './client-only';
-import { SymbolSelector } from './symbol-selector';
 
 
 export type Symbol = string;
 export type Interval = '5m' | '15m' | '1h' | '4h' | '1d';
 export type RiskLevel = 'Low' | 'Medium' | 'High';
+
+const popularSymbols: { name: string; symbol: string }[] = [
+    { name: 'Bitcoin', symbol: 'BTC' },
+    { name: 'Ethereum', symbol: 'ETH' },
+    { name: 'Solana', symbol: 'SOL' },
+    { name: 'SHADOW', symbol: 'SHADOW' },
+];
 
 export default function TradeVisionPage() {
   const [isSignalPending, startSignalTransition] = useTransition();
@@ -86,11 +92,10 @@ export default function TradeVisionPage() {
   }, [toast]);
   
   const handleSymbolChange = (newSymbol: Symbol | null) => {
+    setSymbol(newSymbol);
     if (newSymbol) {
-      setSymbol(newSymbol);
       fetchMarketData(newSymbol);
     } else {
-      setSymbol(null);
       setMarketData(null);
       setSignal(null);
     }
@@ -148,8 +153,15 @@ export default function TradeVisionPage() {
           </div>
         </ClientOnly>
 
-        <div className="w-full max-w-sm space-y-4">
-            <SymbolSelector selectedSymbol={symbol} onSelectSymbol={handleSymbolChange} />
+        <div className="w-full max-w-sm space-y-2">
+            <p className="text-sm text-muted-foreground">Select a symbol to start</p>
+            <div className="grid grid-cols-2 gap-2">
+                {popularSymbols.map(({ name, symbol: sym }) => (
+                    <Button key={sym} variant='outline' size="lg" onClick={() => handleSymbolChange(name)}>
+                        {name} ({sym})
+                    </Button>
+                ))}
+            </div>
         </div>
     </div>
   );

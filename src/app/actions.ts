@@ -11,7 +11,7 @@ import {
     type GenerateNewsSummaryInput, 
     type GenerateNewsSummaryOutput 
 } from '@/ai/flows/generate-news-summary';
-import { getMarketData, type MarketData, searchCoins, type SearchResult, getTopCoins } from '@/services/market-data';
+import { getMarketData, type MarketData } from '@/services/market-data';
 
 // Define the full output type that the UI expects, including calculated fields.
 export type TradingSignalWithTargets = GenerateTradingSignalOutput & {
@@ -115,27 +115,5 @@ export async function getNewsSummaryAction(
             throw new Error(error.message);
         }
         throw new Error('An unexpected error occurred while generating the news summary.');
-    }
-}
-
-export async function searchSymbolsAction(query: string): Promise<SearchResult[]> {
-    try {
-        if (!query) return [];
-        const results = await searchCoins(query);
-        return results;
-    } catch (error) {
-        console.error('Error in searchSymbolsAction:', error);
-        // Return empty array on error to prevent crashing the client, but log it.
-        return [];
-    }
-}
-
-export async function getTopCoinsAction(): Promise<SearchResult[]> {
-    try {
-        const results = await getTopCoins();
-        return results;
-    } catch (error) {
-        console.error('Error in getTopCoinsAction:', error);
-        return [];
     }
 }
