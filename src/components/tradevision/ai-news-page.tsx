@@ -174,16 +174,16 @@ export function AiNewsPage() {
   return (
     <div className="flex flex-col h-full bg-pulse-grid flex-1">
       <div className="p-4 space-y-4 bg-background z-10 border-b border-border">
-         <div className="grid grid-cols-3 gap-2">
+         <div className="grid grid-cols-2 gap-4">
             {popularSymbols.map(({ name, symbol }) => (
                 <Button 
                     key={name} 
                     variant={selectedSymbol === name ? "default" : "outline"}
                     onClick={() => handleAnalyzeNews(name)}
                     disabled={isPending}
-                    className='flex flex-col h-auto py-2'
+                    className='flex flex-col h-auto py-3 animate-multi-color-glow'
                 >
-                    <span className='font-bold text-base'>{symbol}</span>
+                    <span className='font-bold text-lg'>{symbol}</span>
                     <span className='text-xs text-muted-foreground'>{name}</span>
                 </Button>
             ))}
@@ -198,3 +198,5 @@ export function AiNewsPage() {
     </div>
   );
 }
+
+    

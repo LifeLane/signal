@@ -164,7 +164,7 @@ export default function TradeVisionPage() {
                         variant='outline' 
                         size="lg" 
                         onClick={() => handleSymbolChange(name)}
-                        className="flex flex-col h-auto p-4 gap-1 rounded-xl items-center justify-center transition-all hover:border-primary hover:bg-primary/10"
+                        className="flex flex-col h-auto p-4 gap-1 rounded-xl items-center justify-center transition-all hover:border-primary hover:bg-primary/10 animate-multi-color-glow"
                     >
                        <span className='text-2xl font-bold'>{sym}</span>
                        <span className='text-sm text-muted-foreground'>{name}</span>
@@ -323,3 +323,5 @@ export default function TradeVisionPage() {
     </div>
   );
 }
+
+    
