@@ -9,7 +9,6 @@ import { Separator } from '../ui/separator';
 import { IntroLogo } from './intro-logo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { ThemeSwitcher } from './theme-switcher';
-import { getShadowDetailsAction } from '@/app/actions';
 import { useEffect, useState, useTransition } from 'react';
 import type { ShadowTokenDetails } from '@/services/market-data';
 import { Skeleton } from '../ui/skeleton';
@@ -124,39 +123,17 @@ const DetailRow = ({ label, value, canCopy = false }: { label: string; value: st
     );
 };
 
-const TokenDetailCard = ({ details, isLoading, onRefresh }: { details: ShadowTokenDetails | null, isLoading: boolean, onRefresh: () => void }) => {
-    if (isLoading && !details) {
-        return (
-            <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
-                <CardHeader>
-                    <Skeleton className="h-7 w-48" />
-                    <Skeleton className="h-4 w-32" />
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className='grid grid-cols-2 gap-4'>
-                        <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
-                        <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-24" /></div>
-                    </div>
-                    <div className='space-y-1'><Skeleton className="h-4 w-20" /><Skeleton className="h-6 w-full" /></div>
-                </CardContent>
-            </Card>
-        );
-    }
-
-    if (!details) return null;
-
-    const isPriceUp = details.priceChange24h >= 0;
-
+const TokenDetailCard = () => {
     return (
         <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.primary/0.3)]">
             <CardHeader>
                 <div className='flex justify-between items-center'>
                     <CardTitle className="flex items-center gap-2">
                         <Coins className='h-6 w-6 text-primary' />
-                        <span>{details.name} ({details.symbol})</span>
+                        <span>SHADOW (SHADOW)</span>
                     </CardTitle>
-                    <Button variant='ghost' size='icon' onClick={onRefresh} disabled={isLoading}>
-                        {isLoading ? <Loader className='h-4 w-4 animate-spin' /> : <RefreshCw className='h-4 w-4'/>}
+                    <Button variant='ghost' size='icon' disabled>
+                        <RefreshCw className='h-4 w-4'/>
                     </Button>
                 </div>
                 <CardDescription>Live on-chain token data</CardDescription>
@@ -165,19 +142,16 @@ const TokenDetailCard = ({ details, isLoading, onRefresh }: { details: ShadowTok
                  <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
                         <span className="text-muted-foreground">Price</span>
-                        <span className="text-lg font-bold text-foreground">${formatNumber(details.price)}</span>
+                        <Skeleton className="h-6 w-24" />
                     </div>
                     <div className="flex flex-col gap-1 p-3 bg-muted rounded-lg">
                         <span className="text-muted-foreground">24h Change</span>
-                        <span className={cn("text-lg font-bold flex items-center", isPriceUp ? 'text-green-400' : 'text-red-400')}>
-                            {isPriceUp ? <TrendingUp className="mr-1 h-4 w-4" /> : <TrendingDown className="mr-1 h-4 w-4" />}
-                            {details.priceChange24h.toFixed(2)}%
-                        </span>
+                        <Skeleton className="h-6 w-20" />
                     </div>
                  </div>
                  <div className="flex flex-col col-span-2 gap-1 p-3 bg-muted rounded-lg">
                     <span className="text-muted-foreground">Market Cap</span>
-                    <span className="text-lg font-bold text-foreground">${formatNumber(details.marketCap)}</span>
+                    <Skeleton className="h-6 w-32" />
                 </div>
             </CardContent>
         </Card>
@@ -186,32 +160,11 @@ const TokenDetailCard = ({ details, isLoading, onRefresh }: { details: ShadowTok
 
 export function ShadowPage() {
     const { toast } = useToast();
-    const [details, setDetails] = useState<ShadowTokenDetails | null>(null);
-    const [isPending, startTransition] = useTransition();
-
-    const fetchDetails = () => {
-        startTransition(async () => {
-            try {
-                const result = await getShadowDetailsAction();
-                setDetails(result);
-            } catch (e: any) {
-                toast({
-                    variant: 'destructive',
-                    title: 'Error Fetching Token Details',
-                    description: e.message,
-                });
-            }
-        });
-    }
-
-    useEffect(() => {
-        fetchDetails();
-    }, []);
-
+   
     return (
         <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-pulse-grid">
             
-            <TokenDetailCard details={details} isLoading={isPending} onRefresh={fetchDetails} />
+            <TokenDetailCard />
             
             <GeckoTerminalChart />
             
