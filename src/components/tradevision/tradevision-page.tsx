@@ -156,8 +156,7 @@ export default function TradeVisionPage() {
         </ClientOnly>
 
         <div className="w-full max-w-sm space-y-2">
-            <p className="text-sm text-muted-foreground">Select a symbol to start</p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
                 {popularSymbols.map(({ name, symbol: sym }) => (
                     <Button 
                         key={sym} 
@@ -166,8 +165,8 @@ export default function TradeVisionPage() {
                         onClick={() => handleSymbolChange(name)}
                         className="flex flex-col h-auto p-4 gap-1 rounded-xl items-center justify-center transition-all hover:border-primary hover:bg-primary/10 animate-multi-color-glow"
                     >
-                       <span className='text-2xl font-bold'>{sym}</span>
-                       <span className='text-sm text-muted-foreground'>{name}</span>
+                       <span className='text-lg font-bold'>{sym}</span>
+                       <span className='text-xs text-muted-foreground'>{name}</span>
                     </Button>
                 ))}
             </div>
@@ -323,5 +322,3 @@ export default function TradeVisionPage() {
     </div>
   );
 }
-
-    
