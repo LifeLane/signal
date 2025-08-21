@@ -6,7 +6,7 @@ const GECKO_TERMINAL_EMBED_URL = 'https://www.geckoterminal.com/solana/pools/3rw
 
 export function GeckoTerminalChart() {
     return (
-        <Card className="bg-card w-full h-[250px] overflow-hidden">
+        <Card className="bg-card w-full h-[650px] overflow-hidden">
             <CardContent className="p-0 w-full h-full relative">
                 <iframe
                     height="100%"
@@ -22,6 +22,3 @@ export function GeckoTerminalChart() {
         </Card>
     );
 }
-
-    
-
