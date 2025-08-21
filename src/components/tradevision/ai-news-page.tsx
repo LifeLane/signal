@@ -1,6 +1,7 @@
 
 'use client';
 import { useState, useTransition } from 'react';
+import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { getNewsSummaryAction } from '@/app/actions';
 import type { GenerateNewsSummaryOutput } from '@/ai/flows/generate-news-summary';
@@ -9,7 +10,7 @@ import type { Symbol } from './tradevision-page';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { SymbolSelector } from './symbol-selector';
-import { Bot, Info, Loader, Newspaper, TrendingDown, TrendingUp, MinusCircle } from 'lucide-react';
+import { Bot, Info, Loader, Newspaper, TrendingDown, TrendingUp, MinusCircle, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { IntroLogo } from './intro-logo';
@@ -99,7 +100,7 @@ export function AiNewsPage() {
     if (!newsSummary) return null;
     
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <Card className={cn(
                 'shadow-lg transition-all animate-pulse-glow',
                 sentimentClasses.glow
@@ -119,18 +120,40 @@ export function AiNewsPage() {
                     </CardTitle>
                     <CardDescription>{newsSummary.sentimentReasoning}</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    {newsSummary.articleSummaries.map((article, index) => (
-                        <div key={index} className="border-t pt-4">
-                            <h4 className="font-semibold text-foreground">{article.title}</h4>
-                            <p className="text-sm text-muted-foreground mt-1">{article.summary}</p>
-                            <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline mt-2 inline-block">
-                                Read Full Article
-                            </a>
-                        </div>
-                    ))}
-                </CardContent>
-                <CardFooter className="text-xs text-muted-foreground flex gap-2 items-start">
+            </Card>
+
+            <div className="space-y-4">
+                <h3 className="text-lg font-semibold">News Breakdown</h3>
+                {newsSummary.articleSummaries.map((article, index) => (
+                    <Card key={index} className='overflow-hidden'>
+                        <CardContent className="p-4 flex gap-4 items-start">
+                            <div className="relative w-24 h-24 shrink-0 rounded-md overflow-hidden">
+                                <Image
+                                    src={article.imageUrl || `https://placehold.co/400x400.png`}
+                                    alt={article.title}
+                                    fill
+                                    className="object-cover"
+                                    data-ai-hint="news article"
+                                />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                                <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-base font-semibold text-foreground hover:underline">
+                                    {article.title}
+                                </a>
+                                <p className="text-sm text-muted-foreground">{article.summary}</p>
+                                <Button asChild variant="link" size="sm" className='p-0 h-auto'>
+                                    <a href={article.url} target="_blank" rel="noopener noreferrer">
+                                        Read Full Article <ExternalLink className='ml-1.5' />
+                                    </a>
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+
+            <Card className="mt-6">
+                <CardFooter className="text-xs text-muted-foreground flex gap-2 items-start p-4">
                     <Info className="w-4 h-4 mt-0.5 shrink-0" />
                     <span>{newsSummary.disclaimer}</span>
                 </CardFooter>
@@ -142,7 +165,7 @@ export function AiNewsPage() {
 
   return (
     <div className="flex flex-col h-full bg-pulse-grid flex-1">
-      <div className="p-4 space-y-4 bg-background z-10">
+      <div className="p-4 space-y-4 bg-background z-10 border-b border-border">
         <SymbolSelector selectedSymbol={selectedSymbol} onSelectSymbol={setSelectedSymbol} />
         <Button
           size="lg"

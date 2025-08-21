@@ -14,7 +14,7 @@ export const fetchNews = ai.defineTool(
   {
     name: 'fetchNews',
     description:
-      'Fetches news articles from the web based on a search query. Returns the top 3 headlines.',
+      'Fetches news articles from the web based on a search query. Returns the top 5 headlines.',
     inputSchema: z.object({
       query: z.string().describe('The search query for news articles.'),
     }),
@@ -23,6 +23,7 @@ export const fetchNews = ai.defineTool(
         title: z.string(),
         description: z.string(),
         url: z.string().url(),
+        imageUrl: z.string().url().nullable(),
       })
     ),
   },

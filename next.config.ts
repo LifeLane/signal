@@ -16,6 +16,34 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 's.yimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.zenfs.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.coindesk.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.coindesk.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.investopedia.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'image.cnbcfm.com',
+      },
+       {
+        protocol: 'https',
+        hostname: 'i.insider.com',
+      },
     ],
   },
 };
