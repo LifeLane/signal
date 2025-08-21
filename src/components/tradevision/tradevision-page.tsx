@@ -283,7 +283,7 @@ export default function TradeVisionPage() {
                 <StickyRiskSelector riskLevel={riskLevel} onSetRiskLevel={setRiskLevel}/>
                 <Button
                   size="lg"
-                  className="w-full h-14 text-lg font-bold transition-colors bg-primary/80 border border-primary/50 text-primary-foreground hover:bg-green-500 hover:text-black"
+                  className="w-full h-14 text-lg font-bold"
                   onClick={handleGetSignal}
                   disabled={isSignalPending || isDataLoading || !marketData}
                 >
