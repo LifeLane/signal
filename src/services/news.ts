@@ -53,7 +53,6 @@ export async function getNews(
       title: article.title,
       description: article.description,
       url: article.url,
-      ...(article.urlToImage && { imageUrl: article.urlToImage }),
     }));
   } catch (error) {
     console.error('Error fetching news:', error);
