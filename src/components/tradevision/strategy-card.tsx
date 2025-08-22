@@ -174,7 +174,7 @@ export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
       <CardFooter className="flex justify-between items-start text-xs text-muted-foreground">
         <div className='flex gap-2 items-start flex-1'>
             <Info className="w-4 h-4 mt-0.5 shrink-0" />
-            <span>{strategy.disclaimer}</span>
+            <span className="font-semibold text-amber-400">{strategy.disclaimer}</span>
         </div>
       </CardFooter>
     </Card>
