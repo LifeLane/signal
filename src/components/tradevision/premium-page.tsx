@@ -123,12 +123,10 @@ const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Pr
         }
         let totalBalance = 0;
         // The balance can be in multiple token accounts, so we sum them up.
-            console.log("Processing token account:", account.pubkey.toBase58());
-            const accountInfo = await connection.getParsedAccountInfo(account.pubkey);
+        for (const tokenAccount of tokenAccounts.value) {
+            const accountInfo = await connection.getParsedAccountInfo(tokenAccount.pubkey);
             if(accountInfo.value && accountInfo.value.data.parsed) {
-                console.log("Parsed account info:", accountInfo.value.data.parsed);
                 const amount = accountInfo.value.data.parsed.info.tokenAmount.uiAmount;
-                totalBalance += amount;
             }
         }
         
