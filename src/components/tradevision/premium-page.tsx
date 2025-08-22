@@ -129,6 +129,7 @@ const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Pr
             const accountInfo = await connection.getParsedAccountInfo(tokenAccount.pubkey);
             if(accountInfo.value && accountInfo.value.data.parsed) {
                 const amount = accountInfo.value.data.parsed.info.tokenAmount.uiAmount;
+                totalBalance += amount;
             }
         }
         
