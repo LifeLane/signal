@@ -237,50 +237,52 @@ export function PremiumPage() {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar bg-pulse-grid">
-        <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)] sticky top-0 z-20">
-            <CardHeader>
-                <CardTitle>1. Connect Your Wallet</CardTitle>
-                <CardDescription>
-                    {connected ? "Your wallet is connected." : "Connect your Solana wallet to get started."}
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                {connected && publicKey ? (
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/20 text-green-400">
-                            <div className='flex items-center'>
-                               <Check className="mr-2 h-5 w-5" />
-                               <span className='font-semibold'>Wallet Connected</span>
+        <div className="sticky top-0 z-20 space-y-4 bg-background/80 backdrop-blur-md -m-4 p-4 mb-0">
+            <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]">
+                <CardHeader>
+                    <CardTitle>1. Connect Your Wallet</CardTitle>
+                    <CardDescription>
+                        {connected ? "Your wallet is connected." : "Connect your Solana wallet to get started."}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {connected && publicKey ? (
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/20 text-green-400">
+                                <div className='flex items-center'>
+                                <Check className="mr-2 h-5 w-5" />
+                                <span className='font-semibold'>Wallet Connected</span>
+                                </div>
+                                <Button variant='ghost' size='icon' onClick={disconnect} className="text-green-400 hover:text-white h-7 w-7">
+                                    <LogOut className='h-5 w-5' />
+                                </Button>
                             </div>
-                            <Button variant='ghost' size='icon' onClick={disconnect} className="text-green-400 hover:text-white h-7 w-7">
-                                <LogOut className='h-5 w-5' />
-                            </Button>
+                            {isBalanceLoading ? (
+                                <Skeleton className="h-16 w-full" />
+                            ) : shadowBalance !== null ? (
+                                <Alert variant='default' className='border-primary/50'>
+                                    <Coins className='h-5 w-5 text-primary' />
+                                    <AlertTitle>SHADOW Balance: {shadowBalance.toLocaleString()}</AlertTitle>
+                                    <AlertDescription>
+                                        Your token holdings grant you access to exclusive benefits.
+                                    </AlertDescription>
+                                </Alert>
+                            ) : null}
                         </div>
-                        {isBalanceLoading ? (
-                             <Skeleton className="h-16 w-full" />
-                        ) : shadowBalance !== null ? (
-                            <Alert variant='default' className='border-primary/50'>
-                                <Coins className='h-5 w-5 text-primary' />
-                                <AlertTitle>SHADOW Balance: {shadowBalance.toLocaleString()}</AlertTitle>
-                                <AlertDescription>
-                                    Your token holdings grant you access to exclusive benefits.
-                                </AlertDescription>
-                            </Alert>
-                        ) : null}
-                    </div>
-                ) : (
-                    <div className="flex justify-center">
-                        <WalletMultiButton style={{width: '100%',
-                            backgroundColor: 'hsl(var(--primary))',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            height: '44px',
-                            fontSize: '1rem',
-                        }}/>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+                    ) : (
+                        <div className="flex justify-center">
+                            <WalletMultiButton style={{width: '100%',
+                                backgroundColor: 'hsl(var(--primary))',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                height: '44px',
+                                fontSize: '1rem',
+                            }}/>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
         
         <div className="text-center space-y-2">
             <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2"><Gem className='text-primary'/> Go Premium</h1>
@@ -315,7 +317,7 @@ export function PremiumPage() {
 
                 return (
                     <Card key={tier.name} className={cn(
-                        'bg-card flex flex-col animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)] transition-all',
+                        'bg-card flex flex-col animate-pulse-glow [--glow-color:theme(colors.purple.500/0.7)] transition-all relative',
                         tier.popular && !activeSubscription && 'border-primary ring-2 ring-primary shadow-lg shadow-primary/20',
                         activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500/80 shadow-lg shadow-green-500/20'
                     )}>
