@@ -305,7 +305,7 @@ export function PremiumPage() {
         
         <div className='text-center'>
             <h2 className='text-2xl font-bold'>
-                {activeSubscription ? "Your Active Plan" : "2. Choose Your Plan"}
+                {activeSubscription ? "Your Active Plan" : "Choose Your Plan"}
             </h2>
             {!activeSubscription && (
                 <p className='text-muted-foreground'>Select a tier to see its benefits.</p>
@@ -364,7 +364,7 @@ export function PremiumPage() {
                                     <div className="flex items-center gap-3">
                                         <Hourglass className="w-6 h-6 text-amber-400 animate-spin" style={{ animationDuration: '3s' }}/>
                                         <div>
-                                            <h5 className="font-semibold text-amber-300">{tier.fomoHook}</h5>
+                                            <h5 className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary bg-[200%_auto] animate-text-shimmer">{tier.fomoHook}</h5>
                                             <p className="text-sm text-amber-400/80">Hold {tier.shadowPrice.toLocaleString()} SHADOW or subscribe with {tier.solPrice} SOL to gain these powerful advantages!</p>
                                         </div>
                                     </div>
@@ -391,6 +391,8 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
 
     
