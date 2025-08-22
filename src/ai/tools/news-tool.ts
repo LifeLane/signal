@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -23,7 +24,7 @@ export const fetchNews = ai.defineTool(
         title: z.string(),
         description: z.string(),
         url: z.string().url(),
-        imageUrl: z.string().url().nullable(),
+        imageUrl: z.string().url().optional(),
       })
     ),
   },

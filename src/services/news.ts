@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Service for interacting with the NewsAPI to fetch articles.
  */
@@ -24,7 +25,7 @@ interface NewsApiResponse {
  */
 export async function getNews(
   query: string
-): Promise<{title: string; description: string; url: string, imageUrl: string | null}[]> {
+): Promise<{title: string; description: string; url: string, imageUrl?: string}[]> {
   const apiKey = process.env.NEWS_API_KEY;
   if (!apiKey) {
     console.error('NEWS_API_KEY is not set in the environment variables.');
@@ -45,14 +46,14 @@ export async function getNews(
     const data: NewsApiResponse = await response.json();
 
     if (!data.articles || data.articles.length === 0) {
-        return [{title: `No recent news found for ${query}`, description: 'Please try another search term or check back later.', url: '#', imageUrl: null}]
+        return [{title: `No recent news found for ${query}`, description: 'Please try another search term or check back later.', url: '#'}]
     }
 
     return data.articles.map(article => ({
       title: article.title,
       description: article.description,
       url: article.url,
-      imageUrl: article.urlToImage,
+      ...(article.urlToImage && { imageUrl: article.urlToImage }),
     }));
   } catch (error) {
     console.error('Error fetching news:', error);
