@@ -106,23 +106,24 @@ const subscriptionTiers: Tier[] = [
 
 const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
     try {
-        const tokenAccounts = await connection.getTokenAccountsByOwner(
+        // More reliable way to get token accounts is to specify the mint address
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
             walletPublicKey,
             {
-                programId: TOKEN_PROGRAM_ID,
+                mint: SHADOW_MINT_ADDRESS,
             }
         );
 
-        let totalBalance = 0;
-        const AccountLayout = struct([u64('amount')]);
-
-        for (const { account } of tokenAccounts.value) {
-            const mint = new PublicKey(account.data.slice(0, 32));
-            if (mint.equals(SHADOW_MINT_ADDRESS)) {
-                const amount = AccountLayout.decode(account.data.slice(64, 72)).amount;
-                totalBalance += Number(amount) / (10 ** 6); // Adjust for decimals
-            }
+        if (tokenAccounts.value.length === 0) {
+            return 0; // No SHADOW token account found
         }
+        
+        let totalBalance = 0;
+        for (const { account } of tokenAccounts.value) {
+            const amount = account.data.parsed.info.tokenAmount.uiAmount;
+            totalBalance += amount;
+        }
+
         return totalBalance;
 
     } catch (error) {
@@ -403,6 +404,8 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
 
     
