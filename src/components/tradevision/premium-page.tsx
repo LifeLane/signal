@@ -106,8 +106,7 @@ const subscriptionTiers: Tier[] = [
 
 const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
     try {
-        // More reliable way to get token accounts is to specify the mint address
-        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+        const tokenAccounts = await connection.getTokenAccountsByOwner(
             walletPublicKey,
             {
                 mint: SHADOW_MINT_ADDRESS,
@@ -119,11 +118,15 @@ const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Pr
         }
         
         let totalBalance = 0;
+        // The balance can be in multiple token accounts, so we sum them up.
         for (const { account } of tokenAccounts.value) {
-            const amount = account.data.parsed.info.tokenAmount.uiAmount;
-            totalBalance += amount;
+            const accountInfo = await connection.getParsedAccountInfo(account.pubkey);
+            if(accountInfo.value && accountInfo.value.data.parsed) {
+                const amount = accountInfo.value.data.parsed.info.tokenAmount.uiAmount;
+                totalBalance += amount;
+            }
         }
-
+        
         return totalBalance;
 
     } catch (error) {
@@ -254,7 +257,7 @@ export function PremiumPage() {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar bg-pulse-grid">
-        <div className="sticky top-0 z-20 space-y-4 bg-background/80 backdrop-blur-md -m-4 p-4 mb-0">
+        <div className="space-y-4 bg-background/80 backdrop-blur-md -m-4 p-4 mb-0">
             <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]">
                 <CardHeader className="items-center text-center">
                     <CardTitle>Connect Your Wallet</CardTitle>
@@ -404,6 +407,8 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
 
     
