@@ -8,7 +8,7 @@ import { VersionedTransaction, TransactionMessage, PublicKey, SystemProgram, LAM
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info, Coins, Star, X, Zap, Crown, Rocket } from 'lucide-react';
+import { Check, Gem, Wallet, ShieldCheck, Loader, LogOut, Info, Coins, Star, X, Zap, Crown, Rocket, Hourglass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
@@ -356,13 +356,15 @@ export function PremiumPage() {
                                     </AlertDescription>
                                 </Alert>
                             ) : (
-                                <Alert variant='destructive'>
-                                    <Coins className='h-5 w-5 text-amber-400' />
-                                    <AlertTitle>Requirement</AlertTitle>
-                                    <AlertDescription>
-                                        Hold {tier.shadowPrice.toLocaleString()} SHADOW for holder benefits or subscribe with {tier.solPrice} SOL.
-                                    </AlertDescription>
-                                </Alert>
+                                <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-red-500/10 border border-amber-500/50 animate-pulse-glow [--glow-color:theme(colors.amber.400/0.5)]">
+                                    <div className="flex items-center gap-3">
+                                        <Hourglass className="w-6 h-6 text-amber-400 animate-spin" style={{ animationDuration: '3s' }}/>
+                                        <div>
+                                            <h5 className="font-semibold text-amber-300">Unlock a Higher Tier</h5>
+                                            <p className="text-sm text-amber-400/80">Hold {tier.shadowPrice.toLocaleString()} SHADOW or subscribe with {tier.solPrice} SOL to gain these powerful advantages!</p>
+                                        </div>
+                                    </div>
+                                </div>
                             )}
 
                         </CardContent>
@@ -385,6 +387,8 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
 
     
