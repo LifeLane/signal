@@ -32,6 +32,7 @@ type Tier = {
     cta: string;
     popular?: boolean;
     hook: string;
+    fomoHook: string;
 };
 
 const subscriptionTiers: Tier[] = [
@@ -42,6 +43,7 @@ const subscriptionTiers: Tier[] = [
         solPrice: 0.5,
         priceLabel: "100K SHADOW / 0.5 SOL",
         hook: "For the aspiring trader ready to sharpen their edge.",
+        fomoHook: "Get Your Daily AI Signals",
         features: [
             { text: "15 AI Signals / Day", included: true },
             { text: "Standard Analysis Speed", included: true },
@@ -62,6 +64,7 @@ const subscriptionTiers: Tier[] = [
         solPrice: 5,
         priceLabel: "1M SHADOW / 5 SOL",
         hook: "For the dedicated analyst who demands more power.",
+        fomoHook: "Unlock Unlimited AI Signals",
         popular: true,
         features: [
             { text: "Unlimited AI Signals", included: true },
@@ -83,6 +86,7 @@ const subscriptionTiers: Tier[] = [
         solPrice: 10,
         priceLabel: "10M SHADOW / 10 SOL",
         hook: "For the master strategist seeking ultimate control.",
+        fomoHook: "Secure Lifetime Access",
         features: [
             { text: "Everything in Vanguard", included: true },
             { text: "Lifetime Access (One-Time)", included: true },
@@ -360,7 +364,7 @@ export function PremiumPage() {
                                     <div className="flex items-center gap-3">
                                         <Hourglass className="w-6 h-6 text-amber-400 animate-spin" style={{ animationDuration: '3s' }}/>
                                         <div>
-                                            <h5 className="font-semibold text-amber-300">Unlock a Higher Tier</h5>
+                                            <h5 className="font-semibold text-amber-300">{tier.fomoHook}</h5>
                                             <p className="text-sm text-amber-400/80">Hold {tier.shadowPrice.toLocaleString()} SHADOW or subscribe with {tier.solPrice} SOL to gain these powerful advantages!</p>
                                         </div>
                                     </div>
@@ -387,6 +391,8 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
 
     
