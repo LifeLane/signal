@@ -106,8 +106,6 @@ const subscriptionTiers: Tier[] = [
 
 const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
     try {
-        console.log("Checking SHADOW balance for wallet:", walletPublicKey.toBase58());
-        console.log("SHADOW Mint Address:", SHADOW_MINT_ADDRESS.toBase58());
         const tokenAccounts = await connection.getTokenAccountsByOwner(
             walletPublicKey,
             {
@@ -115,12 +113,10 @@ const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Pr
             }
         );
 
-        if (tokenAccounts.value.length === 0) {
-            console.log("No token accounts found for SHADOW mint.");
+ if (tokenAccounts.value.length === 0) {
             return 0; // No SHADOW token account found
         }
-        
-        console.log("Found token accounts:", tokenAccounts);
+
         let totalBalance = 0;
         // The balance can be in multiple token accounts, so we sum them up.
         for (const { account } of tokenAccounts.value) {
