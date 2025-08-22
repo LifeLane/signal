@@ -237,21 +237,6 @@ export function PremiumPage() {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar bg-pulse-grid">
-        <div className="text-center space-y-2">
-            <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2"><Gem className='text-primary'/> Go Premium</h1>
-            <p className="text-muted-foreground max-w-md mx-auto">Unlock the full power of SHADOW. Gain your unfair advantage by holding SHADOW tokens or subscribing with SOL.</p>
-        </div>
-        
-        {activeSubscription && (
-            <Alert variant="default" className="border-green-500/50 bg-green-500/20 text-green-300">
-                <ShieldCheck className="h-5 w-5 text-green-400" />
-                <AlertTitle>Subscription Active!</AlertTitle>
-                <AlertDescription>
-                    You are currently subscribed to the <strong>{activeSubscription}</strong> plan.
-                </AlertDescription>
-            </Alert>
-        )}
-
         <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)] sticky top-0 z-20">
             <CardHeader>
                 <CardTitle>1. Connect Your Wallet</CardTitle>
@@ -296,6 +281,21 @@ export function PremiumPage() {
                 )}
             </CardContent>
         </Card>
+        
+        <div className="text-center space-y-2">
+            <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2"><Gem className='text-primary'/> Go Premium</h1>
+            <p className="text-muted-foreground max-w-md mx-auto">Unlock the full power of SHADOW. Gain your unfair advantage by holding SHADOW tokens or subscribing with SOL.</p>
+        </div>
+        
+        {activeSubscription && (
+            <Alert variant="default" className="border-green-500/50 bg-green-500/20 text-green-300">
+                <ShieldCheck className="h-5 w-5 text-green-400" />
+                <AlertTitle>Subscription Active!</AlertTitle>
+                <AlertDescription>
+                    You are currently subscribed to the <strong>{activeSubscription}</strong> plan.
+                </AlertDescription>
+            </Alert>
+        )}
         
         <div className='text-center'>
             <h2 className='text-2xl font-bold'>
