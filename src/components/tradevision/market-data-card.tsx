@@ -24,7 +24,7 @@ export function MarketDataCard({ volume, marketCap }: MarketDataCardProps) {
   };
 
   return (
-    <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.accent/0.7)]">
+    <Card className="bg-card animate-pulse-glow [--glow-color:hsl(var(--accent)/0.7)]">
       <CardHeader>
         <CardTitle>Market Data</CardTitle>
       </CardHeader>

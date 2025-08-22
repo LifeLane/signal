@@ -1,6 +1,8 @@
 
 'use client';
 
+import { useRef } from 'react';
+import html2canvas from 'html2canvas';
 import {
   Card,
   CardContent,
@@ -16,9 +18,10 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import type { TradingSignalWithTargets } from '@/app/actions';
-import { Bot, Info, Cpu, Loader } from 'lucide-react';
+import { Bot, Info, Cpu, Loader, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
 
 interface StrategyCardProps {
   strategy: TradingSignalWithTargets | null;
@@ -74,8 +77,23 @@ const PendingContent = () => (
 
 
 export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
+    const cardRef = useRef<HTMLDivElement>(null);
     const signalClasses = getSignalClass(strategy?.signal);
     const cardTitle = strategy?.symbol ? `AI Strategy for ${strategy.symbol}` : 'AI Strategy';
+
+    const handleSaveAsImage = () => {
+        if (!cardRef.current) return;
+
+        html2canvas(cardRef.current, {
+            useCORS: true,
+            backgroundColor: 'hsl(var(--card))', // Match card background
+        }).then((canvas) => {
+            const link = document.createElement('a');
+            link.download = `shadow-signal-${strategy?.symbol?.toLowerCase()}-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    };
 
     if (isPending || !strategy) {
         return (
@@ -104,6 +122,7 @@ export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
 
     return (
     <Card
+      ref={cardRef}
       className={cn(
         'shadow-lg transition-all animate-pulse-glow',
         signalClasses.glow
@@ -171,9 +190,15 @@ export function StrategyCard({ strategy, isPending }: StrategyCardProps) {
         </Accordion>
 
       </CardContent>
-      <CardFooter className="text-xs text-muted-foreground flex gap-2 items-start">
-        <Info className="w-4 h-4 mt-0.5 shrink-0" />
-        <span>{strategy.disclaimer}</span>
+      <CardFooter className="flex justify-between items-start text-xs text-muted-foreground">
+        <div className='flex gap-2 items-start flex-1'>
+            <Info className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>{strategy.disclaimer}</span>
+        </div>
+         <Button variant="ghost" size="sm" onClick={handleSaveAsImage}>
+            <Camera />
+            Save Signal
+        </Button>
       </CardFooter>
     </Card>
   );
