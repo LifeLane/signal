@@ -172,7 +172,7 @@ export function AiNewsPage() {
 
 
   return (
-    <div className="flex flex-col h-full bg-pulse-grid flex-1">
+    <div className="flex flex-col bg-pulse-grid">
       <div className="p-4 space-y-4 bg-background z-10 border-b border-border">
          <div className="grid grid-cols-3 gap-4">
             {popularSymbols.map(({ name, symbol }) => (
