@@ -44,6 +44,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'i.insider.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'editorial.fxstreet.com',
+      },
     ],
   },
 };
