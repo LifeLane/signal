@@ -15,6 +15,8 @@ import { Separator } from '../ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Skeleton } from '../ui/skeleton';
 import { Badge } from '../ui/badge';
+import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { struct, u64 } from '@solana/buffer-layout';
 
 const CREATOR_WALLET_ADDRESS = new PublicKey(process.env.NEXT_PUBLIC_CREATOR_WALLET_ADDRESS || "38XnV4BZownmFeFrykAYhfMJvWxaZ31t4zBa96HqChEe");
 const SHADOW_MINT_ADDRESS = new PublicKey("B6XHf6ouZAy5Enq4kR3Po4CD5axn1EWc7aZKR9gmr2QR");
@@ -104,15 +106,25 @@ const subscriptionTiers: Tier[] = [
 
 const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
     try {
-        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(walletPublicKey, {
-            mint: SHADOW_MINT_ADDRESS,
-        });
+        const tokenAccounts = await connection.getTokenAccountsByOwner(
+            walletPublicKey,
+            {
+                programId: TOKEN_PROGRAM_ID,
+            }
+        );
 
-        if (tokenAccounts.value.length > 0) {
-            const accountInfo = tokenAccounts.value[0].account.data.parsed.info;
-            return accountInfo.tokenAmount.uiAmount;
+        let totalBalance = 0;
+        const AccountLayout = struct([u64('amount')]);
+
+        for (const { account } of tokenAccounts.value) {
+            const mint = new PublicKey(account.data.slice(0, 32));
+            if (mint.equals(SHADOW_MINT_ADDRESS)) {
+                const amount = AccountLayout.decode(account.data.slice(64, 72)).amount;
+                totalBalance += Number(amount) / (10 ** 6); // Adjust for decimals
+            }
         }
-        return 0;
+        return totalBalance;
+
     } catch (error) {
         console.error("Error getting SHADOW balance:", error);
         return 0;
