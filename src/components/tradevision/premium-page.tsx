@@ -106,6 +106,8 @@ const subscriptionTiers: Tier[] = [
 
 const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
     if (!walletPublicKey) {
+        // This case should ideally be caught by the check in the useEffect hook,
+        // but this provides an extra layer of safety.
         console.error("walletPublicKey is null. Cannot get SHADOW balance.");
         return 0;
     }

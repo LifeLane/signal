@@ -25,7 +25,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     const wallets = useMemo(
         () => [
             new PhantomWalletAdapter(),
-            new SolflareWalletAdapter(),
             new TorusWalletAdapter(),
         ],
         []
