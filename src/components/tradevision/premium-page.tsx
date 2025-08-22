@@ -239,8 +239,8 @@ export function PremiumPage() {
     <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar bg-pulse-grid">
         <div className="sticky top-0 z-20 space-y-4 bg-background/80 backdrop-blur-md -m-4 p-4 mb-0">
             <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]">
-                <CardHeader>
-                    <CardTitle>1. Connect Your Wallet</CardTitle>
+                <CardHeader className="items-center text-center">
+                    <CardTitle>Connect Your Wallet</CardTitle>
                     <CardDescription>
                         {connected ? "Your wallet is connected." : "Connect your Solana wallet to get started."}
                     </CardDescription>
@@ -387,6 +387,8 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
 
     
