@@ -148,7 +148,7 @@ export function AiNewsPage() {
                                 <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-base font-semibold text-foreground hover:underline">
                                     {article.title}
                                 </a>
-                                <p className="text-sm text-muted-foreground">{article.summary}</p>
+                                {article.summary && <p className="text-sm text-muted-foreground">{article.summary}</p>}
                                 <Button asChild variant="link" size="sm" className='p-0 h-auto'>
                                     <a href={article.url} target="_blank" rel="noopener noreferrer">
                                         Read Full Article <ExternalLink className='ml-1.5' />
