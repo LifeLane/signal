@@ -120,7 +120,6 @@ export default function TradeVisionPage() {
         const result = await getTradingSignalAction(input);
         const newSignal = { ...result, symbol, id: result.id };
         setSignal(newSignal);
-        setSignalHistory(prev => [newSignal, ...prev]);
       } catch (e: any) {
         toast({
           variant: 'destructive',

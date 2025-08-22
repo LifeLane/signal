@@ -10,7 +10,7 @@ import type { Symbol } from './tradevision-page';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bot, Info, Loader, Newspaper, TrendingDown, TrendingUp, MinusCircle, ExternalLink } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatRelativeTime } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { IntroLogo } from './intro-logo';
 
@@ -53,6 +53,41 @@ const popularSymbols: { name: string; symbol: string }[] = [
 ];
 
 
+
+const NewsCard = ({ title, url, summary, imageUrl }: {
+    title: string;
+    url: string;
+    summary?: string;
+    imageUrl?: string;
+}) => {
+
+    return (
+        <Card className='overflow-hidden'>
+            <CardContent className="p-4 flex gap-4 items-start">
+                <div className="relative w-24 h-24 shrink-0 rounded-md overflow-hidden">
+                    <Image
+                        src={imageUrl || `https://placehold.co/400x400.png`}
+                        alt={title}
+                        fill
+                        className="object-cover"
+                        data-ai-hint="news article"
+                    />
+                </div>
+                <div className="flex-1 space-y-1">
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="text-base font-semibold text-foreground hover:underline">
+                        {title}
+                    </a>
+                    {summary && <p className="text-sm text-muted-foreground">{summary}</p>}
+                    <Button asChild variant="link" size="sm" className='p-0 h-auto'>
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                            Read Full Article <ExternalLink className='ml-1.5' />
+                        </a>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
 export function AiNewsPage() {
   const [isPending, startTransition] = useTransition();
   const [newsSummary, setNewsSummary] = useState<GenerateNewsSummaryOutput | null>(null);
@@ -131,33 +166,7 @@ export function AiNewsPage() {
             </Card>
 
             <div className="space-y-4">
-                <h3 className="text-lg font-semibold">News Breakdown</h3>
-                {newsSummary.articleSummaries.map((article, index) => (
-                    <Card key={index} className='overflow-hidden'>
-                        <CardContent className="p-4 flex gap-4 items-start">
-                            <div className="relative w-24 h-24 shrink-0 rounded-md overflow-hidden">
-                                <Image
-                                    src={article.imageUrl || `https://placehold.co/400x400.png`}
-                                    alt={article.title}
-                                    fill
-                                    className="object-cover"
-                                    data-ai-hint="news article"
-                                />
-                            </div>
-                            <div className="flex-1 space-y-1">
-                                <a href={article.url} target="_blank" rel="noopener noreferrer" className="text-base font-semibold text-foreground hover:underline">
-                                    {article.title}
-                                </a>
-                                {article.summary && <p className="text-sm text-muted-foreground">{article.summary}</p>}
-                                <Button asChild variant="link" size="sm" className='p-0 h-auto'>
-                                    <a href={article.url} target="_blank" rel="noopener noreferrer">
-                                        Read Full Article <ExternalLink className='ml-1.5' />
-                                    </a>
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                {/* News cards were removed as requested */}
             </div>
 
             <Card className="mt-6">
