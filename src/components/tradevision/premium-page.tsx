@@ -106,8 +106,6 @@ const subscriptionTiers: Tier[] = [
 
 const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
     if (!walletPublicKey) {
-        // This case should ideally be caught by the check in the useEffect hook,
-        // but this provides an extra layer of safety.
         console.error("walletPublicKey is null. Cannot get SHADOW balance.");
         return 0;
     }
@@ -247,9 +245,9 @@ export function PremiumPage() {
 
   const renderPrice = (tier: Tier) => {
     return (
-        <div className='flex flex-col items-center text-center'>
-            <span className="text-3xl font-bold">{tier.solPrice} SOL</span>
-            <span className='text-sm text-muted-foreground'>or hold {tier.shadowPrice.toLocaleString()} SHADOW</span>
+        <div className='flex flex-col items-end'>
+            <span className="text-2xl font-bold">{tier.solPrice} SOL</span>
+            <span className='text-xs text-muted-foreground'>or hold {tier.shadowPrice.toLocaleString()}</span>
         </div>
     )
   }
@@ -263,7 +261,7 @@ export function PremiumPage() {
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar bg-pulse-grid">
-        <div className="space-y-4 bg-background/80 backdrop-blur-md -m-4 p-4 mb-0">
+        <div className="space-y-4 bg-background/80 backdrop-blur-md">
             <Card className="bg-card animate-pulse-glow [--glow-color:theme(colors.blue.500/0.7)]">
                 <CardHeader className="items-center text-center">
                     <CardTitle>Connect Your Wallet</CardTitle>
@@ -348,13 +346,17 @@ export function PremiumPage() {
                         activeSubscription === tier.name && 'ring-2 ring-green-500 border-green-500/80 shadow-lg shadow-green-500/20'
                     )}>
                         {tier.popular && !activeSubscription && <Badge className='absolute -top-3 left-1/2 -translate-x-1/2'>Most Popular</Badge>}
-                        <CardHeader className="items-center text-center">
-                            <TierIcon className="w-10 h-10 mb-2 text-primary" />
-                            <CardTitle className="text-2xl">{tier.name}</CardTitle>
-                            <CardDescription className='text-base'>{tier.hook}</CardDescription>
-                             <div className='pt-4'>
+                        <CardHeader>
+                            <div className="flex justify-between items-start w-full gap-4">
+                                <div className="flex items-center gap-3">
+                                    <TierIcon className="w-10 h-10 text-primary" />
+                                    <div>
+                                        <CardTitle className="text-2xl">{tier.name}</CardTitle>
+                                    </div>
+                                </div>
                                 {renderPrice(tier)}
                             </div>
+                            <CardDescription className='text-base text-left pt-2'>{tier.hook}</CardDescription>
                         </CardHeader>
 
                         <CardContent className="flex-1 space-y-4">
@@ -413,6 +415,8 @@ export function PremiumPage() {
     </div>
   );
 }
+    
+
     
 
     
