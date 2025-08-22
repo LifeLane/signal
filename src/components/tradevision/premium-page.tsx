@@ -105,6 +105,11 @@ const subscriptionTiers: Tier[] = [
 ]
 
 const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Promise<number> => {
+    if (!walletPublicKey) {
+        console.error("walletPublicKey is null. Cannot get SHADOW balance.");
+        return 0;
+    }
+
     try {
         const tokenAccounts = await connection.getTokenAccountsByOwner(
             walletPublicKey,
@@ -113,13 +118,11 @@ const getShadowBalance = async (connection: any, walletPublicKey: PublicKey): Pr
             }
         );
 
- if (tokenAccounts.value.length === 0) {
+        if (tokenAccounts.value.length === 0) {
             return 0; // No SHADOW token account found
         }
-
         let totalBalance = 0;
         // The balance can be in multiple token accounts, so we sum them up.
-        for (const { account } of tokenAccounts.value) {
             console.log("Processing token account:", account.pubkey.toBase58());
             const accountInfo = await connection.getParsedAccountInfo(account.pubkey);
             if(accountInfo.value && accountInfo.value.data.parsed) {
