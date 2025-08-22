@@ -81,6 +81,116 @@
     --input: 20 15% 25%;
     --ring: 35 90% 55%;
   }
+
+  .theme-quantum-neon {
+    --background: 225 25% 10%;
+    --foreground: 225 15% 95%;
+    --card: 225 25% 15%;
+    --card-foreground: 225 15% 95%;
+    --popover: 225 25% 5%;
+    --popover-foreground: 225 15% 95%;
+    --primary: 180 80% 50%;
+    --primary-foreground: 180 100% 5%;
+    --secondary: 260 60% 50%;
+    --secondary-foreground: 260 15% 95%;
+    --muted: 225 25% 20%;
+    --muted-foreground: 225 15% 65%;
+    --accent: 320 80% 60%;
+    --accent-foreground: 320 100% 5%;
+    --destructive: 340 85% 60%;
+    --destructive-foreground: 340 15% 95%;
+    --border: 225 25% 25%;
+    --input: 225 25% 25%;
+    --ring: 180 80% 50%;
+  }
+
+  .theme-abyssal-ocean {
+    --background: 200 40% 8%;
+    --foreground: 200 15% 90%;
+    --card: 200 40% 12%;
+    --card-foreground: 200 15% 90%;
+    --popover: 200 40% 4%;
+    --popover-foreground: 200 15% 90%;
+    --primary: 170 75% 45%;
+    --primary-foreground: 170 100% 5%;
+    --secondary: 210 50% 40%;
+    --secondary-foreground: 210 15% 95%;
+    --muted: 200 40% 18%;
+    --muted-foreground: 200 15% 60%;
+    --accent: 25 90% 60%;
+    --accent-foreground: 25 100% 5%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 15% 95%;
+    --border: 200 40% 22%;
+    --input: 200 40% 22%;
+    --ring: 170 75% 45%;
+  }
+  
+  .theme-synthwave-sunset {
+    --background: 270 50% 10%;
+    --foreground: 270 20% 92%;
+    --card: 270 50% 15%;
+    --card-foreground: 270 20% 92%;
+    --popover: 270 50% 5%;
+    --popover-foreground: 270 20% 92%;
+    --primary: 310 90% 65%;
+    --primary-foreground: 310 100% 10%;
+    --secondary: 240 80% 70%;
+    --secondary-foreground: 240 100% 10%;
+    --muted: 270 50% 20%;
+    --muted-foreground: 270 20% 65%;
+    --accent: 45 100% 55%;
+    --accent-foreground: 45 100% 5%;
+    --destructive: 55 100% 50%;
+    --destructive-foreground: 55 100% 98%;
+    --border: 270 50% 25%;
+    --input: 270 50% 25%;
+    --ring: 310 90% 65%;
+  }
+
+  .theme-crimson-cipher {
+    --background: 0 0% 8%;
+    --foreground: 0 0% 93%;
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 93%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 93%;
+    --primary: 350 85% 55%;
+    --primary-foreground: 350 100% 95%;
+    --secondary: 210 10% 45%;
+    --secondary-foreground: 210 10% 95%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 350 100% 75%;
+    --accent-foreground: 350 100% 10%;
+    --destructive: 350 100% 65%;
+    --destructive-foreground: 350 100% 98%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
+    --ring: 350 85% 55%;
+  }
+
+  .theme-gilded-serpent {
+      --background: 20 15% 5%;
+      --foreground: 35 25% 90%;
+      --card: 20 15% 10%;
+      --card-foreground: 35 25% 90%;
+      --popover: 20 15% 2%;
+      --popover-foreground: 35 25% 90%;
+      --primary: 40 80% 55%;
+      --primary-foreground: 40 100% 5%;
+      --secondary: 150 40% 30%;
+      --secondary-foreground: 150 15% 95%;
+      --muted: 20 15% 15%;
+      --muted-foreground: 35 25% 60%;
+      --accent: 150 60% 50%;
+      --accent-foreground: 150 100% 5%;
+      --destructive: 15 80% 50%;
+      --destructive-foreground: 15 15% 95%;
+      --border: 20 15% 20%;
+      --input: 20 15% 20%;
+      --ring: 40 80% 55%;
+  }
 }
 
 @layer base {
@@ -186,3 +296,5 @@
     animation: text-shimmer 3s linear infinite;
   }
 }
+
+    
